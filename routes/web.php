@@ -10,10 +10,21 @@ Route::inertia('/', 'welcome', [
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
+
+    // // Info Pages
+    // Route::inertia('/conoce-nl', 'info/conoce-nl')->name('info.conoce');
+    // Route::inertia('/nosotros', 'info/nosotros')->name('info.nosotros');
+
+    // Vistas Mockup
+    Route::inertia('chats', 'Chats/Index')->name('chats.index');
+    Route::inertia('map', 'TouristMap/Index')->name('map.index');
 });
 
 require __DIR__ . '/settings.php';
 
+
+Route::inertia("/conoce-nl", 'info/conoce-nl')->name('conoce-nl');
+Route::inertia("/nosotros", 'info/nosotros')->name('nosotros');
 
 
 //Pruebas

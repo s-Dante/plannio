@@ -106,8 +106,24 @@
     --color-text-light: #fff;
     --color-text-dark: #000;
 
-    --color-accent: #92aa74;
+    --color-accent: #92aaff;
     --color-extra: #d9d9d9;
+
+
+    --color-alert-success: #92aa74;
+    --color-alert-error: #e63946;
+    --color-alert-warning: #fca311;
+    --color-alert-info: #14213d;
+
+    --color-alert-success-light: #92aa74;
+    --color-alert-error-light: #e63946;
+    --color-alert-warning-light: #fca311;
+    --color-alert-info-light: #14213d;
+
+    --color-alert-success-dark: #92aa74;
+    --color-alert-error-dark: #e63946;
+    --color-alert-warning-dark: #fca311;
+    --color-alert-info-dark: #14213d;
 }
 
 .dark {
@@ -156,6 +172,21 @@
 
     --color-accent: #92aa74;
     --color-extra: #d9d9d9;
+
+    --color-alert-success: #92aa74;
+    --color-alert-error: #e63946;
+    --color-alert-warning: #fca311;
+    --color-alert-info: #14213d;
+
+    --color-alert-success-light: #92aa74;
+    --color-alert-error-light: #e63946;
+    --color-alert-warning-light: #fca311;
+    --color-alert-info-light: #14213d;
+
+    --color-alert-success-dark: #92aa74;
+    --color-alert-error-dark: #e63946;
+    --color-alert-warning-dark: #fca311;
+    --color-alert-info-dark: #14213d;
 }
 
 @layer base {

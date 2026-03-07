@@ -39,8 +39,8 @@ export default function Profile({
                 <div className="space-y-6">
                     <Heading
                         variant="small"
-                        title="Profile information"
-                        description="Update your name and email address"
+                        title="Información del Perfil"
+                        description="Actualiza tu nombre, nombre de usuario y apariencia."
                     />
 
                     <Form
@@ -48,73 +48,121 @@ export default function Profile({
                         options={{
                             preserveScroll: true,
                         }}
-                        className="space-y-6"
+                        className="space-y-8"
                     >
                         {({ processing, recentlySuccessful, errors }) => (
                             <>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="name">Name</Label>
+                                {/* Avatar & Cover Mockup Area */}
+                                <div className="space-y-4">
+                                    <Label>Apariencia del Perfil</Label>
+                                    <div className="h-32 w-full rounded-2xl bg-indigo-500 relative flex items-end p-4 border border-gray-200 dark:border-stone-800">
+                                        {/* Mock Change Cover Button */}
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            size="sm"
+                                            className="absolute top-4 right-4 bg-white/50 hover:bg-white/80 dark:bg-black/50 dark:hover:bg-black/80 backdrop-blur-sm text-xs"
+                                        >
+                                            Cambiar Portada
+                                        </Button>
 
-                                    <Input
-                                        id="name"
-                                        className="mt-1 block w-full"
-                                        defaultValue={auth.user.name}
-                                        name="name"
-                                        required
-                                        autoComplete="name"
-                                        placeholder="Full name"
-                                    />
-
-                                    <InputError
-                                        className="mt-2"
-                                        message={errors.name}
-                                    />
+                                        <div className="flex items-center gap-4 relative z-10 -mb-10">
+                                            <div className="relative group cursor-pointer">
+                                                <div className="h-20 w-20 rounded-full bg-white dark:bg-[#111214] overflow-hidden border-[3px] border-white dark:border-[#111214] shadow-sm flex items-center justify-center">
+                                                    <img src="/imgs/assets/wc-balls/1950.png" alt="Avatar" className="h-full w-full object-cover" />
+                                                </div>
+                                                <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <span className="text-white text-xs font-semibold">Editar</span>
+                                                </div>
+                                            </div>
+                                            <div className="pb-2">
+                                                <div className="text-sm font-semibold text-white drop-shadow-md">Foto de perfil</div>
+                                                <div className="text-xs text-white/80 drop-shadow-md">Haz clic para cambiar</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div className="grid gap-2">
-                                    <Label htmlFor="email">Email address</Label>
+                                <div className="pt-8 space-y-6">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="username">Nombre de Usuario (Username)</Label>
 
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        className="mt-1 block w-full"
-                                        defaultValue={auth.user.email}
-                                        name="email"
-                                        required
-                                        autoComplete="username"
-                                        placeholder="Email address"
-                                    />
+                                        <Input
+                                            id="username"
+                                            className="mt-1 block w-full"
+                                            defaultValue="@omarfer"
+                                            name="username"
+                                            required
+                                            autoComplete="username"
+                                            placeholder="@tu_usuario"
+                                        />
 
-                                    <InputError
-                                        className="mt-2"
-                                        message={errors.email}
-                                    />
+                                        <InputError
+                                            className="mt-2"
+                                            message={errors.username}
+                                        />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="name">Nombre Completo</Label>
+
+                                        <Input
+                                            id="name"
+                                            className="mt-1 block w-full"
+                                            defaultValue={auth.user.name}
+                                            name="name"
+                                            required
+                                            autoComplete="name"
+                                            placeholder="Tu nombre completo"
+                                        />
+
+                                        <InputError
+                                            className="mt-2"
+                                            message={errors.name}
+                                        />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="email">Correo Electrónico</Label>
+
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            className="mt-1 block w-full"
+                                            defaultValue={auth.user.email}
+                                            name="email"
+                                            required
+                                            autoComplete="email"
+                                            placeholder="tucorreo@ejemplo.com"
+                                        />
+
+                                        <InputError
+                                            className="mt-2"
+                                            message={errors.email}
+                                        />
+                                    </div>
                                 </div>
 
                                 {mustVerifyEmail &&
                                     auth.user.email_verified_at === null && (
                                         <div>
                                             <p className="-mt-4 text-sm text-muted-foreground">
-                                                Your email address is
-                                                unverified.{' '}
+                                                Tu correo electrónico no está verificado.{' '}
                                                 <Link
                                                     href={send()}
                                                     as="button"
                                                     className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                                                 >
-                                                    Click here to resend the
-                                                    verification email.
+                                                    Haz clic aquí para reenviar el correo de verificación.
                                                 </Link>
                                             </p>
 
                                             {status ===
                                                 'verification-link-sent' && (
-                                                <div className="mt-2 text-sm font-medium text-green-600">
-                                                    A new verification link has
-                                                    been sent to your email
-                                                    address.
-                                                </div>
-                                            )}
+                                                    <div className="mt-2 text-sm font-medium text-green-600">
+                                                        Se ha enviado un nuevo enlace de verificación a tu correo.
+                                                    </div>
+                                                )}
                                         </div>
                                     )}
 
@@ -123,7 +171,7 @@ export default function Profile({
                                         disabled={processing}
                                         data-test="update-profile-button"
                                     >
-                                        Save
+                                        Guardar Cambios
                                     </Button>
 
                                     <Transition
@@ -134,7 +182,7 @@ export default function Profile({
                                         leaveTo="opacity-0"
                                     >
                                         <p className="text-sm text-neutral-600">
-                                            Saved
+                                            Guardado
                                         </p>
                                     </Transition>
                                 </div>
