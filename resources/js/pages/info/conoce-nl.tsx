@@ -2,14 +2,12 @@ import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, MapPin, Sprout, Mountain } from 'lucide-react';
 
 const styles = {
-    // Layout
     page: "min-h-screen w-full bg-[#fdfdfd] text-[#161f27] font-sans overflow-x-hidden selection:bg-[#E07A5F] selection:text-white pb-20",
     header: "w-full max-w-7xl mx-auto px-6 py-8 flex justify-between items-center z-20 shrink-0",
     backLink: "inline-flex items-center text-[#161f27] hover:text-[#E07A5F] font-bold transition-colors",
     backIcon: "w-5 h-5 mr-2",
     main: "w-full max-w-4xl mx-auto px-6 mt-10",
 
-    // Hero
     heroContainer: "text-center mb-16",
     heroIconWrapper: "inline-flex items-center justify-center p-4 bg-[#E07A5F]/10 text-[#E07A5F] rounded-full mb-6",
     heroIcon: "w-10 h-10",
@@ -17,17 +15,14 @@ const styles = {
     heroHighlight: "text-transparent bg-clip-text bg-orange-400",
     heroSubtitle: "text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed",
 
-    // Grid Layout
     grid: "grid md:grid-cols-2 gap-8",
 
-    // Feature Cards
     card: "bg-white p-8 rounded-3xl border-2 border-gray-100 shadow-sm hover:border-[#E07A5F]/30 transition-colors",
     cardIconWrapper: "w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-6",
     cardIcon: "w-6 h-6 text-gray-700",
     cardTitle: "text-2xl font-bold mb-4",
     cardText: "text-gray-600 leading-relaxed",
 
-    // CTA Section
     ctaContainer: "mt-16 text-center",
     ctaBox: "inline-block p-8 bg-[#161f27] text-white rounded-[2.5rem] shadow-xl w-full relative overflow-hidden",
     ctaContent: "relative z-10",
@@ -41,7 +36,6 @@ export default function ConoceNL() {
         <>
             <Head title="Conoce Nuevo León" />
             <div className={styles.page}>
-                {/* Minimal Header for inner pages */}
                 <header className={styles.header}>
                     <Link href="/" className={styles.backLink}>
                         <ArrowLeft className={styles.backIcon} />
@@ -63,7 +57,6 @@ export default function ConoceNL() {
                     </div>
 
                     <div className={styles.grid}>
-                        {/* Section 1 */}
                         <div className={styles.card}>
                             <div className={styles.cardIconWrapper}>
                                 <Sprout className={styles.cardIcon} />
@@ -74,7 +67,6 @@ export default function ConoceNL() {
                             </p>
                         </div>
 
-                        {/* Section 2 */}
                         <div className={styles.card}>
                             <div className={styles.cardIconWrapper}>
                                 <MapPin className={styles.cardIcon} />

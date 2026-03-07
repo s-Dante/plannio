@@ -17,13 +17,10 @@ export default function ChatsIndex() {
             <Head title="Chats" />
 
             <div className="flex h-full w-full">
-                {/* Column 1: Conversations List */}
                 <ChatSidebar />
 
-                {/* Column 2: Active Chat Area */}
                 <ChatArea />
 
-                {/* Column 3: Active Chat Details (Tasks, Media) */}
                 <ChatDetails />
             </div>
         </AppLayout>

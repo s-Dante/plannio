@@ -2,14 +2,12 @@ import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, Users, Globe2, HeartHandshake } from 'lucide-react';
 
 const styles = {
-    // Layout
     page: "min-h-screen w-full bg-[#fdfdfd] text-[#161f27] font-sans overflow-x-hidden selection:bg-[#829965] selection:text-white pb-20",
     header: "w-full max-w-7xl mx-auto px-6 py-8 flex justify-between items-center z-20 shrink-0",
     backLink: "inline-flex items-center text-[#161f27] hover:text-[#829965] font-bold transition-colors",
     backIcon: "w-5 h-5 mr-2",
     main: "w-full max-w-4xl mx-auto px-6 mt-10",
 
-    // Hero Section
     heroContainer: "text-center mb-16",
     heroIconWrapper: "inline-flex items-center justify-center p-4 bg-[#829965]/10 text-[#829965] rounded-full mb-6",
     heroIcon: "w-10 h-10",
@@ -17,17 +15,14 @@ const styles = {
     heroHighlight: "text-transparent bg-clip-text bg-emerald-600",
     heroSubtitle: "text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed",
 
-    // Content Blocks Container
     contentBlocks: "space-y-12",
 
-    // Mission Block (Light)
     missionBlock: "flex flex-col md:flex-row gap-8 items-center bg-white p-8 md:p-12 rounded-[2.5rem] border border-gray-100 shadow-sm",
     missionIconWrapper: "w-20 h-20 shrink-0 bg-[#829965]/10 rounded-2xl flex items-center justify-center",
     missionIcon: "w-10 h-10 text-[#829965]",
     missionTitle: "text-2xl font-bold mb-3",
     missionText: "text-gray-600 leading-relaxed text-lg",
 
-    // Vision Block (Dark)
     visionBlock: "flex flex-col md:flex-row-reverse gap-8 items-center bg-[#161f27] text-white p-8 md:p-12 rounded-[2.5rem] shadow-xl relative overflow-hidden",
     visionDeco: "absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 to-transparent pointer-events-none",
     visionIconWrapper: "w-20 h-20 shrink-0 bg-white/10 rounded-2xl flex items-center justify-center relative z-10 backdrop-blur-sm",
@@ -42,7 +37,6 @@ export default function Nosotros() {
         <>
             <Head title="Sobre Nosotros - Plannio" />
             <div className={styles.page}>
-                {/* Minimal Header for inner pages */}
                 <header className={styles.header}>
                     <Link href="/" className={styles.backLink}>
                         <ArrowLeft className={styles.backIcon} />
@@ -65,7 +59,6 @@ export default function Nosotros() {
                     </div>
 
                     <div className={styles.contentBlocks}>
-                        {/* Mission */}
                         <div className={styles.missionBlock}>
                             <div className={styles.missionIconWrapper}>
                                 <Users className={styles.missionIcon} />
@@ -78,7 +71,6 @@ export default function Nosotros() {
                             </div>
                         </div>
 
-                        {/* Vision */}
                         <div className={styles.visionBlock}>
                             <div className={styles.visionDeco}></div>
                             <div className={styles.visionIconWrapper}>

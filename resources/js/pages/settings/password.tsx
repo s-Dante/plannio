@@ -12,6 +12,16 @@ import SettingsLayout from '@/layouts/settings/layout';
 import { edit } from '@/routes/user-password';
 import type { BreadcrumbItem } from '@/types';
 
+const styles = {
+    container: "space-y-6",
+    srOnlyTitle: "sr-only",
+    formBase: "space-y-6",
+    inputGroup: "grid gap-2",
+    inputField: "mt-1 block w-full",
+    actionsContainer: "flex items-center gap-4",
+    successAlertText: "text-sm text-neutral-600"
+};
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Configuración de contraseña',
@@ -27,10 +37,10 @@ export default function Password() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Configuración de contraseña" />
 
-            <h1 className="sr-only">Configuración de contraseña</h1>
+            <h1 className={styles.srOnlyTitle}>Configuración de contraseña</h1>
 
             <SettingsLayout>
-                <div className="space-y-6">
+                <div className={styles.container}>
                     <Heading
                         variant="small"
                         title="Actualizar contraseña"
@@ -57,11 +67,11 @@ export default function Password() {
                                 currentPasswordInput.current?.focus();
                             }
                         }}
-                        className="space-y-6"
+                        className={styles.formBase}
                     >
                         {({ errors, processing, recentlySuccessful }) => (
                             <>
-                                <div className="grid gap-2">
+                                <div className={styles.inputGroup}>
                                     <Label htmlFor="current_password">
                                         Contraseña actual
                                     </Label>
@@ -71,7 +81,7 @@ export default function Password() {
                                         ref={currentPasswordInput}
                                         name="current_password"
                                         type="password"
-                                        className="mt-1 block w-full"
+                                        className={styles.inputField}
                                         autoComplete="current-password"
                                         placeholder="Contraseña actual"
                                     />
@@ -81,7 +91,7 @@ export default function Password() {
                                     />
                                 </div>
 
-                                <div className="grid gap-2">
+                                <div className={styles.inputGroup}>
                                     <Label htmlFor="password">
                                         Nueva contraseña
                                     </Label>
@@ -91,7 +101,7 @@ export default function Password() {
                                         ref={passwordInput}
                                         name="password"
                                         type="password"
-                                        className="mt-1 block w-full"
+                                        className={styles.inputField}
                                         autoComplete="new-password"
                                         placeholder="Nueva contraseña"
                                     />
@@ -99,7 +109,7 @@ export default function Password() {
                                     <InputError message={errors.password} />
                                 </div>
 
-                                <div className="grid gap-2">
+                                <div className={styles.inputGroup}>
                                     <Label htmlFor="password_confirmation">
                                         Confirmar contraseña
                                     </Label>
@@ -108,7 +118,7 @@ export default function Password() {
                                         id="password_confirmation"
                                         name="password_confirmation"
                                         type="password"
-                                        className="mt-1 block w-full"
+                                        className={styles.inputField}
                                         autoComplete="new-password"
                                         placeholder="Confirmar contraseña"
                                     />
@@ -118,7 +128,7 @@ export default function Password() {
                                     />
                                 </div>
 
-                                <div className="flex items-center gap-4">
+                                <div className={styles.actionsContainer}>
                                     <Button
                                         disabled={processing}
                                         data-test="update-password-button"
@@ -133,7 +143,7 @@ export default function Password() {
                                         leave="transition ease-in-out"
                                         leaveTo="opacity-0"
                                     >
-                                        <p className="text-sm text-neutral-600">
+                                        <p className={styles.successAlertText}>
                                             Guardado
                                         </p>
                                     </Transition>

@@ -10,13 +10,10 @@ const breadcrumbs = [
 ];
 
 const styles = {
-    // Map Layout
     container: "relative w-full h-full overflow-hidden bg-[#e5e3df] dark:bg-stone-900",
 
-    // Fake Map Background
     mapBackground: "absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000",
 
-    // Sidebar Overlay
     sidebarOverlay: "absolute inset-y-0 left-0 p-4 lg:p-6 w-full md:w-96 lg:w-[420px] z-20 pointer-events-none",
     sidebarPointerEventsAuto: "w-full h-full pointer-events-auto",
 };
@@ -27,10 +24,6 @@ export default function MapIndex() {
             <Head title="Explorar Monterrey" />
 
             <div className={styles.container}>
-                {/* 
-                  Full Screen Map Background Placeholder.
-                  This simulates MapLibre/MapBox loaded behind the UI elements.
-                */}
                 <div
                     className={styles.mapBackground}
                     style={{
@@ -39,7 +32,6 @@ export default function MapIndex() {
                     }}
                 />
 
-                {/* Main Overlay UI (Sidebar) */}
                 <div className={styles.sidebarOverlay}>
                     <div className={styles.sidebarPointerEventsAuto}>
                         <MapSidebar />

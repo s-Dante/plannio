@@ -6,6 +6,11 @@ import SettingsLayout from '@/layouts/settings/layout';
 import { edit as editAppearance } from '@/routes/appearance';
 import type { BreadcrumbItem } from '@/types';
 
+const styles = {
+    container: "space-y-6",
+    srOnlyTitle: "sr-only"
+};
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Configuración de aspecto',
@@ -18,10 +23,10 @@ export default function Appearance() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Configuración de aspecto" />
 
-            <h1 className="sr-only">Configuración de aspecto</h1>
+            <h1 className={styles.srOnlyTitle}>Configuración de aspecto</h1>
 
             <SettingsLayout>
-                <div className="space-y-6">
+                <div className={styles.container}>
                     <Heading
                         variant="small"
                         title="Aspecto Visual"
