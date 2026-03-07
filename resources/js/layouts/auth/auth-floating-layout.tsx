@@ -5,17 +5,18 @@ import type { AuthLayoutProps } from '@/types';
 export default function AuthFloatingLayout({
     children,
     title,
+    imageSrc,
 }: AuthLayoutProps) {
     return (
         <div className="flex h-screen w-full items-center justify-center bg-[var(--color-primary)] p-4 font-sans selection:bg-[var(--color-accent)] selection:text-white">
             {/* The main floating card container matching AppFloatingLayout */}
             <div className="flex w-full h-full max-h-[850px] max-w-[1400px] overflow-hidden rounded-[2.5rem] bg-[#f0f1f3] shadow-[0px_10px_40px_rgba(0,0,0,0.1)] ring-1 ring-gray-950/5 relative">
 
-                {/* Left Side: Image Map/Maze */}
-                <div className="hidden lg:flex w-5/12 p-3">
+                {/* Left Side: Dynamic Image Map/Maze (Modified to 50% width) */}
+                <div className="hidden lg:flex w-1/2 p-3">
                     <div className="w-full h-full rounded-[2rem] overflow-hidden relative shadow-inner">
                         <img
-                            src="/imgs/auth/auth1.JPG"
+                            src={imageSrc || "/imgs/auth/auth1.JPG"}
                             alt="Auth Cover"
                             className="w-full h-full object-cover"
                             onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1618365908648-e71bd5716cba?auto=format&fit=crop&q=80'; }}

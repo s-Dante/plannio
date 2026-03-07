@@ -16,7 +16,6 @@ const styles = {
     heroTitle: "text-5xl md:text-6xl lg:text-[5rem] font-bold tracking-tight text-[var(--color-sisth)] leading-[1.15]",
     heroHighlightWrapper: "relative inline-block px-4 py-1 mx-1 mt-2",
     heroHighlightBox: "absolute inset-0 bg-[var(--color-accent)]/70 rounded-sm",
-    heroCornerDot: "",
     heroHighlightText: "relative z-10 text-[var(--color-sisth)] drop-shadow-sm font-bold",
 
     // Action Bar (Pill)
@@ -86,10 +85,6 @@ export default function Welcome({ auth }: { auth?: { user: any } }) {
                             Experimenta el{' '}
                             <span className={styles.heroHighlightWrapper}>
                                 <div className={styles.heroHighlightBox}></div>
-                                <div className={`${styles.heroCornerDot} -top-1.5 -left-1.5`}></div>
-                                <div className={`${styles.heroCornerDot} -top-1.5 -right-1.5`}></div>
-                                <div className={`${styles.heroCornerDot} -bottom-1.5 -left-1.5`}></div>
-                                <div className={`${styles.heroCornerDot} -bottom-1.5 -right-1.5`}></div>
                                 <span className={styles.heroHighlightText}>mundial</span>
                             </span>{' '}
                             <br className="hidden md:block" />

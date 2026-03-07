@@ -9,7 +9,7 @@ import { store } from '@/routes/register';
 
 export default function Register() {
     return (
-        <AuthLayout title="Crear una cuenta">
+        <AuthLayout title="Crear una cuenta" imageSrc="/imgs/auth/Img_2.avif">
             <Head title="Registro" />
 
             <div className="text-center mb-8">
@@ -57,7 +57,7 @@ export default function Register() {
 
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <Input id="birth_year" type="number" min="1900" max={new Date().getFullYear()} required tabIndex={6} name="birth_year" placeholder="Año Nac."
+                                <Input id="birth_date" type="date" max={new Date().toISOString().split("T")[0]} required tabIndex={6} name="birth_date" placeholder="dd/mm/aaaa"
                                     className="h-11 rounded-full border-0 bg-[#d9dfe5]/70 focus-visible:ring-1 focus-visible:ring-[var(--color-accent)] shadow-inner px-5 text-sm placeholder:text-[var(--color-sisth)]/60 text-[var(--color-sisth)]" />
                             </div>
                             <div>

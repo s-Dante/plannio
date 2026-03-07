@@ -49,6 +49,7 @@ export default function TwoFactorChallenge() {
         <AuthLayout
             title={authConfigContent.title}
             description={authConfigContent.description}
+            imageSrc="/imgs/auth/Img_7.jpg"
         >
             <Head title="Two-factor authentication" />
 

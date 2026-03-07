@@ -9,7 +9,7 @@ import { email } from '@/routes/password';
 
 export default function ForgotPassword({ status }: { status?: string }) {
     return (
-        <AuthLayout title="Recuperar contraseña">
+        <AuthLayout title="Recuperar contraseña" imageSrc="/imgs/auth/Img_3.jpg">
             <Head title="Recuperar contraseña" />
 
             <div className="text-center mb-8">

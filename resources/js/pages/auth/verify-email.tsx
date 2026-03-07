@@ -12,6 +12,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
         <AuthLayout
             title="Verify email"
             description="Please verify your email address by clicking on the link we just emailed to you."
+            imageSrc="/imgs/auth/Img_6.jpg"
         >
             <Head title="Email verification" />
 

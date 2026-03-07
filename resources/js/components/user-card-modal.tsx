@@ -58,7 +58,8 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
     return (
         <div
             ref={modalRef}
-            className="absolute left-[85px] md:left-[96px] top-[140px] z-[9999] w-72 md:w-80 overflow-hidden rounded-2xl shadow-2xl bg-white dark:bg-[#111214] border border-gray-200 dark:border-stone-800 animate-in fade-in slide-in-from-left-4 duration-200"
+            // MODIFICADO: Subido a top-[90px] y hecho más angosto (w-64 md:w-72)
+            className="absolute left-[85px] md:left-[96px] top-[90px] z-[9999] w-64 md:w-72 overflow-hidden rounded-2xl shadow-2xl bg-white dark:bg-[#111214] border border-gray-200 dark:border-stone-800 animate-in fade-in slide-in-from-left-4 duration-200"
         >
             {/* Cover Image/Color Area */}
             <div className={`h-24 w-full relative ${MOCK_USER.coverColor}`}>
@@ -81,7 +82,8 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
                                 <span className="sr-only">Cambiar tema</span>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-xl mt-1 z-[10000]">
+                        {/* Se agrega onPointerDownCapture para evitar que el click outside cierre el modal padre */}
+                        <DropdownMenuContent align="end" className="rounded-xl mt-1 z-[10000]" onPointerDownCapture={(e) => e.stopPropagation()}>
                             <DropdownMenuItem onClick={() => setTheme('light')} className="cursor-pointer rounded-lg text-sm">
                                 <Sun className="mr-2 h-4 w-4" />
                                 <span>Claro</span>

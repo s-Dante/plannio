@@ -13,7 +13,7 @@ type Props = {
 
 export default function ResetPassword({ token, email }: Props) {
     return (
-        <AuthLayout title="Restablecer contraseña">
+        <AuthLayout title="Restablecer contraseña" imageSrc="/imgs/auth/Img_4.jpg">
             <Head title="Restablecer contraseña" />
 
             <div className="text-center mb-8">

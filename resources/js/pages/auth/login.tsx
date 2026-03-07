@@ -20,7 +20,7 @@ export default function Login({
     canRegister,
 }: Props) {
     return (
-        <AuthLayout title="Log in to your account">
+        <AuthLayout title="Log in to your account" imageSrc="/imgs/auth/Img_5.jpg">
             <Head title="Log in" />
 
             {/* Social Logins */}
