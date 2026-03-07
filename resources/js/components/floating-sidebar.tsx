@@ -19,6 +19,32 @@ import { useState } from 'react';
 import { UserCardModal } from './user-card-modal';
 import { RewardsModal } from './rewards-modal';
 
+const styles = {
+    // Layout
+    sidebarBase: "flex w-16 md:w-20 flex-col items-center justify-between border-r border-gray-200 dark:border-stone-800 bg-gray-100/80 dark:bg-stone-900/80 py-6",
+    topSection: "flex flex-col items-center gap-6",
+
+    // Logo Area
+    logoContainer: "h-12 w-12 flex items-center justify-center transition-transform hover:scale-105",
+    logoImageLight: "w-full h-full object-contain dark:hidden",
+    logoImageDark: "w-full h-full object-contain hidden dark:block",
+
+    // Navigation
+    navContainer: "flex flex-col items-center gap-4 mt-4",
+    linkBase: "relative flex h-12 w-12 items-center justify-center rounded-2xl transition-all cursor-pointer",
+    linkActive: "bg-white shadow-sm dark:bg-stone-800 text-primary",
+    linkInactive: "text-gray-500 hover:bg-gray-200/50 dark:text-gray-400 dark:hover:bg-stone-800/50",
+    activeIndicator: "absolute left-0 top-1/2 -mt-3 h-6 w-1 rounded-r-full bg-primary",
+    iconSize: "h-6 w-6",
+
+    // Bottom Actions
+    bottomSection: "flex flex-col items-center",
+    logoutButton: "flex h-12 w-12 items-center justify-center rounded-2xl text-gray-500 hover:bg-red-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors",
+    logoutIcon: "h-6 w-6 ml-1",
+    tooltipLogout: "font-semibold text-red-500",
+    tooltipRegular: "font-semibold"
+};
+
 export function FloatingSidebar() {
     const { url } = usePage();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -28,7 +54,7 @@ export function FloatingSidebar() {
         { name: 'Perfil', icon: User, href: '#', isModal: true, modalType: 'profile' },
         { name: 'Mapa', icon: Map, href: '/map' },
         { name: 'Chats', icon: MessageSquare, href: '/chats' },
-        { name: 'Tareas', icon: ClipboardList, href: '/tasks' },
+        //{ name: 'Tareas', icon: ClipboardList, href: '/tasks' },
         { name: 'Recompensas', icon: Gift, href: '#', isModal: true, modalType: 'rewards' },
     ];
 
@@ -38,15 +64,16 @@ export function FloatingSidebar() {
     };
 
     return (
-        <aside className="flex w-16 md:w-20 flex-col items-center justify-between border-r border-gray-200 dark:border-stone-800 bg-gray-100/80 dark:bg-stone-900/80 py-6">
-            <div className="flex flex-col items-center gap-6">
-                {/* Logo or Main App Icon Placeholder */}
-                <div className="h-10 w-10 rounded-xl bg-primary shadow-sm flex items-center justify-center text-primary-foreground font-bold text-xl">
-                    P
-                </div>
+        <aside className={styles.sidebarBase}>
+            <div className={styles.topSection}>
+                {/* Logo with Light/Dark support */}
+                <Link href="/" className={styles.logoContainer}>
+                    <img src="/imgs/logos/Pin_Black_new.PNG" alt="Plannio Icon" className={styles.logoImageLight} />
+                    <img src="/imgs/logos/Pin_White_new.PNG" alt="Plannio Icon" className={styles.logoImageDark} />
+                </Link>
 
                 <TooltipProvider delayDuration={0}>
-                    <nav className="flex flex-col items-center gap-4 mt-4">
+                    <nav className={styles.navContainer}>
                         {navItems.map((item) => {
                             let isActive = false;
 
@@ -60,16 +87,13 @@ export function FloatingSidebar() {
                                 <>
                                     {/* Active indicator bar */}
                                     {isActive && (
-                                        <span className="absolute left-0 top-1/2 -mt-3 h-6 w-1 rounded-r-full bg-primary" />
+                                        <span className={styles.activeIndicator} />
                                     )}
-                                    <item.icon className="h-6 w-6" />
+                                    <item.icon className={styles.iconSize} />
                                 </>
                             );
 
-                            const linkClasses = `relative flex h-12 w-12 items-center justify-center rounded-2xl transition-all cursor-pointer ${isActive
-                                ? 'bg-white shadow-sm dark:bg-stone-800 text-primary'
-                                : 'text-gray-500 hover:bg-gray-200/50 dark:text-gray-400 dark:hover:bg-stone-800/50'
-                                }`;
+                            const linkClasses = `${styles.linkBase} ${isActive ? styles.linkActive : styles.linkInactive}`;
 
                             return (
                                 <Tooltip key={item.name}>
@@ -90,7 +114,7 @@ export function FloatingSidebar() {
                                             </Link>
                                         )}
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" className="font-semibold">
+                                    <TooltipContent side="right" className={styles.tooltipRegular}>
                                         {item.name}
                                     </TooltipContent>
                                 </Tooltip>
@@ -105,7 +129,7 @@ export function FloatingSidebar() {
             <RewardsModal isOpen={isRewardsOpen} onClose={() => setIsRewardsOpen(false)} />
 
             {/* Bottom Actions (Logout) */}
-            <div className="flex flex-col items-center">
+            <div className={styles.bottomSection}>
                 <TooltipProvider delayDuration={0}>
                     <Tooltip>
                         <TooltipTrigger asChild>
@@ -113,12 +137,12 @@ export function FloatingSidebar() {
                                 href="/logout"
                                 method="post"
                                 as="button"
-                                className="flex h-12 w-12 items-center justify-center rounded-2xl text-gray-500 hover:bg-red-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors"
+                                className={styles.logoutButton}
                             >
-                                <LogOut className="h-6 w-6 ml-1" />
+                                <LogOut className={styles.logoutIcon} />
                             </Link>
                         </TooltipTrigger>
-                        <TooltipContent side="right" className="font-semibold text-red-500">
+                        <TooltipContent side="right" className={styles.tooltipLogout}>
                             Salir
                         </TooltipContent>
                     </Tooltip>

@@ -14,7 +14,7 @@ const styles = {
     heroIconWrapper: "inline-flex items-center justify-center p-4 bg-[#829965]/10 text-[#829965] rounded-full mb-6",
     heroIcon: "w-10 h-10",
     heroTitle: "text-5xl md:text-6xl font-bold tracking-tight leading-tight mb-6",
-    heroHighlight: "text-transparent bg-clip-text bg-gradient-to-r from-[#829965] to-emerald-600",
+    heroHighlight: "text-transparent bg-clip-text bg-emerald-600",
     heroSubtitle: "text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed",
 
     // Content Blocks Container
@@ -73,7 +73,7 @@ export default function Nosotros() {
                             <div>
                                 <h2 className={styles.missionTitle}>Nuestra Misión</h2>
                                 <p className={styles.missionText}>
-                                    Queremos conectar a los turistas y locales de manera significativa. Plannio es la plataforma que te permite organizar grupos, descubrir rincones ocultos de la ciudad guiado por quienes mejor la conocen, y asegurar que tu experiencia mundialista en Monterrey sea segura, organizada e inolvidable.
+                                    Queremos conectar a los turistas y locales de manera significativa. Plannio es la plataforma que te permite organizar grupos, descubrir rincones ocultos de la ciudad acompañado por otros aficionados, y asegurar que tu experiencia mundialista en Monterrey sea segura, organizada e inolvidable.
                                 </p>
                             </div>
                         </div>
@@ -87,7 +87,7 @@ export default function Nosotros() {
                             <div className={styles.visionContent}>
                                 <h2 className={styles.visionTitle}>¿Por qué usar Plannio?</h2>
                                 <p className={styles.visionText}>
-                                    Sabemos que viajar a un evento masivo puede ser caótico. Con Plannio, superamos las barreras del idioma y la logística. Encuentra a personas con tus mismos intereses, comparte transporte, organiza salidas a restaurantes y vive el fútbol como nunca antes, en comunidad.
+                                    Sabemos que viajar a un evento masivo puede ser caótico. Con Plannio, superamos las barreras del idioma y la logística. Encuentra a personas con tus mismos intereses, organiza salidas a lugares de interés y vive el fútbol como nunca antes, en comunidad.
                                 </p>
                             </div>
                         </div>

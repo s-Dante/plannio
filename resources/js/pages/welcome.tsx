@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { Map, Users, CheckSquare, ArrowRight, MapPin, MessageCircle, Calendar } from 'lucide-react';
+import { Map, Users, Leaf, ArrowRight, MapPin, MessageCircle, Calendar } from 'lucide-react';
 
 const styles = {
     // Layout & Base
@@ -15,15 +15,15 @@ const styles = {
     heroContainer: "text-center w-full max-w-4xl mx-auto mb-10",
     heroTitle: "text-5xl md:text-6xl lg:text-[5rem] font-bold tracking-tight text-[var(--color-sisth)] leading-[1.15]",
     heroHighlightWrapper: "relative inline-block px-4 py-1 mx-1 mt-2",
-    heroHighlightBox: "absolute inset-0 bg-[var(--color-accent)]/30 border-[3px] border-[var(--color-accent)] border-dashed rounded-lg",
-    heroCornerDot: "absolute w-3 h-3 rounded-full bg-[var(--color-accent)]",
+    heroHighlightBox: "absolute inset-0 bg-[var(--color-accent)]/70 rounded-sm",
+    heroCornerDot: "",
     heroHighlightText: "relative z-10 text-[var(--color-sisth)] drop-shadow-sm font-bold",
 
     // Action Bar (Pill)
     actionBar: "flex flex-wrap items-center justify-center gap-2 md:gap-4 bg-[var(--color-primary)] border-2 border-[var(--color-sisth)] rounded-full p-2 mb-20 shadow-[4px_4px_0px_#161f27]",
     actionItem: "flex items-center gap-2 px-3 lg:px-4 py-2 text-xs md:text-sm font-bold text-[var(--color-sisth)]/80",
     actionDivider: "hidden sm:block w-px h-6 bg-[var(--color-sisth)]/20",
-    actionLink: "ml-1 md:ml-4 inline-flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-[var(--color-primary)] text-[var(--color-sisth)] font-bold hover:bg-gray-100 border-2 border-transparent transition-all",
+    actionText: "ml-1 md:ml-4 inline-flex items-center justify-center gap-2 h-10 px-6 text-[var(--color-sisth)] font-bold uppercase tracking-wider text-xs md:text-sm",
 
     // Cards Section
     cardsContainer: "relative w-full max-w-[1000px] h-[350px] md:h-[400px] flex justify-center items-end pb-10",
@@ -38,23 +38,17 @@ const styles = {
     leftCard: "absolute left-0 md:left-8 bottom-6 w-64 md:w-72 h-[280px] md:h-[320px] bg-white rounded-[2rem] p-6 transform -rotate-[4deg] z-10 hover:-translate-y-4 hover:-rotate-[2deg] group",
     leftCardTitle: "text-xl md:text-2xl mb-4",
     leftCardDecoMain: "w-32 h-32 bg-[var(--color-accent)]/10 group-hover:bg-[var(--color-accent)]/20",
-    leftCardDeco1: "absolute top-2 right-4 w-4 h-4 border-2 border-[var(--color-sisth)] rounded-full",
-    leftCardDeco2: "absolute bottom-6 left-6 w-3 h-3 bg-[var(--color-accent)] rounded-full",
 
     centerCard: "z-20 w-72 md:w-80 h-[320px] md:h-[360px] bg-white rounded-[2.5rem] p-6 md:p-8 shadow-[12px_12px_0px_#161f27] -translate-y-[20px] md:-translate-y-[30px] hover:-translate-y-[40px] group",
     centerCardTitle: "text-2xl md:text-[1.75rem] mb-6",
     centerCardDecoMain: "w-40 h-40 bg-[#e07a5f]/10 group-hover:bg-[#e07a5f]/20",
-    centerCardDeco1: "absolute top-6 left-2 w-6 h-2 bg-[var(--color-accent)] rounded-full -rotate-45",
-    centerCardDeco2: "absolute bottom-10 right-2 text-2xl md:text-3xl",
 
     rightCard: "absolute right-0 md:right-8 bottom-4 w-64 md:w-72 h-[280px] md:h-[320px] bg-[#fdfdfd] rounded-[2rem] p-6 transform rotate-[4deg] z-10 hover:-translate-y-4 hover:rotate-[2deg] group",
     rightCardTitle: "text-xl md:text-2xl mb-4",
     rightCardDecoMain: "w-32 h-32 bg-[var(--color-secundary)]/10 group-hover:bg-[var(--color-secundary)]/20",
-    rightCardDeco1: "absolute top-8 left-8 w-4 h-4 border-2 border-[var(--color-sisth)] rounded-sm rotate-12",
-    rightCardDeco2: "absolute bottom-4 right-8 w-8 h-1 bg-[var(--color-sisth)] rounded-full rotate-45",
 };
 
-export default function Welcome() {
+export default function Welcome({ auth }: { auth?: { user: any } }) {
     return (
         <>
             <Head title="Bienvenido a Plannio" />
@@ -77,7 +71,7 @@ export default function Welcome() {
                     </nav>
 
                     <div>
-                        <Link href="/login" className={styles.navButton}>
+                        <Link href={auth?.user ? "/chats" : "/login"} className={styles.navButton}>
                             Explora ya
                         </Link>
                     </div>
@@ -114,12 +108,12 @@ export default function Welcome() {
                         </div>
                         <div className={styles.actionDivider}></div>
                         <div className={styles.actionItem}>
-                            <Calendar className="w-4 h-4" /> Organiza tu viaje
+                            <Calendar className="w-4 h-4" /> Organiza planes
                         </div>
 
-                        <Link href="/conoce-nl" className={styles.actionLink}>
-                            Sigue explorando <ArrowRight className="w-4 h-4" />
-                        </Link>
+                        <span className={styles.actionText}>
+                            plannio <ArrowRight className="w-4 h-4" />
+                        </span>
                     </div>
 
                     {/* Cards Section */}
@@ -127,40 +121,34 @@ export default function Welcome() {
 
                         {/* Left Card */}
                         <div className={`${styles.cardBase} ${styles.leftCard}`}>
-                            <span className={styles.cardSubtitle}>Solo necesitas 1 App</span>
-                            <h3 className={`${styles.cardTitleBase} ${styles.leftCardTitle}`}>Accede a lugares<br />increíbles</h3>
+                            <span className={styles.cardSubtitle}>Solo necesitas Plannio</span>
+                            <h3 className={`${styles.cardTitleBase} ${styles.leftCardTitle}`}>Descubre lugares<br />increíbles</h3>
 
                             <div className={styles.cardImageWrapper}>
                                 <div className={`${styles.cardDecorationLayer} ${styles.leftCardDecoMain}`}></div>
                                 <Map className={`${styles.cardIcon} w-20 md:w-28 h-20 md:h-28`} strokeWidth={1} />
-                                <div className={styles.leftCardDeco1}></div>
-                                <div className={styles.leftCardDeco2}></div>
                             </div>
                         </div>
 
                         {/* Center Card */}
                         <div className={`${styles.cardBase} ${styles.centerCard}`}>
-                            <span className={styles.cardSubtitle}>Solo necesitas 1 App</span>
-                            <h3 className={`${styles.cardTitleBase} ${styles.centerCardTitle}`}>Conecta rápido<br />con la afición</h3>
+                            <span className={styles.cardSubtitle}>Solo necesitas Plannio</span>
+                            <h3 className={`${styles.cardTitleBase} ${styles.centerCardTitle}`}>Conecta con<br />otros fans</h3>
 
                             <div className={styles.cardImageWrapper}>
                                 <div className={`${styles.cardDecorationLayer} ${styles.centerCardDecoMain}`}></div>
                                 <Users className={`${styles.cardIcon} w-24 md:w-32 h-24 md:h-32`} strokeWidth={1} />
-                                <div className={styles.centerCardDeco1}></div>
-                                <div className={styles.centerCardDeco2}>💬</div>
                             </div>
                         </div>
 
                         {/* Right Card */}
                         <div className={`${styles.cardBase} ${styles.rightCard}`}>
-                            <span className={styles.cardSubtitle}>Solo necesitas 1 App</span>
-                            <h3 className={`${styles.cardTitleBase} ${styles.rightCardTitle}`}>Organiza tu red,<br />siempre seguro</h3>
+                            <span className={styles.cardSubtitle}>Solo necesitas Plannio</span>
+                            <h3 className={`${styles.cardTitleBase} ${styles.rightCardTitle}`}>Vive la experiencia<br />mundialera</h3>
 
                             <div className={styles.cardImageWrapper}>
                                 <div className={`${styles.cardDecorationLayer} ${styles.rightCardDecoMain}`}></div>
-                                <CheckSquare className={`${styles.cardIcon} w-20 md:w-28 h-20 md:h-28`} strokeWidth={1} />
-                                <div className={styles.rightCardDeco1}></div>
-                                <div className={styles.rightCardDeco2}></div>
+                                <Leaf className={`${styles.cardIcon} w-20 md:w-28 h-20 md:h-28`} strokeWidth={1} />
                             </div>
                         </div>
 

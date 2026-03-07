@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, MapPin, Mountain } from 'lucide-react';
+import { ArrowLeft, MapPin, Sprout, Mountain } from 'lucide-react';
 
 const styles = {
     // Layout
@@ -14,7 +14,7 @@ const styles = {
     heroIconWrapper: "inline-flex items-center justify-center p-4 bg-[#E07A5F]/10 text-[#E07A5F] rounded-full mb-6",
     heroIcon: "w-10 h-10",
     heroTitle: "text-5xl md:text-6xl font-bold tracking-tight leading-tight mb-6",
-    heroHighlight: "text-transparent bg-clip-text bg-gradient-to-r from-[#E07A5F] to-orange-400",
+    heroHighlight: "text-transparent bg-clip-text bg-orange-400",
     heroSubtitle: "text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed",
 
     // Grid Layout
@@ -34,10 +34,6 @@ const styles = {
     ctaTitle: "text-2xl font-bold mb-4",
     ctaSubtitle: "mb-6 text-gray-300",
     ctaButton: "inline-flex h-12 items-center justify-center rounded-full bg-white px-8 font-bold text-[#161f27] hover:bg-gray-100 transition-all",
-
-    // Background decorations
-    deco1: "absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20",
-    deco2: "absolute bottom-0 left-0 w-40 h-40 bg-[#E07A5F]/20 rounded-full blur-2xl -ml-10 -mb-10",
 };
 
 export default function ConoceNL() {
@@ -59,10 +55,10 @@ export default function ConoceNL() {
                             <Mountain className={styles.heroIcon} />
                         </div>
                         <h1 className={styles.heroTitle}>
-                            Descubre la majestuosidad de <span className={styles.heroHighlight}>Nuevo León</span>
+                            Descubre la ciudad de <br></br><span className={styles.heroHighlight}>Nuevo León</span>
                         </h1>
                         <p className={styles.heroSubtitle}>
-                            Más allá del mundial, Nuevo León ofrece una mezcla única de naturaleza imponente, gastronomía incomparable y una cultura vibrante.
+                            Más allá del mundial, Nuevo León ofrece una mezcla única de naturaleza, gastronomía y una cultura de gente trabajadora y hospitalaria.
                         </p>
                     </div>
 
@@ -70,11 +66,11 @@ export default function ConoceNL() {
                         {/* Section 1 */}
                         <div className={styles.card}>
                             <div className={styles.cardIconWrapper}>
-                                <Mountain className={styles.cardIcon} />
+                                <Sprout className={styles.cardIcon} />
                             </div>
                             <h2 className={styles.cardTitle}>Naturaleza Extraordinaria</h2>
                             <p className={styles.cardText}>
-                                Explora las montañas icónicas como el Cerro de la Silla, aventúrate en la Huasteca, o refréscate en las cascadas de Cola de Caballo. El ecoturismo aquí es de clase mundial.
+                                Explora las montañas icónicas como el Cerro de la Silla, aventúrate en la Huasteca, adentrate en las Grutas de García, o refréscate en las cascadas de Cola de Caballo.
                             </p>
                         </div>
 
@@ -83,9 +79,9 @@ export default function ConoceNL() {
                             <div className={styles.cardIconWrapper}>
                                 <MapPin className={styles.cardIcon} />
                             </div>
-                            <h2 className={styles.cardTitle}>Metrópolis Vibrante</h2>
+                            <h2 className={styles.cardTitle}>Ciudad Única</h2>
                             <p className={styles.cardText}>
-                                Monterrey no solo es la capital industrial de México. Disfruta de museos contemporáneos, el Paseo Santa Lucía, Barrio Antiguo y una escena cervecera y gastronómica en constante evolución.
+                                Monterrey no solo es la capital industrial de México. Disfruta de museos contemporáneos, el Paseo Santa Lucía, Barrio Antiguo asi como de una gastronomía única y un estilo músical nacido de la polka.
                             </p>
                         </div>
                     </div>
@@ -99,9 +95,6 @@ export default function ConoceNL() {
                                     Crear mi cuenta
                                 </Link>
                             </div>
-                            {/* Decorative background shapes */}
-                            <div className={styles.deco1}></div>
-                            <div className={styles.deco2}></div>
                         </div>
                     </div>
                 </main>
