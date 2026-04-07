@@ -4,20 +4,13 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\CallParticipant>
- */
 class CallParticipantFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            //
+            'joined_at' => fake()->dateTimeBetween('-1 month', '-1 day'),
+            'left_at' => fake()->optional(0.8)->dateTimeBetween('-1 day', 'now'),
         ];
     }
 }

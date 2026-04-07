@@ -6,25 +6,17 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
     protected static ?string $password;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'name' => fake()->firstName(),
+            'father_lastname' => fake()->lastName(),
+            'mother_lastname' => fake()->lastName(),
+            'username' => fake()->unique()->userName(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
@@ -32,12 +24,18 @@ class UserFactory extends Factory
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
+            'avatar' => fake()->imageUrl(200, 200, 'people', true),
+            'caption' => fake()->sentence(3),
+            'feeling_status' => fake()->randomElement(['happy', 'sad', 'excited', 'tired']),
+            'accent_color' => fake()->hexColor(),
+            'birthdate' => fake()->dateTimeBetween('-40 years', '-18 years')->format('Y-m-d'),
+            'country' => fake()->countryCode(),
+            'is_online' => fake()->boolean(20),
+            'last_seen_at' => fake()->dateTimeBetween('-1 week', 'now'),
+            'points' => fake()->numberBetween(0, 5000),
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -45,9 +43,6 @@ class UserFactory extends Factory
         ]);
     }
 
-    /**
-     * Indicate that the model has two-factor authentication configured.
-     */
     public function withTwoFactor(): static
     {
         return $this->state(fn (array $attributes) => [
