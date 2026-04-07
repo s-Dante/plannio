@@ -87,9 +87,9 @@ Funcionalidades por hacer
 ❌              -> Funcionalidad para ver como se deben de gestionar las tareas
                 para marcar que se finalizaron
 ❌  -> Lugares
-❌      -> Funcion de que el usuario pueda añadir lugares interesantes para el
-❌      -> Funcion de rating a cada lugar
-❌      -> Funcion de que el mapa permita visualizar donde se encuentra el lugar
+✅      -> Funcion de que el usuario pueda añadir lugares interesantes para el
+⚠️      -> Funcion de rating a cada lugar
+✅      -> Funcion de que el mapa permita visualizar donde se encuentra el lugar
 ❌  -> Recompenzas
 ❌      -> Sistema para ganar las recompenzas 
 ❌      -> Sistema de visualizacion de recompenzas

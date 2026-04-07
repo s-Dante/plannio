@@ -12,7 +12,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
     Route::inertia('chats', 'Chats/Index')->name('chats.index');
-    Route::inertia('map', 'TouristMap/Index')->name('map.index');
+    
+    // Map Endpoints
+    Route::get('map', [App\Http\Controllers\TouristMapController::class, 'index'])->name('map.index');
+    Route::post('map/places', [App\Http\Controllers\TouristMapController::class, 'store'])->name('map.places.store');
+    Route::post('map/places/{place}/rate', [App\Http\Controllers\TouristMapController::class, 'rate'])->name('map.places.rate');
 });
 
 require __DIR__ . '/settings.php';

@@ -70,8 +70,8 @@ class Place extends Model
 
     protected function recalculateRating()
     {
-        $this->average_rating = $this->ratings()->avg('rating');
-        $this->total_ratings = $this->ratings()->count();
+        $this->average_rating = $this->ratings()->avg('rating') ?? 0;
+        $this->ratings_count = $this->ratings()->count();
         $this->save();
     }
 

@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // 3. Create Places
+        $this->call(PlaceSeeder::class);
         $places = Place::factory(20)->create(function () use ($users) {
             return ['created_by' => $users->random()->id];
         });
