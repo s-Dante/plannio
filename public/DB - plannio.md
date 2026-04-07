@@ -58,16 +58,16 @@ chores
 
 Funcionalidades por hacer
 ✅  -> Landing Page
-⚠️  -> Auth
+⚠️  -> Auth ✅
 ✅      -> login
-⚠️      -> register (seleccionar pais con json de paises, validacion de la edad,
-                    validacion de contraseña, cambiar data input por uno de shadcn)
+✅      -> register (seleccionar pais con json de paises, validacion de la edad,
+                    validacion de contraseña, cambiar date input por uno de shadcn)
 ✅      -> changePswd
 ❌      -> APIs Sociales
 ❌          -> funcion de registro y signin con google, fb, gh
 ⚠️  -> Perfil
 ⚠️      -> Modal: que funcione el toggle light mode
-❌      -> Funcion de edicion de datos personales
+✅      -> Funcion de edicion de datos personales
 ✅      -> Funcion de cambio de contraseña
 ✅      -> Funcion de toggle light mode
 ❌  -> Chats
@@ -93,7 +93,3 @@ Funcionalidades por hacer
 ❌  -> Recompenzas
 ❌      -> Sistema para ganar las recompenzas 
 ❌      -> Sistema de visualizacion de recompenzas
-
-
-❌
-⚠️

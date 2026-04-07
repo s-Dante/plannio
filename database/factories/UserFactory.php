@@ -12,6 +12,9 @@ class UserFactory extends Factory
 
     public function definition(): array
     {
+        $balls = [1930, 1934, 1938, 1950, 1954, 1958, 1962, 1966, 1970, 1974, 1978, 1982, 1986, 1990, 1994, 1998, 2002, 2006, 2010, 2014, 2018, 2022, 2026];
+        $randomBall = $balls[array_rand($balls)];
+
         return [
             'name' => fake()->firstName(),
             'father_lastname' => fake()->lastName(),
@@ -24,7 +27,7 @@ class UserFactory extends Factory
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
-            'avatar' => fake()->imageUrl(200, 200, 'people', true),
+            'avatar' => "/imgs/assets/wc-balls/{$randomBall}.png",
             'caption' => fake()->sentence(3),
             'feeling_status' => fake()->randomElement(['happy', 'sad', 'excited', 'tired']),
             'accent_color' => fake()->hexColor(),
@@ -38,14 +41,14 @@ class UserFactory extends Factory
 
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }
 
     public function withTwoFactor(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'two_factor_secret' => encrypt('secret'),
             'two_factor_recovery_codes' => encrypt(json_encode(['recovery-code-1'])),
             'two_factor_confirmed_at' => now(),

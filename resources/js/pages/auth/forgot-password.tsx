@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import AuthLayout from '@/layouts/auth-layout';
 import { login } from '@/routes';
 import { email } from '@/routes/password';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 const styles = {
     headerContainer: "text-center mb-8",
@@ -38,7 +40,15 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
             <div className={styles.formContainer}>
                 <Form {...email.form()}>
-                    {({ processing, errors }) => (
+                    {({ processing, errors }) => {
+                        useEffect(() => {
+                            if (errors && Object.keys(errors).length > 0) {
+                                const firstErrorKey = Object.keys(errors)[0];
+                                toast.error(`Error: ${errors[firstErrorKey as keyof typeof errors]}`);
+                            }
+                        }, [errors]);
+
+                        return (
                         <div className={styles.inputStack}>
                             <div>
                                 <Input
@@ -64,7 +74,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                 Enviar enlace de acceso
                             </Button>
                         </div>
-                    )}
+                    )}}
                 </Form>
 
                 <div className="text-center mt-6">

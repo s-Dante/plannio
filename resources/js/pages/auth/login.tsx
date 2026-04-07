@@ -7,6 +7,8 @@ import AuthLayout from '@/layouts/auth-layout';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 type Props = {
     status?: string;
@@ -52,7 +54,15 @@ export default function Login({
                 resetOnSuccess={['password']}
                 className={styles.formContainer}
             >
-                {({ processing, errors }) => (
+                {({ processing, errors }) => {
+                    useEffect(() => {
+                        if (errors && Object.keys(errors).length > 0) {
+                            const firstErrorKey = Object.keys(errors)[0];
+                            toast.error(`Error: ${errors[firstErrorKey as keyof typeof errors]}`);
+                        }
+                    }, [errors]);
+
+                    return (
                     <>
                         <div className={styles.inputGrid}>
 
@@ -123,7 +133,7 @@ export default function Login({
                             </div>
                         )}
                     </>
-                )}
+                )}}
             </Form>
 
             {status && (

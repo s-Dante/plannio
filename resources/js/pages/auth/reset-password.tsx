@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { update } from '@/routes/password';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 type Props = {
     token: string;
@@ -39,7 +41,15 @@ export default function ResetPassword({ token, email }: Props) {
                 resetOnSuccess={['password', 'password_confirmation']}
                 className={styles.formContainer}
             >
-                {({ processing, errors }) => (
+                {({ processing, errors }) => {
+                    useEffect(() => {
+                        if (errors && Object.keys(errors).length > 0) {
+                            const firstErrorKey = Object.keys(errors)[0];
+                            toast.error(`Error: ${errors[firstErrorKey as keyof typeof errors]}`);
+                        }
+                    }, [errors]);
+
+                    return (
                     <div className={styles.inputStack}>
                         <div>
                             <Input
@@ -89,7 +99,7 @@ export default function ResetPassword({ token, email }: Props) {
                             Restablecer contraseña
                         </Button>
                     </div>
-                )}
+                )}}
             </Form>
         </AuthLayout>
     );

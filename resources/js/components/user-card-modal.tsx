@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { useEffect, useRef } from 'react';
+import { Link, usePage } from '@inertiajs/react';
 import { Settings, Gift, Moon, Sun, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
+import { useAppearance } from '@/hooks/use-appearance';
+import { SharedData } from '@/types';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -40,14 +42,6 @@ const styles = {
     actionIconRewards: "h-4 w-4 mr-2 text-violet-500 dark:text-violet-400"
 };
 
-const MOCK_USER = {
-    name: 'Omar Fernandez',
-    username: '@omarfer #',
-    email: 'omar@example.com',
-    avatar: '/imgs/assets/wc-balls/1950.png',
-    coverColor: 'bg-indigo-500',
-};
-
 interface UserCardModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -55,9 +49,18 @@ interface UserCardModalProps {
 }
 
 export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalProps) {
+    const { auth } = usePage<SharedData>().props;
     const getInitials = useInitials();
-    const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
+    const { appearance, updateAppearance } = useAppearance();
     const modalRef = useRef<HTMLDivElement>(null);
+
+    // Mapeo dinamico desde Laravel auth user
+    const MOCK_USER = {
+        name: auth?.user?.name || 'Invitado',
+        username: auth?.user?.username || '@invitado',
+        avatar: auth?.user?.avatar || '',
+        coverColor: 'bg-indigo-500',
+    };
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -82,6 +85,7 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
         <div
             ref={modalRef}
             className={styles.modalWrapper}
+            onClick={(e) => e.stopPropagation()} // Prevent bubble to document
         >
             <div className={`${styles.coverContainerBase} ${MOCK_USER.coverColor}`}>
                 <div className={styles.themeSwitcherContainer}>
@@ -92,9 +96,9 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
                                 size="icon"
                                 className={styles.themeSwitcherButton}
                             >
-                                {theme === 'light' ? (
+                                {appearance === 'light' ? (
                                     <Sun className={styles.themeIcon} />
-                                ) : theme === 'dark' ? (
+                                ) : appearance === 'dark' ? (
                                     <Moon className={styles.themeIcon} />
                                 ) : (
                                     <Monitor className={styles.themeIcon} />
@@ -103,15 +107,15 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className={styles.themeMenuContent} onPointerDownCapture={(e) => e.stopPropagation()}>
-                            <DropdownMenuItem onClick={() => setTheme('light')} className={styles.themeMenuItem}>
+                            <DropdownMenuItem onSelect={(e) => { e.preventDefault(); updateAppearance('light'); }} className={styles.themeMenuItem}>
                                 <Sun className={styles.themeMenuIcon} />
                                 <span>Claro</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setTheme('dark')} className={styles.themeMenuItem}>
+                            <DropdownMenuItem onSelect={(e) => { e.preventDefault(); updateAppearance('dark'); }} className={styles.themeMenuItem}>
                                 <Moon className={styles.themeMenuIcon} />
                                 <span>Oscuro</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setTheme('system')} className={styles.themeMenuItem}>
+                            <DropdownMenuItem onSelect={(e) => { e.preventDefault(); updateAppearance('system'); }} className={styles.themeMenuItem}>
                                 <Monitor className={styles.themeMenuIcon} />
                                 <span>Sistema</span>
                             </DropdownMenuItem>
@@ -124,7 +128,9 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
                 <div className={styles.avatarWrapper}>
                     <div className={styles.avatarBackground}>
                         <Avatar className={styles.avatarBase}>
-                            <AvatarImage src={MOCK_USER.avatar} alt={MOCK_USER.name} className={styles.avatarImage} />
+                            {MOCK_USER.avatar ? (
+                                <AvatarImage src={MOCK_USER.avatar} alt={MOCK_USER.name} className={styles.avatarImage} />
+                            ) : null}
                             <AvatarFallback className={styles.avatarFallback}>
                                 {getInitials(MOCK_USER.name)}
                             </AvatarFallback>

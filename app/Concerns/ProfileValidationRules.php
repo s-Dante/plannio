@@ -16,7 +16,13 @@ trait ProfileValidationRules
     {
         return [
             'name' => $this->nameRules(),
+            'father_lastname' => ['required', 'string', 'max:255'],
+            'mother_lastname' => ['nullable', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:50', Rule::unique(User::class)->ignore($userId)],
             'email' => $this->emailRules($userId),
+            'birthdate' => ['required', 'date', 'before_or_equal:' . now()->subYears(18)->format('Y-m-d')],
+            'country' => ['required', 'string', 'size:2'],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
         ];
     }
 

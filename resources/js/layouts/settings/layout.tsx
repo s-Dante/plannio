@@ -38,7 +38,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     }
 
     return (
-        <div className="px-4 py-6">
+        <div className="px-4 py-6 h-full overflow-y-auto">
             <Heading
                 title="Ajustes"
                 description="Administra tu perfil y configuración de cuenta"
