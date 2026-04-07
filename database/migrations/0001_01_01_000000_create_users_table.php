@@ -14,9 +14,21 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('father_lastname');
+            $table->string('mother_lastname')->nullable();
+            $table->string('username')->unique()->index('users_username_index');
+            $table->string('email')->unique()->index('users_email_index');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('avatar')->nullable();
+            $table->string('caption')->nullable();
+            $table->string('feeling_status', 50)->nullable();
+            $table->string('accent_color', 7)->nullable();
+            $table->date('birthdate')->nullable();
+            $table->string('country', 7)->nullable();
+            $table->boolean('is_online')->default(false)->index('users_is_online_index');
+            $table->timestamp('last_seen_at')->nullable();
+            $table->bigInteger('points', false, true)->default(0);
             $table->rememberToken();
             $table->timestamps();
         });
