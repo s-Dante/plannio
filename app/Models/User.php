@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+
+use App\Models\Group;
+use App\Models\Message;
+use App\Models\Reward;
 
 class User extends Authenticatable
 {
@@ -59,6 +66,109 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'is_online' => 'boolean',
+            'birthdate' => 'date',
+            'last_seen_at' => 'datetime',
+            'points' => 'integer',
         ];
+    }
+
+
+    /**
+     * Relationships
+     */
+    public function friends(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
+            ->withPivot('status')
+            ->withTimestamps();
+    }
+
+    // Grupos en los que participa
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class, 'group_users')
+            ->withPivot('role', 'joined_at', 'left_at');
+    }
+
+    // Mensajes que ha enviado
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    // Recompensas desbloqueadas
+    public function unlockedRewards(): BelongsToMany
+    {
+        return $this->belongsToMany(Reward::class, 'user_unlocked_rewards')
+            ->withPivot('is_equipped', 'unlocked_at');
+    }
+
+    public function sentFriendships(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
+            ->withPivot('status')
+            ->withTimestamps();
+    }
+
+    public function receivedFriendships(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')
+            ->withPivot('status')
+            ->withTimestamps();
+    }
+
+    // Para obtener la lista de amigos (solo los aceptados)
+    public function getFriendsAttribute()
+    {
+        $sent = $this->sentFriendships()->wherePivot('status', 'accepted')->get();
+        $received = $this->receivedFriendships()->wherePivot('status', 'accepted')->get();
+
+        return $sent->merge($received);
+    }
+
+    public function isFriendsWith(User $user)
+    {
+        return (bool) $this->friends->where('id', $user->id)->count();
+    }
+
+    // Para obtener solicitudes pendientes de aprobación (las que me llegaron)
+    public function pendingFriendRequests()
+    {
+        return $this->receivedFriendships()->wherePivot('status', 'pending');
+    }
+
+    /**
+     * Logica
+     */
+    public function addPoints($amount, $reason = null)
+    {
+        $this->increment('points', $amount);
+
+        // Verificar si desbloqueó nuevas recompensas
+        $newRewards = Reward::where('required_points', '<=', $this->points)
+            ->whereNotIn('id', $this->unlockedRewards()->pluck('rewards.id'))
+            ->get();
+
+        foreach ($newRewards as $reward) {
+            $this->unlockedRewards()->attach($reward->id);
+        }
+
+        return $newRewards;
+    }
+
+    public function isOnline()
+    {
+        return $this->is_online;
+    }
+
+    public function setOnlineStatus($status)
+    {
+        $this->is_online = $status;
+        $this->last_seen_at = now();
+        $this->save();
+
+        // Broadcast cambio de estado
+        
     }
 }

@@ -13,6 +13,7 @@ class MessageRead extends Model
     protected $fillable = [
         'message_id',
         'user_id',
+        'read_at',
     ];
 
     protected function casts(): array
@@ -20,6 +21,7 @@ class MessageRead extends Model
         return [
             'message_id' => 'integer',
             'user_id' => 'integer',
+            'read_at' => 'datetime',
         ];
     }
 }
