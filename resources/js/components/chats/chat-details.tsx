@@ -39,15 +39,20 @@ const styles = {
     mediaGridItem: "aspect-square bg-gray-100 dark:bg-stone-800 rounded-xl hover:opacity-80 transition-opacity cursor-pointer border border-gray-200/50",
 };
 
-export function ChatDetails() {
+export function ChatDetails({ activeChat }: any) {
+    if (!activeChat) return null;
+
     return (
         <div className={styles.detailsBase}>
 
             <div className={styles.headerContainer}>
                 <div className={styles.headerAvatarGroup}>
-                    <div className={styles.headerAvatarText}>G1</div>
+                    {activeChat.avatar ? 
+                        <img src={activeChat.avatar} className="w-full h-full object-cover" /> :
+                        <div className={styles.headerAvatarText}>{activeChat.name?.charAt(0)}</div>
+                    }
                 </div>
-                <h3 className={styles.headerTitle}>Grupo 1</h3>
+                <h3 className={styles.headerTitle}>{activeChat.name}</h3>
             </div>
 
             <div className={styles.bodyContainer}>

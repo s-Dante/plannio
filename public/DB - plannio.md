@@ -71,9 +71,9 @@ Funcionalidades por hacer
 ✅      -> Funcion de cambio de contraseña
 ✅      -> Funcion de toggle light mode
 ❌  -> Chats
-❌      -> Funcionalidad de buscar usuarios para solicitar su amistad
-❌          -> Sus amigos automaticamente generan un chat individual
-❌      -> Funcionalidad de crear un grupo en base a sus amigos (100 users max)
+✅      -> Funcionalidad de buscar usuarios para solicitar su amistad
+✅          -> Sus amigos automaticamente generan un chat individual
+✅      -> Funcionalidad de crear un grupo en base a sus amigos (100 users max)
 ❌      -> Funcionalidad de mandar mensajes 
 ❌          -> Automaticamente se encriptan los mensajes, el usuairo decide si
             prefiere que se envien sin encriptacion
@@ -88,7 +88,7 @@ Funcionalidades por hacer
                 para marcar que se finalizaron
 ❌  -> Lugares
 ✅      -> Funcion de que el usuario pueda añadir lugares interesantes para el
-⚠️      -> Funcion de rating a cada lugar
+✅      -> Funcion de rating a cada lugar
 ✅      -> Funcion de que el mapa permita visualizar donde se encuentra el lugar
 ❌  -> Recompenzas
 ❌      -> Sistema para ganar las recompenzas 

@@ -6,7 +6,8 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useForm, router } from '@inertiajs/react';
+import { useForm, router, usePage } from '@inertiajs/react';
+import { toast } from 'sonner';
 
 const styles = {
     sidebarBase: "w-full h-full flex flex-col bg-white/95 dark:bg-stone-900/95 backdrop-blur-2xl border border-white/20 dark:border-stone-700/50 shadow-2xl rounded-[2rem] overflow-hidden transition-all relative",
@@ -20,15 +21,9 @@ const styles = {
     fadeBottom: "absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white dark:from-stone-900 to-transparent pointer-events-none"
 };
 
-const categoryMap: Record<number, string> = {
-    1: 'Naturaleza',
-    2: 'Cultura & Museos',
-    3: 'Deporte & Entretenimiento',
-    4: 'Gastronomía'
-};
-
 interface Props {
     places: Place[];
+    categories: any[];
     activePlace: Place | null;
     onPlaceSelect: (p: Place | null) => void;
     addingMode: boolean;
@@ -37,8 +32,14 @@ interface Props {
     setNewPlaceCoords: (val: null) => void;
 }
 
-export function MapSidebar({ places, activePlace, onPlaceSelect, addingMode, setAddingMode, newPlaceCoords, setNewPlaceCoords }: Props) {
+export function MapSidebar({ places, categories, activePlace, onPlaceSelect, addingMode, setAddingMode, newPlaceCoords, setNewPlaceCoords }: Props) {
     const [filterOfficial, setFilterOfficial] = useState<boolean>(true);
+    const { auth } = usePage<any>().props;
+
+    const getCategoryLabel = (val: number) => {
+        const cat = categories?.find((c: any) => c.value === val);
+        return cat ? cat.label : 'General';
+    };
 
     const filteredPlaces = places?.filter(p => filterOfficial ? p.is_official_venue : true);
 
@@ -65,11 +66,21 @@ export function MapSidebar({ places, activePlace, onPlaceSelect, addingMode, set
         });
     };
 
+    const [rateAnimation, setRateAnimation] = useState(false);
+
     const handleRate = () => {
         if (!activePlace || ratingVal === 0) return;
         router.post(`/map/places/${activePlace.id}/rate`, {
             rating: ratingVal,
             comment: null
+        }, {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                toast.success('Puntuación enviada.');
+                setRateAnimation(true);
+                setTimeout(() => setRateAnimation(false), 2000);
+            }
         });
     };
 
@@ -99,10 +110,9 @@ export function MapSidebar({ places, activePlace, onPlaceSelect, addingMode, set
                             <Select onValueChange={(v) => setData('category', v)} defaultValue={data.category}>
                                 <SelectTrigger><SelectValue placeholder="Categoría" /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="1">Naturaleza</SelectItem>
-                                    <SelectItem value="2">Cultura & Museos</SelectItem>
-                                    <SelectItem value="3">Deporte & Entretenimiento</SelectItem>
-                                    <SelectItem value="4">Gastronomía</SelectItem>
+                                    {categories?.map((cat: any) => (
+                                        <SelectItem key={cat.value} value={cat.value.toString()}>{cat.label}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -138,7 +148,7 @@ export function MapSidebar({ places, activePlace, onPlaceSelect, addingMode, set
                 <div className={styles.listContainer}>
                     <div className="flex items-center justify-between">
                         <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-accent)]">
-                            {categoryMap[activePlace.category] || 'Otros'}
+                            {getCategoryLabel(activePlace.category)}
                         </span>
                         {activePlace.is_official_venue && (
                             <span className="px-2 py-0.5 rounded-md bg-[var(--color-tertiary)]/10 text-[var(--color-tertiary)] text-xs font-bold">Oficial</span>
@@ -149,7 +159,12 @@ export function MapSidebar({ places, activePlace, onPlaceSelect, addingMode, set
                         {activePlace.description}
                     </p>
 
-                    <div className="mt-8 pt-6 border-t border-gray-100 dark:border-stone-800">
+                    <div className="mt-8 pt-6 border-t border-gray-100 dark:border-stone-800 relative">
+                        {rateAnimation && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-stone-900/80 backdrop-blur-sm z-10 rounded-xl text-[var(--color-tertiary)] font-bold animate-pulse">
+                                ¡Gracias por puntuar!
+                            </div>
+                        )}
                         <h4 className="font-bold text-sm mb-2 opacity-80">Califica este lugar</h4>
                         <div className="flex gap-1 mb-4">
                             {[1,2,3,4,5].map((s) => (
@@ -209,9 +224,9 @@ export function MapSidebar({ places, activePlace, onPlaceSelect, addingMode, set
                 {filteredPlaces?.map((place) => (
                     <div key={place.id} className={styles.placeCardBase} onClick={() => onPlaceSelect(place)}>
                         <div className="flex justify-between items-start">
-                            <div>
+                            <div className="flex-1">
                                 <h3 className={styles.placeCardTitle}>{place.name}</h3>
-                                <p className={styles.placeCardCategory}>{categoryMap[place.category] || 'General'}</p>
+                                <p className={styles.placeCardCategory}>{getCategoryLabel(place.category)}</p>
                             </div>
                             {place.average_rating > "0.00" && (
                                 <div className="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-950/30 text-yellow-600 dark:text-yellow-500 px-2 py-0.5 rounded-md">

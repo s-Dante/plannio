@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/app-layout';
 import { MapSidebar } from '@/components/map/map-sidebar';
 import Map, { Marker, NavigationControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import type { MapRef } from 'react-map-gl/maplibre';
 import { MapPin, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -40,11 +40,40 @@ const styles = {
 };
 
 export default function MapIndex() {
-    const { places } = usePage<any>().props;
+    const { places, categories, auth } = usePage<any>().props;
     const mapRef = useRef<MapRef>(null);
+    const [localPlaces, setLocalPlaces] = useState<Place[]>(places || []);
     const [activePlace, setActivePlace] = useState<Place | null>(null);
     const [addingMode, setAddingMode] = useState(false);
     const [newPlaceCoords, setNewPlaceCoords] = useState<{lat: number, lng: number} | null>(null);
+
+    // Sync if Inertia props updates via traditional reloads
+    useEffect(() => {
+        if (places) setLocalPlaces(places);
+    }, [places]);
+
+    // WebSocket real-time rating updates
+    useEffect(() => {
+        if (!window.Echo) return;
+
+        window.Echo.channel('tourist-map')
+            .listen('PlaceRated', (e: any) => {
+                setLocalPlaces(prev => prev.map(p => 
+                    p.id === e.placeId 
+                        ? { ...p, average_rating: e.newAverage, ratings_count: e.totalVotes } 
+                        : p
+                ));
+
+                setActivePlace(prev => {
+                    if (prev && prev.id === e.placeId) {
+                        return { ...prev, average_rating: e.newAverage, ratings_count: e.totalVotes };
+                    }
+                    return prev;
+                });
+            });
+
+        return () => window.Echo.leaveChannel('tourist-map');
+    }, []);
 
     // Initial Coordinates for Monterrey
     const initialViewState = {
@@ -89,7 +118,7 @@ export default function MapIndex() {
                     >
                         <NavigationControl position="bottom-right" />
                         
-                        {places?.map((place: Place) => (
+                        {localPlaces?.map((place: Place) => (
                             <Marker
                                 key={place.id}
                                 longitude={place.longitude}
@@ -133,7 +162,8 @@ export default function MapIndex() {
                 <div className={styles.sidebarOverlay}>
                     <div className={styles.sidebarPointerEventsAuto}>
                         <MapSidebar 
-                            places={places} 
+                            places={localPlaces} 
+                            categories={categories}
                             activePlace={activePlace} 
                             onPlaceSelect={handleFlyTo}
                             addingMode={addingMode}

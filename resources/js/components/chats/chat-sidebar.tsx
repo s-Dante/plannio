@@ -45,7 +45,7 @@ const styles = {
     badgeIndicator: "absolute right-[-6px] top-[-6px] bg-red-500 text-white text-[10px] h-5 w-5 flex items-center justify-center rounded-full font-bold border-2 border-white dark:border-stone-900"
 };
 
-export function ChatSidebar({ onOpenSearch, onOpenNewGroup, groups, pendingRequests }: any) {
+export function ChatSidebar({ onOpenSearch, onOpenNewGroup, onChatSelect, activeChat, groups, pendingRequests }: any) {
     const [activeTab, setActiveTab] = useState<'chats' | 'requests'>('chats');
     const [searchLocal, setSearchLocal] = useState('');
     const { auth } = usePage<any>().props;
@@ -129,13 +129,17 @@ export function ChatSidebar({ onOpenSearch, onOpenNewGroup, groups, pendingReque
                             </div>
                         ) : (
                             filteredGroups.map((group: any) => (
-                                <button key={group.id} className={`${styles.itemBase} ${styles.itemInactive}`}>
+                                <button 
+                                    key={group.id} 
+                                    onClick={() => onChatSelect(group)}
+                                    className={`${styles.itemBase} ${activeChat?.id === group.id ? 'bg-gray-50 border-[var(--color-accent)] dark:bg-stone-800' : styles.itemInactive}`}
+                                >
                                     <div className={styles.avatarWrapper}>
                                         <img src={group.avatar || `https://ui-avatars.com/api/?name=${group.name}&background=random`} className={styles.avatarImage} alt="Avatar" />
                                     </div>
                                     <div className={styles.textWrapper}>
                                         <span className={styles.nameTitle}>{group.name}</span>
-                                        <span className="text-xs text-gray-500 truncate mt-0.5">{group.is_individual ? "Chat Privado" : `${group.members.length} miembros`}</span>
+                                        <span className="text-xs text-gray-500 truncate mt-0.5">{group.is_individual ? "Chat Privado" : `${group.members?.length || 0} miembros`}</span>
                                     </div>
                                 </button>
                             ))

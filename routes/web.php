@@ -17,6 +17,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('chats/request', [App\Http\Controllers\ChatController::class, 'sendRequest'])->name('chats.request');
     Route::post('chats/accept', [App\Http\Controllers\ChatController::class, 'acceptRequest'])->name('chats.accept');
     Route::post('chats/groups', [App\Http\Controllers\ChatController::class, 'createGroup'])->name('chats.groups.create');
+    Route::get('chats/{group}/messages', [App\Http\Controllers\MessageController::class, 'index'])->name('chats.messages.index');
+    Route::post('chats/{group}/messages', [App\Http\Controllers\MessageController::class, 'store'])->name('chats.messages.store');
     
     // Map Endpoints
     Route::get('map', [App\Http\Controllers\TouristMapController::class, 'index'])->name('map.index');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Place;
+use App\Enums\PlaceCategoryEnum;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,7 +19,8 @@ class TouristMapController extends Controller
         $places = Place::with(['ratings.user', 'creator'])->get();
 
         return Inertia::render('TouristMap/Index', [
-            'places' => $places
+            'places' => $places,
+            'categories' => PlaceCategoryEnum::getOptions()
         ]);
     }
 
@@ -61,6 +63,9 @@ class TouristMapController extends Controller
         ]);
 
         $place->rateByUser(auth()->id(), $validated['rating'], $validated['comment']);
+
+        // Dispatch WebSocket Event for Live Rating Sync
+        broadcast(new \App\Events\PlaceRated($place))->toOthers();
 
         return back()->with('success', '¡Gracias por calificar este lugar!');
     }
