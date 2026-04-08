@@ -11,7 +11,12 @@ Route::inertia('/', 'welcome', [
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
-    Route::inertia('chats', 'Chats/Index')->name('chats.index');
+    // Chat endpoints
+    Route::get('chats', [App\Http\Controllers\ChatController::class, 'index'])->name('chats.index');
+    Route::get('api/chats/search', [App\Http\Controllers\ChatController::class, 'searchUsers'])->name('api.chats.search');
+    Route::post('chats/request', [App\Http\Controllers\ChatController::class, 'sendRequest'])->name('chats.request');
+    Route::post('chats/accept', [App\Http\Controllers\ChatController::class, 'acceptRequest'])->name('chats.accept');
+    Route::post('chats/groups', [App\Http\Controllers\ChatController::class, 'createGroup'])->name('chats.groups.create');
     
     // Map Endpoints
     Route::get('map', [App\Http\Controllers\TouristMapController::class, 'index'])->name('map.index');

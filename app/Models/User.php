@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Group;
 use App\Models\Message;
 use App\Models\Reward;
+use App\Enums\FriendshipStatusEnum;
 
 class User extends Authenticatable
 {
@@ -118,11 +119,10 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    // Para obtener la lista de amigos (solo los aceptados)
     public function getFriendsAttribute()
     {
-        $sent = $this->sentFriendships()->wherePivot('status', 'accepted')->get();
-        $received = $this->receivedFriendships()->wherePivot('status', 'accepted')->get();
+        $sent = $this->sentFriendships()->wherePivot('status', FriendshipStatusEnum::ACCEPTED->value)->get();
+        $received = $this->receivedFriendships()->wherePivot('status', FriendshipStatusEnum::ACCEPTED->value)->get();
 
         return $sent->merge($received);
     }
@@ -132,10 +132,9 @@ class User extends Authenticatable
         return (bool) $this->friends->where('id', $user->id)->count();
     }
 
-    // Para obtener solicitudes pendientes de aprobación (las que me llegaron)
     public function pendingFriendRequests()
     {
-        return $this->receivedFriendships()->wherePivot('status', 'pending');
+        return $this->receivedFriendships()->wherePivot('status', FriendshipStatusEnum::PENDING->value);
     }
 
     /**

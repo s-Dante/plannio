@@ -11,7 +11,8 @@
         "lint": "eslint . --fix",
         "lint:check": "eslint .",
         "types:check": "tsc --noEmit",
-        "dev:all": "concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve --host=localhost --port=8000\" \"php artisan queue:work --tries=1\" \"php artisan pail\" \"pnpm run dev\" --names=server,queue,logs,vite --kill-others"
+        "dev:all": "concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74,#fcd34d\" \"php artisan serve --host=localhost --port=8000\" \"php artisan queue:work --tries=1\" \"php artisan pail\" \"php artisan reverb:start\" \"pnpm run dev\" --names=server,queue,logs,reverb,vite --kill-others",
+        "dev:host": "concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74,#fcd34d\" \"php artisan serve --host=0.0.0.0 --port=8000\" \"php artisan queue:work --tries=1\" \"php artisan pail\" \"php artisan reverb:start --host=0.0.0.0\" \"pnpm run dev --host\" --names=server,queue,logs,reverb,vite --kill-others"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
@@ -54,10 +55,13 @@
         "date-fns": "^4.1.0",
         "globals": "^15.14.0",
         "input-otp": "^1.4.2",
+        "laravel-echo": "^2.3.4",
         "laravel-vite-plugin": "^2.0",
         "lucide-react": "^0.475.0",
         "maplibre-gl": "^5.22.0",
         "next-themes": "^0.4.6",
+        "peerjs": "^1.5.5",
+        "pusher-js": "^8.5.0",
         "radix-ui": "^1.4.3",
         "react": "^19.2.0",
         "react-day-picker": "^9.14.0",
