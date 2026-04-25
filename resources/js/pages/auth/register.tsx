@@ -38,7 +38,6 @@ export default function Register() {
     const [date, setDate] = useState<Date>();
 
     useEffect(() => {
-        // Fetch countries asynchronously to avoid bloating the bundle
         fetch('/country_state_city-data/countries.json')
             .then(res => res.json())
             .then(data => setCountries(data))
@@ -47,7 +46,7 @@ export default function Register() {
 
     return (
         <AuthLayout title="Crear una cuenta" imageSrc="/imgs/auth/Img_2.avif">
-            <Head title="Registro" />
+            <Head title="Registrate" />
 
             <div className={styles.headerContainer}>
                 <h2 className={styles.title}>Crea tu cuenta</h2>
@@ -61,7 +60,6 @@ export default function Register() {
                 className={styles.formContainer}
             >
                 {({ processing, errors }) => {
-                    // Trigger Sonner Toasts for any form errors
                     useEffect(() => {
                         if (errors && Object.keys(errors).length > 0) {
                             const firstErrorKey = Object.keys(errors)[0];

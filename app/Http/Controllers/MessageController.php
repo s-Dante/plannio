@@ -13,7 +13,7 @@ use App\Events\MessageSent;
 class MessageController extends Controller
 {
     /**
-     * Retrieve messages for a specific chat group, decrypting if necessary.
+     * Recuperamos todos los mensajes de un grupo, descifrándolos si es necesario.
      */
     public function index($groupId)
     {
@@ -26,11 +26,11 @@ class MessageController extends Controller
 
         $messages = Message::with('user')
             ->where('group_id', $groupId)
-            ->oldest() // Oldest first to render sequentially
+            ->oldest()
             ->limit(100)
             ->get();
 
-        // Transparent Decryption mapping
+        // Mapeamos para descifrar los mensajes
         $messages->transform(function ($message) {
             if ($message->is_encrypted && $message->content) {
                 try {
@@ -46,7 +46,7 @@ class MessageController extends Controller
     }
 
     /**
-     * Store and encrypt a message, process media, and broadcast.
+     * Guardamos y ciframos un mensaje, procesamos el archivo multimedia y lo enviamos por broadcast.
      */
     public function store(Request $request, $groupId)
     {
@@ -62,7 +62,7 @@ class MessageController extends Controller
         $mediaUrl = null;
         $mimeType = null;
         $fileSize = null;
-        
+
         $latitude = $request->input('latitude');
         $longitude = $request->input('longitude');
 
@@ -73,8 +73,9 @@ class MessageController extends Controller
         if ($content && $isEncrypted) {
             $content = Crypt::encryptString($content);
         }
-        
-        // Handle Media Attachment with Intervention Compress
+
+        // Manejamos que tipo de multimedia se sube
+        //      Quiza debamos modificar para permitir envio de mas de un solo documento multimedia a la vez
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $mimeType = $file->getMimeType();
@@ -84,18 +85,15 @@ class MessageController extends Controller
                 $type = MessageTypeEnum::IMAGE;
                 $path = $file->storePublicly('chats/' . $groupId, 'public');
                 $mediaUrl = Storage::url($path);
-            } 
-            elseif (str_starts_with($mimeType, 'video/')) {
+            } elseif (str_starts_with($mimeType, 'video/')) {
                 $type = MessageTypeEnum::VIDEO;
                 $path = $file->storePublicly('chats/' . $groupId, 'public');
                 $mediaUrl = Storage::url($path);
-            }
-            elseif (str_starts_with($mimeType, 'audio/')) {
+            } elseif (str_starts_with($mimeType, 'audio/')) {
                 $type = MessageTypeEnum::AUDIO;
                 $path = $file->storePublicly('chats/' . $groupId, 'public');
                 $mediaUrl = Storage::url($path);
-            }
-            else {
+            } else {
                 $type = MessageTypeEnum::FILE;
                 $path = $file->storePublicly('chats/' . $groupId, 'public');
                 $mediaUrl = Storage::url($path);
@@ -115,14 +113,14 @@ class MessageController extends Controller
             'is_encrypted' => $isEncrypted,
         ]);
 
-        // Eager load for event relay
         $message->load('user');
-        
-        // We temporarily decrypt just for the Broadcast payload so the receiving client sees it natively
+
+        // Desciframos el mensaje para el payload del broadcast
         if ($message->is_encrypted && $message->content) {
             try {
                 $message->content = Crypt::decryptString($message->content);
-            } catch (\Exception $e) { }
+            } catch (\Exception $e) {
+            }
         }
 
         broadcast(new MessageSent($message))->toOthers();

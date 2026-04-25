@@ -54,7 +54,6 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
     const { appearance, updateAppearance } = useAppearance();
     const modalRef = useRef<HTMLDivElement>(null);
 
-    // Mapeo dinamico desde Laravel auth user
     const MOCK_USER = {
         name: auth?.user?.name || 'Invitado',
         username: auth?.user?.username || '@invitado',
@@ -85,7 +84,7 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
         <div
             ref={modalRef}
             className={styles.modalWrapper}
-            onClick={(e) => e.stopPropagation()} // Prevent bubble to document
+            onClick={(e) => e.stopPropagation()}
         >
             <div className={`${styles.coverContainerBase} ${MOCK_USER.coverColor}`}>
                 <div className={styles.themeSwitcherContainer}>
@@ -174,6 +173,6 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
                     </Button>
                 </div>
             </div>
-        </div>
+        </ div>
     );
 }

@@ -75,18 +75,18 @@ Funcionalidades por hacer
 ✅          -> Sus amigos automaticamente generan un chat individual
 ✅      -> Funcionalidad de crear un grupo en base a sus amigos (100 users max)
 ❌      -> Funcionalidad de mandar mensajes 
-❌          -> Automaticamente se encriptan los mensajes, el usuairo decide si
+✅          -> Automaticamente se encriptan los mensajes, el usuairo decide si
             prefiere que se envien sin encriptacion
-❌          -> Funcionalidad de envio de contenido multimedia (fotos, videos,
+⚠️           -> Funcionalidad de envio de contenido multimedia (fotos, videos,
             audios, documentos)
-❌          -> Funcionalidad de permitir emojis en el mensaje
-❌          -> Funcionalidad de permitir enviar la ubicacion del usuario
+✅          -> Funcionalidad de permitir emojis en el mensaje
+⚠️          -> Funcionalidad de permitir enviar la ubicacion del usuario
 ❌          -> Permitir llamadas (chats individuales y grupales)
 ❌          -> Permitir videollamadas (chats individuales y grupales)
 ❌          -> Funcionalidad para añadir tareas (chats individuales y grupales)
 ❌              -> Funcionalidad para ver como se deben de gestionar las tareas
                 para marcar que se finalizaron
-❌  -> Lugares
+✅  -> Lugares
 ✅      -> Funcion de que el usuario pueda añadir lugares interesantes para el
 ✅      -> Funcion de rating a cada lugar
 ✅      -> Funcion de que el mapa permita visualizar donde se encuentra el lugar

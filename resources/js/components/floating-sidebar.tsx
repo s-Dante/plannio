@@ -66,7 +66,6 @@ export function FloatingSidebar() {
     return (
         <aside className={styles.sidebarBase}>
             <div className={styles.topSection}>
-                {/* Logo with Light/Dark support */}
                 <Link href="/" className={styles.logoContainer}>
                     <img src="/imgs/logos/Pin_Black_new.PNG" alt="Plannio Icon" className={styles.logoImageLight} />
                     <img src="/imgs/logos/Pin_White_new.PNG" alt="Plannio Icon" className={styles.logoImageDark} />
@@ -85,7 +84,6 @@ export function FloatingSidebar() {
 
                             const linkContent = (
                                 <>
-                                    {/* Active indicator bar */}
                                     {isActive && (
                                         <span className={styles.activeIndicator} />
                                     )}
@@ -124,11 +122,9 @@ export function FloatingSidebar() {
                 </TooltipProvider>
             </div>
 
-            {/* Modals */}
             <UserCardModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} onOpenRewards={() => setIsRewardsOpen(true)} />
             <RewardsModal isOpen={isRewardsOpen} onClose={() => setIsRewardsOpen(false)} />
 
-            {/* Bottom Actions (Logout) */}
             <div className={styles.bottomSection}>
                 <TooltipProvider delayDuration={0}>
                     <Tooltip>

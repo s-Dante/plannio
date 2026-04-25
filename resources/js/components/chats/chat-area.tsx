@@ -44,7 +44,7 @@ export function ChatArea({ activeChat, auth }: any) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Fetch initial messages when chat changes
+    // Manejo del chat activo
     useEffect(() => {
         if (!activeChat) return;
         setLoading(true);
@@ -57,7 +57,7 @@ export function ChatArea({ activeChat, auth }: any) {
             .finally(() => setLoading(false));
     }, [activeChat]);
 
-    // WebSocket subscription for this specific chat
+    // Manejo de Websocket
     useEffect(() => {
         if (!activeChat || !window.Echo) return;
 
@@ -65,7 +65,6 @@ export function ChatArea({ activeChat, auth }: any) {
         window.Echo.private(channelName)
             .listen('MessageSent', (e: any) => {
                 setMessages(prev => {
-                    // Prevent duplicates if we already optimistically added it
                     if (prev.some(m => m.id === e.message.id)) return prev;
                     return [...prev, e.message];
                 });
@@ -93,22 +92,21 @@ export function ChatArea({ activeChat, auth }: any) {
         if (pendingFile) formData.append('file', pendingFile);
 
         const originalContent = content;
-        setContent(''); // Optimistic clear
-        setPendingFile(null); // Clear preview instantly
+        setContent('');
+        setPendingFile(null);
         scrollToBottom();
 
         axios.post(`/chats/${activeChat.id}/messages`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         }).then(res => {
             setMessages(prev => {
-                // If the broadcast didn't hit us yet, we add it ourselves
                 if (prev.some(m => m.id === res.data.id)) return prev;
                 return [...prev, res.data];
             });
             scrollToBottom();
         }).catch(() => {
             toast.error("No se pudo enviar el mensaje");
-            setContent(originalContent); // Restore on error
+            setContent(originalContent);
         }).finally(() => {
             setUploading(false);
         });
@@ -192,7 +190,7 @@ export function ChatArea({ activeChat, auth }: any) {
                 })}
 
                 <div ref={messagesEndRef} className="h-2"></div>
-                <div className="h-10 shrink-0"></div> {/* Bottom padding for floating input */}
+                <div className="h-10 shrink-0"></div>
             </div>
 
             <div className={styles.inputWrapper}>

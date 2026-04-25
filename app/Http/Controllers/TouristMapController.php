@@ -11,11 +11,10 @@ use Inertia\Response;
 class TouristMapController extends Controller
 {
     /**
-     * Display the tourist map with all places.
+     * Cargamos el mapa con todos los puntos cargados en la BD.
      */
     public function index(): Response
     {
-        // Get all places along with their ratings and creator.
         $places = Place::with(['ratings.user', 'creator'])->get();
 
         return Inertia::render('TouristMap/Index', [
@@ -25,7 +24,7 @@ class TouristMapController extends Controller
     }
 
     /**
-     * Store a newly created map place.
+     * Guardamos un nuevo punto en el mapa.
      */
     public function store(Request $request)
     {
@@ -53,7 +52,7 @@ class TouristMapController extends Controller
     }
 
     /**
-     * Rate a specific place.
+     * Guardamos una calificación de un usuario a un punto del mapa.
      */
     public function rate(Request $request, Place $place)
     {
@@ -64,7 +63,7 @@ class TouristMapController extends Controller
 
         $place->rateByUser(auth()->id(), $validated['rating'], $validated['comment']);
 
-        // Dispatch WebSocket Event for Live Rating Sync
+        // Enviamos el evento a broadcast para que todos los usuarios vean el cambio.
         broadcast(new \App\Events\PlaceRated($place))->toOthers();
 
         return back()->with('success', '¡Gracias por calificar este lugar!');

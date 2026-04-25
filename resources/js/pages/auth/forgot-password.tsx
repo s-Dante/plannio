@@ -24,8 +24,8 @@ const styles = {
 
 export default function ForgotPassword({ status }: { status?: string }) {
     return (
-        <AuthLayout title="Recuperar contraseña" imageSrc="/imgs/auth/Img_3.jpg">
-            <Head title="Recuperar contraseña" />
+        <AuthLayout title="Olvide mi contraseña" imageSrc="/imgs/auth/Img_3.jpg">
+            <Head title="Olvide mi contraseña" />
 
             <div className={styles.headerContainer}>
                 <h2 className={styles.title}>¿Olvidaste tu contraseña?</h2>
@@ -49,32 +49,33 @@ export default function ForgotPassword({ status }: { status?: string }) {
                         }, [errors]);
 
                         return (
-                        <div className={styles.inputStack}>
-                            <div>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    autoComplete="off"
-                                    autoFocus
-                                    placeholder="Correo electrónico"
-                                    className={styles.input}
-                                />
-                                <InputError message={errors.email} className={styles.errorText} />
-                            </div>
+                            <div className={styles.inputStack}>
+                                <div>
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        name="email"
+                                        autoComplete="off"
+                                        autoFocus
+                                        placeholder="Correo electrónico"
+                                        className={styles.input}
+                                    />
+                                    <InputError message={errors.email} className={styles.errorText} />
+                                </div>
 
-                            <Button
-                                className={styles.submitButton}
-                                disabled={processing}
-                                data-test="email-password-reset-link-button"
-                            >
-                                {processing && (
-                                    <LoaderCircle className="h-4 w-4 mr-2 animate-spin" />
-                                )}
-                                Enviar enlace de acceso
-                            </Button>
-                        </div>
-                    )}}
+                                <Button
+                                    className={styles.submitButton}
+                                    disabled={processing}
+                                    data-test="email-password-reset-link-button"
+                                >
+                                    {processing && (
+                                        <LoaderCircle className="h-4 w-4 mr-2 animate-spin" />
+                                    )}
+                                    Enviar enlace de acceso
+                                </Button>
+                            </div>
+                        )
+                    }}
                 </Form>
 
                 <div className="text-center mt-6">

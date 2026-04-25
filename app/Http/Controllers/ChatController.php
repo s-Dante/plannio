@@ -16,13 +16,12 @@ class ChatController extends Controller
 {
     public function index()
     {
-        /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        // Obtener todos los grupos en los que participa el usuario, precargando miembros para derivar información de chats individuales
+        // Obtenemos los grupos del usuario y sus miembros
         $groups = $user->groups()->with('members')->get()->map(function ($group) use ($user) {
+            // Si es un chat individual, obtenemos el otro usuario
             if ($group->is_individual) {
-                // El otro usuario
                 $otherUser = $group->members->firstWhere('id', '!=', $user->id);
                 if ($otherUser) {
                     $group->name = $otherUser->name . ' ' . $otherUser->father_lastname;
@@ -32,6 +31,7 @@ class ChatController extends Controller
             return $group;
         });
 
+        // Retornamos la vista con los grupos, amigos y solicitudes pendientes
         return Inertia::render('Chats/Index', [
             'groups' => $groups,
             'friends' => $user->friends,
@@ -68,7 +68,6 @@ class ChatController extends Controller
             'friend_id' => 'required|exists:users,id'
         ]);
 
-        /** @var \App\Models\User $user */
         $user = auth()->user();
         $friendId = $request->friend_id;
 
@@ -93,7 +92,7 @@ class ChatController extends Controller
             'status' => FriendshipStatusEnum::PENDING->value,
         ]);
 
-        // Disparar evento de broadcasting en tiempo real
+        // Bradcast de envio de solicitud para que se reciba en tiempo real
         broadcast(new \App\Events\FriendRequestReceived($friendId, $user))->toOthers();
 
         return back()->with('success', 'Solicitud de amistad enviada.');
@@ -105,7 +104,6 @@ class ChatController extends Controller
             'friend_id' => 'required|exists:users,id'
         ]);
 
-        /** @var \App\Models\User $user */
         $user = auth()->user();
         $friendId = $request->friend_id;
 
@@ -132,7 +130,7 @@ class ChatController extends Controller
             $group->name = $user->name . ' ' . $user->father_lastname;
             $group->avatar = $user->avatar;
 
-            // Broadcast to the original sender that their request was accepted & the group created
+            // Broadcast de que se acepto la solicitud
             broadcast(new \App\Events\FriendRequestAccepted($friendId, $user, $group))->toOthers();
         });
 
@@ -187,7 +185,7 @@ class ChatController extends Controller
                 $userIds[] = $memberId;
             }
 
-            // Group creation broadcast
+            // Broadcast de que se creo el grupo
             broadcast(new \App\Events\GroupCreated($group, $userIds))->toOthers();
 
             return $group;

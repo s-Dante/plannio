@@ -15,7 +15,7 @@ Broadcast::channel('users.status', function ($user) {
 });
 
 Broadcast::channel('chat.{groupId}', function ($user, $groupId) {
-    // Only allow if the user is a member of this chat/group
+    // Solamente si el usuario es parte del grupo
     return \App\Models\Group::where('id', $groupId)
         ->whereHas('members', function ($query) use ($user) {
             $query->where('user_id', $user->id);

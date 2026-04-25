@@ -45,7 +45,7 @@ const styles = {
 export default function Welcome({ auth }: { auth?: { user: any } }) {
     return (
         <>
-            <Head title="Bienvenido a Plannio" />
+            <Head title="" />
             <div className={styles.page}>
 
                 <header className={styles.header}>

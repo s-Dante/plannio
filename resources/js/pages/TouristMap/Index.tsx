@@ -45,22 +45,21 @@ export default function MapIndex() {
     const [localPlaces, setLocalPlaces] = useState<Place[]>(places || []);
     const [activePlace, setActivePlace] = useState<Place | null>(null);
     const [addingMode, setAddingMode] = useState(false);
-    const [newPlaceCoords, setNewPlaceCoords] = useState<{lat: number, lng: number} | null>(null);
+    const [newPlaceCoords, setNewPlaceCoords] = useState<{ lat: number, lng: number } | null>(null);
 
-    // Sync if Inertia props updates via traditional reloads
     useEffect(() => {
         if (places) setLocalPlaces(places);
     }, [places]);
 
-    // WebSocket real-time rating updates
+    // Actualización de calificación en tiempo real
     useEffect(() => {
         if (!window.Echo) return;
 
         window.Echo.channel('tourist-map')
             .listen('PlaceRated', (e: any) => {
-                setLocalPlaces(prev => prev.map(p => 
-                    p.id === e.placeId 
-                        ? { ...p, average_rating: e.newAverage, ratings_count: e.totalVotes } 
+                setLocalPlaces(prev => prev.map(p =>
+                    p.id === e.placeId
+                        ? { ...p, average_rating: e.newAverage, ratings_count: e.totalVotes }
                         : p
                 ));
 
@@ -75,7 +74,7 @@ export default function MapIndex() {
         return () => window.Echo.leaveChannel('tourist-map');
     }, []);
 
-    // Initial Coordinates for Monterrey
+    // Coordenadas iniciales para que se vea Monterrey por defecto
     const initialViewState = {
         longitude: -100.316112,
         latitude: 25.686614,
@@ -90,7 +89,7 @@ export default function MapIndex() {
                 center: [place.longitude, place.latitude],
                 zoom: 15,
                 duration: 1800,
-                essential: true 
+                essential: true
             });
         }
     };
@@ -117,7 +116,7 @@ export default function MapIndex() {
                         cursor={addingMode ? 'crosshair' : 'grab'}
                     >
                         <NavigationControl position="bottom-right" />
-                        
+
                         {localPlaces?.map((place: Place) => (
                             <Marker
                                 key={place.id}
@@ -133,19 +132,18 @@ export default function MapIndex() {
                                     <div className={styles.markerPopup}>
                                         {place.name}
                                     </div>
-                                    <MapPin 
+                                    <MapPin
                                         className={cn(
-                                            "h-8 w-8 drop-shadow-md transition-all", 
+                                            "h-8 w-8 drop-shadow-md transition-all",
                                             place.is_official_venue ? "text-[var(--color-accent)]" : "text-blue-500",
                                             activePlace?.id === place.id && "scale-125 -translate-y-2 h-10 w-10 text-[var(--color-tertiary)]"
-                                        )} 
+                                        )}
                                         fill="currentColor"
                                     />
                                 </div>
                             </Marker>
                         ))}
 
-                        {/* Rendering selected coordinates pin when adding */}
                         {addingMode && newPlaceCoords && (
                             <Marker longitude={newPlaceCoords.lng} latitude={newPlaceCoords.lat} anchor="bottom">
                                 <div className={styles.markerPin}>
@@ -161,10 +159,10 @@ export default function MapIndex() {
 
                 <div className={styles.sidebarOverlay}>
                     <div className={styles.sidebarPointerEventsAuto}>
-                        <MapSidebar 
-                            places={localPlaces} 
+                        <MapSidebar
+                            places={localPlaces}
                             categories={categories}
-                            activePlace={activePlace} 
+                            activePlace={activePlace}
                             onPlaceSelect={handleFlyTo}
                             addingMode={addingMode}
                             setAddingMode={setAddingMode}

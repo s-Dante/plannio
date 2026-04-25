@@ -20,7 +20,6 @@ class MessageSent implements ShouldBroadcastNow
 
     public function __construct(Message $message)
     {
-        // Pre-load the user relation for frontend display
         $message->load('user');
         $this->message = $message;
         $this->groupId = $message->group_id;

@@ -35,7 +35,7 @@ const styles = {
 export default function Nosotros() {
     return (
         <>
-            <Head title="Sobre Nosotros - Plannio" />
+            <Head title="Sobre Nosotros" />
             <div className={styles.page}>
                 <header className={styles.header}>
                     <Link href="/" className={styles.backLink}>

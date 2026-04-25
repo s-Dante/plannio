@@ -8,7 +8,7 @@ import { CreateGroupModal } from '@/components/chats/create-group-modal';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { MessageCircle } from 'lucide-react';
-// import echo from '@/lib/echo';
+
 
 const breadcrumbs = [
     {
@@ -23,36 +23,37 @@ export default function ChatsIndex() {
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
     const [activeChat, setActiveChat] = useState<any>(null);
 
-    // WebSockets Real-Time Mounting
+    // Manejo de los Websocket para funcinamiento en tiempo real
     useEffect(() => {
         if (!window.Echo || !auth.user) return;
 
-        // Presence Channel (Globally tracking who is connected in the background)
+        // Manejo de el estatus de los usuarios
+        //  Falta generar la funcionalidad completa
         const presenceChannel = window.Echo.join(`users.status`)
             .here((users: any) => {
-                // Initial load of connected users
             })
             .joining((user: any) => {
-                // Someone connected (Update their badge icon to green)
             })
             .leaving((user: any) => {
-                // Someone left
             });
 
-        // Private Tracking Channel containing personal events
+        // Manejo de los eventos privados
         window.Echo.private(`user.${auth.user.id}`)
+            // Se recive una solicitud de amistad
             .listen('FriendRequestReceived', (e: any) => {
                 toast.info(`${e.sender.name} te ha enviado una solicitud de amistad.`, {
                     icon: '👥'
                 });
                 router.reload({ only: ['pendingRequests'] });
             })
+            // Se acepta una solicitud de amistad
             .listen('FriendRequestAccepted', (e: any) => {
                 toast.success(`${e.friend.name} aceptó tu solicitud. ¡Chat individual creado!`, {
                     icon: '🚀'
                 });
                 router.reload({ only: ['groups', 'friends'] });
             })
+            // Se crea un nuevo grupo
             .listen('GroupCreated', (e: any) => {
                 toast("¡Te han añadido a un nuevo chat grupal!", {
                     icon: '💬'
@@ -88,7 +89,7 @@ export default function ChatsIndex() {
                                 <MessageCircle></MessageCircle>
                             </span>
                         </div>
-                        <h2 className="text-2xl font-bold text-[#0D304A] dark:text-gray-100 mb-2 relative z-10">Plannio Web</h2>
+                        <h2 className="text-2xl font-bold text-[#0D304A] dark:text-gray-100 mb-2 relative z-10">Plannio</h2>
                         <p className="text-[var(--color-sisth)]/60 dark:text-gray-400 font-medium relative z-10 text-center max-w-sm">
                             Selecciona un chat en el panel izquierdo o crea uno nuevo para comenzar a interactuar de forma segura.
                         </p>
@@ -100,7 +101,6 @@ export default function ChatsIndex() {
                     </>
                 )}
 
-                {/* Modals Injected at top level */}
                 <SearchUsersModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
                 <CreateGroupModal isOpen={isCreateGroupOpen} onClose={() => setIsCreateGroupOpen(false)} friends={friends} />
             </div>

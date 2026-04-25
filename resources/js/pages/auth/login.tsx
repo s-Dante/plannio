@@ -34,8 +34,8 @@ export default function Login({
     canRegister,
 }: Props) {
     return (
-        <AuthLayout title="Log in to your account" imageSrc="/imgs/auth/Img_5.jpg">
-            <Head title="Log in" />
+        <AuthLayout title="Inicia sesión" imageSrc="/imgs/auth/Img_5.jpg">
+            <Head title="Iniciar sesión" />
 
             <div className={styles.socialContainer}>
                 <button type="button" className={styles.socialButton}>
@@ -63,77 +63,78 @@ export default function Login({
                     }, [errors]);
 
                     return (
-                    <>
-                        <div className={styles.inputGrid}>
+                        <>
+                            <div className={styles.inputGrid}>
 
-                            <div>
-                                <Input
-                                    id="email"
-                                    type="text"
-                                    name="email"
-                                    required
-                                    autoFocus
-                                    tabIndex={1}
-                                    autoComplete="username"
-                                    placeholder="Correo o username"
-                                    className={styles.input}
-                                />
-                                <InputError message={errors.email} className="mt-1 px-4 text-xs" />
-                            </div>
+                                <div>
+                                    <Input
+                                        id="email"
+                                        type="text"
+                                        name="email"
+                                        required
+                                        autoFocus
+                                        tabIndex={1}
+                                        autoComplete="username"
+                                        placeholder="Correo o username"
+                                        className={styles.input}
+                                    />
+                                    <InputError message={errors.email} className="mt-1 px-4 text-xs" />
+                                </div>
 
-                            <div className="flex flex-col gap-1.5">
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    required
-                                    tabIndex={2}
-                                    autoComplete="current-password"
-                                    placeholder="Contraseña"
-                                    className={styles.input}
-                                />
-                                <InputError message={errors.password} className="px-4 text-xs" />
+                                <div className="flex flex-col gap-1.5">
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        name="password"
+                                        required
+                                        tabIndex={2}
+                                        autoComplete="current-password"
+                                        placeholder="Contraseña"
+                                        className={styles.input}
+                                    />
+                                    <InputError message={errors.password} className="px-4 text-xs" />
 
-                                {canResetPassword && (
-                                    <Link
-                                        href={request()}
-                                        className={`${styles.linkText} px-4 mt-1`}
-                                        tabIndex={4}
+                                    {canResetPassword && (
+                                        <Link
+                                            href={request()}
+                                            className={`${styles.linkText} px-4 mt-1`}
+                                            tabIndex={4}
+                                        >
+                                            ¿Has olvidado tu contraseña?
+                                        </Link>
+                                    )}
+                                </div>
+
+                                <input type="hidden" name="remember" value="on" />
+
+                                <div>
+                                    <Button
+                                        type="submit"
+                                        className={styles.submitButton}
+                                        tabIndex={3}
+                                        disabled={processing}
+                                        data-test="login-button"
                                     >
-                                        ¿Has olvidado tu contraseña?
+                                        {processing && <Spinner className="mr-2" />}
+                                        Entrar
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {canRegister && (
+                                <div className="text-center mt-6">
+                                    <Link
+                                        href={register()}
+                                        tabIndex={5}
+                                        className={styles.linkText}
+                                    >
+                                        ¿No tienes cuenta? Registrate
                                     </Link>
-                                )}
-                            </div>
-
-                            <input type="hidden" name="remember" value="on" />
-
-                            <div>
-                                <Button
-                                    type="submit"
-                                    className={styles.submitButton}
-                                    tabIndex={3}
-                                    disabled={processing}
-                                    data-test="login-button"
-                                >
-                                    {processing && <Spinner className="mr-2" />}
-                                    Entrar
-                                </Button>
-                            </div>
-                        </div>
-
-                        {canRegister && (
-                            <div className="text-center mt-6">
-                                <Link
-                                    href={register()}
-                                    tabIndex={5}
-                                    className={styles.linkText}
-                                >
-                                    ¿No tienes cuenta? Registrate
-                                </Link>
-                            </div>
-                        )}
-                    </>
-                )}}
+                                </div>
+                            )}
+                        </>
+                    )
+                }}
             </Form>
 
             {status && (
