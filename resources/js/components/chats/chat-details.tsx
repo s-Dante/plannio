@@ -1,4 +1,8 @@
 import { Plus, CheckSquare, ArrowRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { CreateTaskModal } from '@/components/create-task-modal';
+import { router } from '@inertiajs/react';
+import { toast } from 'sonner';
 
 const styles = {
     detailsBase: "w-80 h-full hidden lg:flex flex-col bg-white dark:bg-stone-900 border-l border-gray-200 dark:border-stone-800 overflow-y-auto",
@@ -39,8 +43,51 @@ const styles = {
     mediaGridItem: "aspect-square bg-gray-100 dark:bg-stone-800 rounded-xl hover:opacity-80 transition-opacity cursor-pointer border border-gray-200/50",
 };
 
-export function ChatDetails({ activeChat }: any) {
+export function ChatDetails({ activeChat, messages = [], onOpenMedia, auth }: any) {
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [optimisticTasks, setOptimisticTasks] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (activeChat?.tasks) {
+            setOptimisticTasks(activeChat.tasks);
+        }
+    }, [activeChat]);
+
     if (!activeChat) return null;
+
+    // Extraer solo imagenes o videos del historial
+    const mediaItems = messages.filter((m: any) => m.type === 2 || m.type === 3).reverse(); // Reverse para que las mas nuevas salgan primero
+
+    const toggleTask = (task: any, isCheckedForMe: boolean) => {
+        const newStatus = isCheckedForMe ? 1 : 3; // 1 = TODO, 3 = DONE
+        
+        // Optimistic UI update based on completions instead of just global status
+        setOptimisticTasks(prev => prev.map(t => {
+            if (t.id === task.id) {
+                if (newStatus === 3) {
+                    return { ...t, completions: [...(t.completions || []), { user_id: auth?.user?.id }] };
+                } else {
+                    return { ...t, completions: (t.completions || []).filter((c: any) => c.user_id !== auth?.user?.id), status: 1 };
+                }
+            }
+            return t;
+        }));
+
+        router.put(`/tasks/${task.id}/status`, { status: newStatus }, {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                if (newStatus === 3) {
+                    toast.success('¡Tarea completada! Has ganado puntos.', { icon: '🎉' });
+                }
+            },
+            onError: () => {
+                // Revert si falla
+                setOptimisticTasks(activeChat.tasks);
+                toast.error('Error al actualizar la tarea');
+            }
+        });
+    };
 
     return (
         <div className={styles.detailsBase}>
@@ -63,35 +110,50 @@ export function ChatDetails({ activeChat }: any) {
                             <CheckSquare className={styles.tasksIconWrapper} />
                             <h4 className={styles.tasksTitle}>Tareas del Grupo</h4>
                         </div>
-                        <button className={styles.tasksAddBtn}>
+                        <button className={styles.tasksAddBtn} onClick={() => setIsCreateModalOpen(true)}>
                             <Plus className={styles.tasksAddIcon} />
                         </button>
                     </div>
 
                     <div className={styles.tasksList}>
-                        <div className={styles.taskItemBase}>
-                            <div className={styles.checkboxChecked}>
-                                <CheckSquare className={styles.checkIcon} />
-                            </div>
-                            <p className={styles.taskTextChecked}>Hacer algo</p>
-                        </div>
+                        {optimisticTasks.length === 0 ? (
+                            <p className="text-xs text-gray-400 text-center py-2">No hay tareas en este grupo</p>
+                        ) : (
+                            optimisticTasks.slice(0, 5).map((task: any) => {
+                                const isCheckedForMe = task.status === 3 || task.completions?.some((c: any) => c.user_id === auth?.user?.id);
+                                const totalMembers = activeChat.members?.length || 1;
+                                const completedCount = task.completions?.length || 0;
+                                const isFullyCompleted = task.status === 3;
 
-                        <div className={styles.taskItemBase}>
-                            <div className={styles.checkboxChecked}>
-                                <CheckSquare className={styles.checkIcon} />
-                            </div>
-                            <p className={styles.taskTextChecked}>Hacer otra cosa</p>
-                        </div>
+                                return (
+                                    <div 
+                                        key={task.id} 
+                                        className={`${styles.taskItemBase} ${!isCheckedForMe ? styles.taskItemActive : ''}`}
+                                        onClick={() => toggleTask(task, isCheckedForMe)}
+                                    >
+                                        <div className={isCheckedForMe ? styles.checkboxChecked : styles.checkboxUnchecked}>
+                                            {isCheckedForMe && <CheckSquare className={styles.checkIcon} />}
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className={isCheckedForMe ? styles.taskTextChecked : styles.taskTextUnchecked}>
+                                                {task.title}
+                                            </p>
+                                            {!isFullyCompleted && isCheckedForMe && totalMembers > 1 && (
+                                                <p className="text-[10px] text-[var(--color-accent)] font-bold mt-0.5">
+                                                    Esperando a otros ({completedCount}/{totalMembers})
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
 
-                        <div className={`${styles.taskItemBase} ${styles.taskItemActive}`}>
-                            <div className={styles.checkboxUnchecked}>
-                            </div>
-                            <p className={styles.taskTextUnchecked}>Hacer otra cosa</p>
-                        </div>
-
-                        <button className={styles.taskViewAllBtn}>
-                            Ver todas <ArrowRight className={styles.taskViewAllIcon} />
-                        </button>
+                        {optimisticTasks.length > 5 && (
+                            <button className={styles.taskViewAllBtn} onClick={() => router.visit('/tasks')}>
+                                Ver todas <ArrowRight className={styles.taskViewAllIcon} />
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -102,13 +164,32 @@ export function ChatDetails({ activeChat }: any) {
                     </div>
 
                     <div className={styles.mediaGrid}>
-                        {[...Array(6)].map((_, i) => (
-                            <div key={i} className={styles.mediaGridItem}></div>
+                        {mediaItems.length === 0 && (
+                            <p className="text-xs text-gray-400 col-span-3 text-center py-4">No hay multimedia</p>
+                        )}
+                        {mediaItems.slice(0, 9).map((media: any) => (
+                            <div 
+                                key={media.id} 
+                                className={styles.mediaGridItem + " overflow-hidden"}
+                                onClick={() => onOpenMedia(media)}
+                            >
+                                {media.type === 2 ? (
+                                    <img src={media.media_url} className="w-full h-full object-cover" />
+                                ) : (
+                                    <video src={media.media_url} className="w-full h-full object-cover"></video>
+                                )}
+                            </div>
                         ))}
                     </div>
                 </div>
 
             </div>
+
+            <CreateTaskModal 
+                isOpen={isCreateModalOpen} 
+                onClose={() => setIsCreateModalOpen(false)} 
+                groupId={activeChat.id}
+            />
         </div>
     );
 }

@@ -33,7 +33,7 @@ const styles = {
     sendIcon: "h-6 w-6",
 };
 
-export function ChatArea({ activeChat, auth }: any) {
+export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia }: any) {
     const [messages, setMessages] = useState<any[]>([]);
     const [content, setContent] = useState('');
     const [isEncrypted, setIsEncrypted] = useState(true);
@@ -56,6 +56,13 @@ export function ChatArea({ activeChat, auth }: any) {
             .catch(() => toast.error("Error cargando mensajes."))
             .finally(() => setLoading(false));
     }, [activeChat]);
+
+    // Sincronizar mensajes hacia Index.tsx para que ChatDetails pueda leerlos
+    useEffect(() => {
+        if (onMessagesUpdate) {
+            onMessagesUpdate(messages);
+        }
+    }, [messages, onMessagesUpdate]);
 
     // Manejo de Websocket
     useEffect(() => {
@@ -186,7 +193,7 @@ export function ChatArea({ activeChat, auth }: any) {
                 {messages.map((msg: any, idx: number) => {
                     const isMine = msg.user_id === auth.user.id;
                     const showName = !isMine && (!messages[idx - 1] || messages[idx - 1].user_id !== msg.user_id);
-                    return <MessageBubble key={msg.id} message={msg} isMine={isMine} showName={showName} />;
+                    return <MessageBubble key={msg.id} message={msg} isMine={isMine} showName={showName} onOpenMedia={onOpenMedia} />;
                 })}
 
                 <div ref={messagesEndRef} className="h-2"></div>

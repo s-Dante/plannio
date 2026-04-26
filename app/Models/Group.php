@@ -60,4 +60,10 @@ class Group extends Model
     {
         return $this->hasOne(Message::class)->latestOfMany();
     }
+
+    // Tareas del grupo
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
 }

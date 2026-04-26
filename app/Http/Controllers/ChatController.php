@@ -18,8 +18,8 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        // Obtenemos los grupos del usuario y sus miembros
-        $groups = $user->groups()->with('members')->get()->map(function ($group) use ($user) {
+        // Obtenemos los grupos del usuario y sus miembros, así como sus tareas
+        $groups = $user->groups()->with(['members', 'tasks.completions'])->get()->map(function ($group) use ($user) {
             // Si es un chat individual, obtenemos el otro usuario
             if ($group->is_individual) {
                 $otherUser = $group->members->firstWhere('id', '!=', $user->id);

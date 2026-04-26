@@ -44,6 +44,11 @@ class User extends Authenticatable
         'points'
     ];
 
+    protected $appends = [
+        'equipped_frame',
+        'equipped_badges'
+    ];
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -145,7 +150,7 @@ class User extends Authenticatable
         $this->increment('points', $amount);
 
         // Verificar si desbloqueó nuevas recompensas
-        $newRewards = Reward::where('required_points', '<=', $this->points)
+        $newRewards = Reward::where('points_required', '<=', $this->points)
             ->whereNotIn('id', $this->unlockedRewards()->pluck('rewards.id'))
             ->get();
 
@@ -169,5 +174,15 @@ class User extends Authenticatable
 
         // Broadcast cambio de estado
         
+    }
+
+    public function getEquippedFrameAttribute()
+    {
+        return $this->unlockedRewards()->wherePivot('is_equipped', true)->where('type', \App\Enums\RewardTypeEnum::FRAME->value)->first();
+    }
+
+    public function getEquippedBadgesAttribute()
+    {
+        return $this->unlockedRewards()->wherePivot('is_equipped', true)->where('type', \App\Enums\RewardTypeEnum::BADGE->value)->get();
     }
 }

@@ -20,7 +20,7 @@ const bubbleStyles = {
     fileBox: "flex items-center gap-3 bg-black/10 dark:bg-white/10 p-3 rounded-xl hover:bg-black/20 transition-colors cursor-pointer",
 };
 
-export function MessageBubble({ message, isMine, showName }: { message: any, isMine: boolean, showName: boolean }) {
+export function MessageBubble({ message, isMine, showName, onOpenMedia }: { message: any, isMine: boolean, showName: boolean, onOpenMedia: (media: any) => void }) {
     
     const formattedTime = new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -36,14 +36,20 @@ export function MessageBubble({ message, isMine, showName }: { message: any, isM
         switch (message.type) {
             case 2: // IMAGE
                 return (
-                    <div className={isPure ? "" : bubbleStyles.mediaWrapper}>
+                    <div 
+                        className={(isPure ? "" : bubbleStyles.mediaWrapper) + " cursor-pointer"}
+                        onClick={() => onOpenMedia(message)}
+                    >
                         <img src={message.media_url} alt="Image" className={`max-w-full h-auto object-cover ${isPure ? 'max-h-80 w-full' : 'max-h-64 rounded-t-xl rounded-b-sm'}`} />
                     </div>
                 );
             case 3: // VIDEO
                 return (
-                    <div className={isPure ? "" : bubbleStyles.mediaWrapper}>
-                        <video src={message.media_url} controls className={`max-w-full h-auto bg-black ${isPure ? 'max-h-80 w-full' : 'max-h-64 rounded-b-sm'}`}></video>
+                    <div 
+                        className={(isPure ? "" : bubbleStyles.mediaWrapper) + " cursor-pointer"}
+                        onClick={() => onOpenMedia(message)}
+                    >
+                        <video src={message.media_url} className={`max-w-full h-auto bg-black ${isPure ? 'max-h-80 w-full' : 'max-h-64 rounded-b-sm'}`}></video>
                     </div>
                 );
             case 4: // AUDIO
@@ -93,19 +99,58 @@ export function MessageBubble({ message, isMine, showName }: { message: any, isM
     }
 
     return (
-        <div className={bubbleStyles.rowStart}>
-            <div className={isPureMedia ? bubbleStyles.bubbleMediaOnlyReceived : bubbleStyles.bubbleReceived}>
-                {showName && !isPureMedia && (
-                    <div className="text-xs font-bold text-[var(--color-accent)] mb-1 pb-1 border-b border-gray-100 dark:border-stone-700/50">
-                        {message.user?.name}
+        <div className="flex justify-start items-end gap-2 w-full">
+            {showName ? (
+                <div className="w-8 shrink-0 flex flex-col items-center mb-5">
+                    <div className="relative w-8 h-8 flex items-center justify-center">
+                        <img 
+                            src={message.user?.avatar || `https://ui-avatars.com/api/?name=${message.user?.name || 'U'}`} 
+                            className="w-full h-full rounded-full object-cover bg-gray-100 dark:bg-stone-800" 
+                        />
+                        
+                        {message.user?.equipped_frame && (
+                            message.user.equipped_frame.image_url?.startsWith('#') ? (
+                                <div 
+                                    className="absolute z-10 w-[130%] h-[130%] rounded-full border-[3px] pointer-events-none" 
+                                    style={{ borderColor: message.user.equipped_frame.image_url }}
+                                ></div>
+                            ) : (
+                                <img 
+                                    src={message.user.equipped_frame.image_url} 
+                                    className="absolute z-10 pointer-events-none object-contain" 
+                                    style={{ width: '140%', height: '140%', maxWidth: 'none' }} 
+                                />
+                            )
+                        )}
                     </div>
-                )}
+                </div>
+            ) : (
+                <div className="w-8 shrink-0"></div>
+            )}
 
-                {renderMedia()}
+            <div className={bubbleStyles.rowStart + " max-w-[calc(75%-2.5rem)]"}>
+                <div className={isPureMedia ? bubbleStyles.bubbleMediaOnlyReceived : bubbleStyles.bubbleReceived + " !max-w-full"}>
+                    {showName && !isPureMedia && (
+                        <div className="text-xs font-bold text-[var(--color-accent)] mb-1 pb-1 border-b border-gray-100 dark:border-stone-700/50 flex items-center gap-1">
+                            {message.user?.name}
+                            {message.user?.equipped_badges?.length > 0 && (
+                                <div className="flex gap-0.5 ml-1">
+                                    {message.user.equipped_badges.map((b: any) => (
+                                        b.image_url?.startsWith('http') ? 
+                                        <img key={b.id} src={b.image_url} className="h-3 w-3 object-contain" title={b.name}/> :
+                                        <div key={b.id} className="h-3 w-3 rounded-full flex items-center justify-center text-[6px] text-white" style={{backgroundColor: b.image_url || '#ccc'}} title={b.name}>★</div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
-                {message.content && <p className={bubbleStyles.text}>{message.content}</p>}
+                    {renderMedia()}
+
+                    {message.content && <p className={bubbleStyles.text}>{message.content}</p>}
+                </div>
+                <div className={bubbleStyles.metaReceived}>{formattedTime}</div>
             </div>
-            <div className={bubbleStyles.metaReceived}>{showName && isPureMedia ? message.user?.name + " • " : ""}{formattedTime}</div>
         </div>
     );
 }

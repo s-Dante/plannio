@@ -32,9 +32,11 @@ const styles = {
     avatarFallback: "text-xl rounded-full bg-primary/10 text-primary",
 
     userInfoContainer: "space-y-0.5 mb-5 px-1",
-    userName: "text-lg font-bold tracking-tight text-gray-900 dark:text-gray-100",
-    userHandleContainer: "flex items-center text-sm",
+    userName: "text-lg font-bold tracking-tight text-gray-900 dark:text-gray-100 flex items-center gap-2",
+    userHandleContainer: "flex items-center text-sm gap-2",
     userHandle: "font-semibold text-gray-500 dark:text-gray-400",
+    badgesContainer: "flex gap-1 mt-1",
+    badgeSticker: "h-5 w-5 rounded-sm object-contain",
 
     actionsContainer: "space-y-1 bg-gray-50 dark:bg-[#2b2d31] p-2 rounded-xl border border-gray-100 dark:border-stone-800",
     actionButtonBase: "w-full justify-start rounded-lg hover:bg-gray-200 dark:hover:bg-[#313338] text-gray-700 dark:text-gray-200 border-none py-4 text-xs font-semibold",
@@ -59,6 +61,9 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
         username: auth?.user?.username || '@invitado',
         avatar: auth?.user?.avatar || '',
         coverColor: 'bg-indigo-500',
+        frame: auth?.user?.equipped_frame,
+        badges: auth?.user?.equipped_badges || [],
+        points: auth?.user?.points || 0
     };
 
     useEffect(() => {
@@ -126,23 +131,52 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
             <div className={styles.bodyContainer}>
                 <div className={styles.avatarWrapper}>
                     <div className={styles.avatarBackground}>
-                        <Avatar className={styles.avatarBase}>
-                            {MOCK_USER.avatar ? (
-                                <AvatarImage src={MOCK_USER.avatar} alt={MOCK_USER.name} className={styles.avatarImage} />
-                            ) : null}
-                            <AvatarFallback className={styles.avatarFallback}>
-                                {getInitials(MOCK_USER.name)}
-                            </AvatarFallback>
-                        </Avatar>
+                        <div className="relative flex items-center justify-center">
+                            <Avatar className={styles.avatarBase}>
+                                {MOCK_USER.avatar ? (
+                                    <AvatarImage src={MOCK_USER.avatar} alt={MOCK_USER.name} className={styles.avatarImage} />
+                                ) : null}
+                                <AvatarFallback className={styles.avatarFallback}>
+                                    {getInitials(MOCK_USER.name)}
+                                </AvatarFallback>
+                            </Avatar>
+
+                            {MOCK_USER.frame && MOCK_USER.frame.image_url && !MOCK_USER.frame.image_url.startsWith('#') && (
+                                <img
+                                    src={MOCK_USER.frame.image_url}
+                                    alt="Frame"
+                                    className="absolute z-10 pointer-events-none object-contain"
+                                    style={{ width: '135%', height: '135%', maxWidth: 'none' }}
+                                />
+                            )}
+                            {MOCK_USER.frame && MOCK_USER.frame.image_url?.startsWith('#') && (
+                                <div 
+                                    className="absolute z-10 w-[130%] h-[130%] rounded-full border-[5px] pointer-events-none shadow-sm"
+                                    style={{ borderColor: MOCK_USER.frame.image_url }}
+                                ></div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
                 <div className={styles.userInfoContainer}>
                     <h2 className={styles.userName}>
                         {MOCK_USER.name}
+                        {MOCK_USER.points > 0 && <span className="text-xs font-bold text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-0.5 rounded-full">⭐ {MOCK_USER.points}</span>}
                     </h2>
                     <div className={styles.userHandleContainer}>
                         <span className={styles.userHandle}>{MOCK_USER.username}</span>
+                        {MOCK_USER.badges.length > 0 && (
+                            <div className={styles.badgesContainer}>
+                                {MOCK_USER.badges.map((badge: any) => (
+                                    badge.image_url?.startsWith('http') ? (
+                                        <img key={badge.id} src={badge.image_url} alt={badge.name} title={badge.name} className={styles.badgeSticker} />
+                                    ) : (
+                                        <div key={badge.id} className="h-5 w-5 rounded-full text-[10px] text-white flex items-center justify-center" style={{ backgroundColor: badge.image_url || '#ccc' }} title={badge.name}>★</div>
+                                    )
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 

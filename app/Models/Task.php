@@ -22,14 +22,24 @@ class Task extends Model
         'user_id',
         'title',
         'description',
+        'status',
+        'priority',
+        'start_date',
+        'due_date',
         'is_completed',
+        'points_reward',
         'completed_at',
     ];
 
     protected function casts(): array
     {
         return [
+            'status' => \App\Enums\TaskStatusEnum::class,
+            'priority' => \App\Enums\TaskPriorityEnum::class,
+            'start_date' => 'datetime',
+            'due_date' => 'datetime',
             'is_completed' => 'boolean',
+            'points_reward' => 'integer',
             'completed_at' => 'datetime',
         ];
     }
@@ -64,22 +74,37 @@ class Task extends Model
             'user_id' => $userId
         ]);
 
-        // Verificar si todos completaron
-        $totalMembers = $this->group->users()->count();
-        $completedCount = $this->completions()->count();
+        if ($this->group_id) {
+            // Tarea de Grupo: Verificar si todos los miembros completaron
+            $totalMembers = $this->group->members()->count();
+            $completedCount = $this->completions()->count();
 
-        if ($completedCount >= $totalMembers && !$this->is_completed) {
-            $this->is_completed = true;
-            $this->completed_at = now();
-            $this->save();
+            if ($completedCount >= $totalMembers && !$this->is_completed) {
+                $this->status = \App\Enums\TaskStatusEnum::DONE;
+                $this->is_completed = true;
+                $this->completed_at = now();
+                $this->points_reward = rand(15, 60);
+                $this->save();
 
-            // EVENTO: Disparar evento de Reverb
-            //broadcast(new TaskCompletition($this));
-
-            // RECOMPENSAS: Dar puntos a todos
-            $this->group->users->each(function ($user) {
-                $user->addPoints(rand(10, 50), 'Tarea completada');
-            });
+                // RECOMPENSAS: Dar puntos a todos los miembros del grupo
+                $this->group->members->each(function ($user) {
+                    $user->addPoints($this->points_reward, 'Tarea completada grupal');
+                });
+            }
+        } else {
+            // Tarea Personal/Global: Se completa de inmediato
+            if (!$this->is_completed) {
+                $this->status = \App\Enums\TaskStatusEnum::DONE;
+                $this->is_completed = true;
+                $this->completed_at = now();
+                $this->points_reward = rand(10, 30);
+                $this->save();
+                
+                $user = User::find($userId);
+                if ($user) {
+                    $user->addPoints($this->points_reward, 'Tarea completada personal');
+                }
+            }
         }
     }
 }

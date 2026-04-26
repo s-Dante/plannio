@@ -54,7 +54,7 @@ export function FloatingSidebar() {
         { name: 'Perfil', icon: User, href: '#', isModal: true, modalType: 'profile' },
         { name: 'Mapa', icon: Map, href: '/map' },
         { name: 'Chats', icon: MessageSquare, href: '/chats' },
-        //{ name: 'Tareas', icon: ClipboardList, href: '/tasks' },
+        { name: 'Tareas', icon: ClipboardList, href: '/tasks' },
         { name: 'Recompensas', icon: Gift, href: '#', isModal: true, modalType: 'rewards' },
     ];
 

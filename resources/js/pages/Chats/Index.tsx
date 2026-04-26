@@ -7,7 +7,7 @@ import { SearchUsersModal } from '@/components/chats/search-users-modal';
 import { CreateGroupModal } from '@/components/chats/create-group-modal';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, X } from 'lucide-react';
 
 
 const breadcrumbs = [
@@ -22,6 +22,15 @@ export default function ChatsIndex() {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
     const [activeChat, setActiveChat] = useState<any>(null);
+    const [chatMessages, setChatMessages] = useState<any[]>([]);
+    const [lightboxMedia, setLightboxMedia] = useState<any>(null);
+
+    useEffect(() => {
+        if (activeChat && groups) {
+            const updatedChat = groups.find((g: any) => g.id === activeChat.id);
+            if (updatedChat) setActiveChat(updatedChat);
+        }
+    }, [groups]);
 
     // Manejo de los Websocket para funcinamiento en tiempo real
     useEffect(() => {
@@ -96,13 +105,43 @@ export default function ChatsIndex() {
                     </div>
                 ) : (
                     <>
-                        <ChatArea activeChat={activeChat} auth={auth} />
-                        <ChatDetails activeChat={activeChat} />
+                        <ChatArea 
+                            activeChat={activeChat} 
+                            auth={auth} 
+                            onMessagesUpdate={setChatMessages}
+                            onOpenMedia={setLightboxMedia}
+                        />
+                        <ChatDetails 
+                            activeChat={activeChat} 
+                            messages={chatMessages}
+                            onOpenMedia={setLightboxMedia}
+                            auth={auth}
+                        />
                     </>
                 )}
 
                 <SearchUsersModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
                 <CreateGroupModal isOpen={isCreateGroupOpen} onClose={() => setIsCreateGroupOpen(false)} friends={friends} />
+
+                {/* Lightbox Modal */}
+                {lightboxMedia && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in">
+                        <button 
+                            onClick={() => setLightboxMedia(null)}
+                            className="absolute top-6 right-6 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                        >
+                            <X className="h-6 w-6" />
+                        </button>
+                        
+                        <div className="max-w-5xl w-full max-h-[90vh] flex items-center justify-center">
+                            {lightboxMedia.type === 2 ? (
+                                <img src={lightboxMedia.media_url} className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl" />
+                            ) : (
+                                <video src={lightboxMedia.media_url} controls autoPlay className="max-w-full max-h-[90vh] rounded-xl shadow-2xl"></video>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
         </AppLayout>
     );

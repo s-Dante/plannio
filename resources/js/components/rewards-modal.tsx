@@ -8,6 +8,10 @@ import {
 import { Gift, Award, Frame } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { usePage, router } from '@inertiajs/react';
+import { toast } from 'sonner';
 
 const styles = {
     dialogContent: "max-w-[90vw] md:max-w-[45vw] overflow-y-auto max-h-[90vh] p-0 border border-gray-200 dark:border-stone-800 rounded-lg shadow-xl bg-white dark:bg-[#111214]",
@@ -64,26 +68,57 @@ interface RewardsModalProps {
     onClose: () => void;
 }
 
-const MOCK_BADGES = [
-    { id: 1, name: 'Fundador', color: 'bg-red-600', active: true },
-    { id: 2, name: 'Pionero', color: 'bg-sky-600', active: true },
-    { id: 3, name: '100 Días', color: 'bg-green-500', active: false },
-    { id: 4, name: 'Top 10%', color: 'bg-amber-500', active: false },
-    { id: 5, name: 'Beta Tester', color: 'bg-purple-300', active: false },
-];
-
-const MOCK_FRAMES = [
-    { id: 1, name: 'Sin Marco', image: null, active: false },
-    { id: 2, name: 'Cactus', image: '/imgs/frames/Cactus.png', active: true },
-    { id: 3, name: 'Maracas', image: '/imgs/frames/Maracas.png', active: false },
-    { id: 4, name: 'Papel Picado', image: '/imgs/frames/PapelPicado.png', active: false },
-    { id: 5, name: 'Sombrero', image: '/imgs/frames/Sombrero.png', active: false },
-];
-
 export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
     const getInitials = useInitials();
-    const userName = 'Omar Fernandez';
-    const userAvatar = '/imgs/assets/wc-balls/1950.png';
+    const { auth } = usePage<any>().props;
+    const userName = auth?.user?.name || 'Usuario';
+    const userAvatar = auth?.user?.avatar || '';
+
+    const [rewards, setRewards] = useState<any[]>([]);
+    const [unlocked, setUnlocked] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (isOpen) {
+            setLoading(true);
+            axios.get('/rewards').then(res => {
+                setRewards(res.data.rewards);
+                setUnlocked(res.data.unlocked);
+            }).finally(() => setLoading(false));
+        }
+    }, [isOpen]);
+
+    const handleToggleEquip = (rewardId: number) => {
+        const isUnlocked = unlocked.some(u => u.pivot.reward_id === rewardId);
+        if (!isUnlocked) {
+            const reward = rewards.find(r => r.id === rewardId);
+            toast.error(`Necesitas ${reward?.points_required} puntos para desbloquear esto.`);
+            return;
+        }
+
+        axios.post(`/rewards/${rewardId}/equip`).then(() => {
+            // Refrescar info local
+            axios.get('/rewards').then(res => {
+                setUnlocked(res.data.unlocked);
+                router.reload(); // Para que el sidebar y otras vistas actualicen su estado
+            });
+        }).catch(err => {
+            toast.error(err.response?.data?.errors?.message?.[0] || 'No se pudo equipar.');
+        });
+    };
+
+    const isEquipped = (rewardId: number) => {
+        return unlocked.some(u => u.pivot.reward_id === rewardId && u.pivot.is_equipped);
+    };
+
+    const isUnlocked = (rewardId: number) => {
+        return unlocked.some(u => u.pivot.reward_id === rewardId);
+    };
+
+    const badges = rewards.filter(r => r.type === 1);
+    const frames = rewards.filter(r => r.type === 2);
+    const equippedBadges = unlocked.filter(u => u.type === 1 && u.pivot.is_equipped);
+    const equippedFrame = unlocked.find(u => u.type === 2 && u.pivot.is_equipped);
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -110,9 +145,9 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
                                     </AvatarFallback>
                                 </Avatar>
 
-                                {MOCK_FRAMES.find(f => f.active)?.image && (
+                                {equippedFrame && equippedFrame.image_url && !equippedFrame.image_url.startsWith('#') && (
                                     <img
-                                        src={MOCK_FRAMES.find(f => f.active)?.image as string}
+                                        src={equippedFrame.image_url}
                                         alt="Active Frame"
                                         className={styles.frameImageOverlay}
                                         style={{ width: '135%', height: '135%' }}
@@ -121,13 +156,15 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
                             </div>
 
                             <div className={styles.previewUserDetails}>
-                                <div className={styles.previewUserName}>{userName}</div>
+                                <div className={styles.previewUserName}>{userName} <span className="text-sm font-normal text-yellow-500 ml-2">⭐ {auth?.user?.points} pts</span></div>
                                 <div className={styles.previewBadgesContainer}>
-                                    {MOCK_BADGES.filter(b => b.active).map(badge => (
+                                    {equippedBadges.map(badge => (
                                         <div
                                             key={badge.id}
-                                            className={`${styles.previewBadgeItem} ${badge.color}`}
+                                            className={`${styles.previewBadgeItem}`}
+                                            style={{ backgroundImage: badge.image_url?.startsWith('http') ? `url(${badge.image_url})` : 'none', backgroundColor: badge.image_url?.startsWith('#') ? badge.image_url : '#6366f1' }}
                                         >
+                                            {badge.image_url?.startsWith('http') ? <img src={badge.image_url} className="h-4 w-4 inline-block mr-1" /> : null}
                                             {badge.name}
                                         </div>
                                     ))}
@@ -135,6 +172,10 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
                             </div>
                         </div>
                     </section>
+
+                    {loading ? (
+                        <div className="flex justify-center p-8 text-gray-500">Cargando recompensas...</div>
+                    ) : (
 
                     <div className={styles.gridsContainer}>
                         <section className={styles.sectionBase}>
@@ -144,20 +185,28 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
                             </div>
 
                             <div className={styles.badgesGrid}>
-                                {MOCK_BADGES.map((badge: any) => (
-                                    <div
-                                        key={badge.id}
-                                        className={`${styles.badgeCardBase} ${badge.active ? styles.badgeCardActive : styles.badgeCardInactive
-                                            }`}
-                                    >
-                                        {badge.active && (
-                                            <div className={styles.checkIndicatorSmall}>✓</div>
-                                        )}
-                                        <div className={`${styles.badgeLabelBase} ${badge.active ? badge.color : `${badge.color} opacity-40 grayscale`}`}>
-                                            {badge.name}
+                                {badges.map((badge: any) => {
+                                    const active = isEquipped(badge.id);
+                                    const unlocked = isUnlocked(badge.id);
+                                    return (
+                                        <div
+                                            key={badge.id}
+                                            onClick={() => handleToggleEquip(badge.id)}
+                                            className={`${styles.badgeCardBase} ${active ? styles.badgeCardActive : styles.badgeCardInactive}`}
+                                        >
+                                            {active && <div className={styles.checkIndicatorSmall}>✓</div>}
+                                            {!unlocked && <div className="absolute inset-0 bg-white/60 dark:bg-black/60 rounded-lg z-20 flex items-center justify-center backdrop-blur-[1px]"><span className="text-[10px] font-bold">🔒 {badge.points_required}</span></div>}
+                                            
+                                            <div 
+                                                className={`${styles.badgeLabelBase} ${!unlocked ? 'opacity-40 grayscale' : ''}`}
+                                                style={{ backgroundColor: badge.image_url?.startsWith('#') ? badge.image_url : '#6366f1' }}
+                                            >
+                                                {badge.image_url?.startsWith('http') && <img src={badge.image_url} className="h-4 w-4 inline-block mr-1" />}
+                                                {badge.name}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </section>
 
@@ -168,39 +217,48 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
                             </div>
 
                             <div className={styles.framesGrid}>
-                                {MOCK_FRAMES.map((frame: any) => (
-                                    <div
-                                        key={frame.id}
-                                        className={`${styles.frameCardBase} ${frame.active ? styles.frameCardActive : styles.frameCardInactive
-                                            }`}
-                                    >
-                                        {frame.active && (
-                                            <div className={styles.frameCheckIndicator}>✓</div>
-                                        )}
+                                {frames.map((frame: any) => {
+                                    const active = isEquipped(frame.id);
+                                    const unlocked = isUnlocked(frame.id);
+                                    return (
+                                        <div
+                                            key={frame.id}
+                                            onClick={() => handleToggleEquip(frame.id)}
+                                            className={`${styles.frameCardBase} ${active ? styles.frameCardActive : styles.frameCardInactive}`}
+                                        >
+                                            {active && <div className={styles.frameCheckIndicator}>✓</div>}
+                                            {!unlocked && <div className="absolute inset-0 bg-white/60 dark:bg-black/60 rounded-lg z-20 flex items-center justify-center backdrop-blur-[1px]"><span className="text-[10px] font-bold">🔒 {frame.points_required}</span></div>}
 
-                                        <div className={styles.framePreviewWrapper}>
-                                            <div className={styles.framePreviewAvatar}>
-                                                <span className={styles.framePreviewAvatarText}>Yo</span>
+                                            <div className={styles.framePreviewWrapper}>
+                                                <div className={styles.framePreviewAvatar}>
+                                                    <span className={styles.framePreviewAvatarText}>Yo</span>
+                                                </div>
+
+                                                {frame.image_url && !frame.image_url.startsWith('#') ? (
+                                                    <img
+                                                        src={frame.image_url}
+                                                        alt={frame.name}
+                                                        className={`${styles.framePreviewImage} ${!unlocked ? 'opacity-50 grayscale' : ''}`}
+                                                        style={{ width: '130%', height: '130%' }}
+                                                    />
+                                                ) : (
+                                                    <div 
+                                                        className={`absolute z-10 w-[130%] h-[130%] rounded-full border-4 pointer-events-none ${!unlocked ? 'opacity-50 grayscale' : ''}`}
+                                                        style={{ borderColor: frame.image_url }}
+                                                    ></div>
+                                                )}
                                             </div>
 
-                                            {frame.image && (
-                                                <img
-                                                    src={frame.image}
-                                                    alt={frame.name}
-                                                    className={`${styles.framePreviewImage} ${!frame.active && 'opacity-50 grayscale'}`}
-                                                    style={{ width: '130%', height: '130%' }}
-                                                />
-                                            )}
+                                            <span className={`${styles.frameLabel} ${active ? styles.frameLabelActive : styles.frameLabelInactive}`}>
+                                                {frame.name}
+                                            </span>
                                         </div>
-
-                                        <span className={`${styles.frameLabel} ${frame.active ? styles.frameLabelActive : styles.frameLabelInactive}`}>
-                                            {frame.name}
-                                        </span>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </section>
                     </div>
+                    )}
                 </div>
             </DialogContent>
         </Dialog>

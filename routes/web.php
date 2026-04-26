@@ -24,6 +24,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('map', [App\Http\Controllers\TouristMapController::class, 'index'])->name('map.index');
     Route::post('map/places', [App\Http\Controllers\TouristMapController::class, 'store'])->name('map.places.store');
     Route::post('map/places/{place}/rate', [App\Http\Controllers\TouristMapController::class, 'rate'])->name('map.places.rate');
+
+    // Task Endpoints
+    Route::get('tasks', [App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
+    Route::post('tasks', [App\Http\Controllers\TaskController::class, 'store'])->name('tasks.store');
+    Route::put('tasks/{task}', [App\Http\Controllers\TaskController::class, 'update'])->name('tasks.update');
+    Route::put('tasks/{task}/status', [App\Http\Controllers\TaskController::class, 'updateStatus'])->name('tasks.status.update');
+    Route::delete('tasks/{task}', [App\Http\Controllers\TaskController::class, 'destroy'])->name('tasks.destroy');
+
+    // Rewards Endpoints
+    Route::get('rewards', [App\Http\Controllers\RewardController::class, 'index'])->name('rewards.index');
+    Route::post('rewards/{reward}/equip', [App\Http\Controllers\RewardController::class, 'toggleEquip'])->name('rewards.equip');
 });
 
 require __DIR__ . '/settings.php';
