@@ -177,87 +177,87 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
                         <div className="flex justify-center p-8 text-gray-500">Cargando recompensas...</div>
                     ) : (
 
-                    <div className={styles.gridsContainer}>
-                        <section className={styles.sectionBase}>
-                            <div className={styles.sectionHeader}>
-                                <Award className={styles.headerIcon} />
-                                <h2 className={styles.sectionTitle}>Insignias</h2>
-                            </div>
+                        <div className={styles.gridsContainer}>
+                            <section className={styles.sectionBase}>
+                                <div className={styles.sectionHeader}>
+                                    <Award className={styles.headerIcon} />
+                                    <h2 className={styles.sectionTitle}>Insignias</h2>
+                                </div>
 
-                            <div className={styles.badgesGrid}>
-                                {badges.map((badge: any) => {
-                                    const active = isEquipped(badge.id);
-                                    const unlocked = isUnlocked(badge.id);
-                                    return (
-                                        <div
-                                            key={badge.id}
-                                            onClick={() => handleToggleEquip(badge.id)}
-                                            className={`${styles.badgeCardBase} ${active ? styles.badgeCardActive : styles.badgeCardInactive}`}
-                                        >
-                                            {active && <div className={styles.checkIndicatorSmall}>✓</div>}
-                                            {!unlocked && <div className="absolute inset-0 bg-white/60 dark:bg-black/60 rounded-lg z-20 flex items-center justify-center backdrop-blur-[1px]"><span className="text-[10px] font-bold">🔒 {badge.points_required}</span></div>}
-                                            
-                                            <div 
-                                                className={`${styles.badgeLabelBase} ${!unlocked ? 'opacity-40 grayscale' : ''}`}
-                                                style={{ backgroundColor: badge.image_url?.startsWith('#') ? badge.image_url : '#6366f1' }}
+                                <div className={styles.badgesGrid}>
+                                    {badges.map((badge: any) => {
+                                        const active = isEquipped(badge.id);
+                                        const unlocked = isUnlocked(badge.id);
+                                        return (
+                                            <div
+                                                key={badge.id}
+                                                onClick={() => handleToggleEquip(badge.id)}
+                                                className={`${styles.badgeCardBase} ${active ? styles.badgeCardActive : styles.badgeCardInactive}`}
                                             >
-                                                {badge.image_url?.startsWith('http') && <img src={badge.image_url} className="h-4 w-4 inline-block mr-1" />}
-                                                {badge.name}
+                                                {active && <div className={styles.checkIndicatorSmall}>✓</div>}
+                                                {!unlocked && <div className="absolute inset-0 bg-white/60 dark:bg-black/60 rounded-lg z-20 flex items-center justify-center backdrop-blur-[1px]"><span className="text-[10px] font-bold">🔒 {badge.points_required}</span></div>}
+
+                                                <div
+                                                    className={`${styles.badgeLabelBase} ${!unlocked ? 'opacity-40 grayscale' : ''}`}
+                                                    style={{ backgroundColor: badge.image_url?.startsWith('#') ? badge.image_url : '#6366f1' }}
+                                                >
+                                                    {badge.image_url?.startsWith('http') && <img src={badge.image_url} className="h-4 w-4 inline-block mr-1" />}
+                                                    {badge.name}
+                                                </div>
                                             </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </section>
+                                        );
+                                    })}
+                                </div>
+                            </section>
 
-                        <section className={styles.sectionBase}>
-                            <div className={styles.sectionHeader}>
-                                <Frame className={styles.headerIcon} />
-                                <h2 className={styles.sectionTitle}>Marcos</h2>
-                            </div>
+                            <section className={styles.sectionBase}>
+                                <div className={styles.sectionHeader}>
+                                    <Frame className={styles.headerIcon} />
+                                    <h2 className={styles.sectionTitle}>Marcos</h2>
+                                </div>
 
-                            <div className={styles.framesGrid}>
-                                {frames.map((frame: any) => {
-                                    const active = isEquipped(frame.id);
-                                    const unlocked = isUnlocked(frame.id);
-                                    return (
-                                        <div
-                                            key={frame.id}
-                                            onClick={() => handleToggleEquip(frame.id)}
-                                            className={`${styles.frameCardBase} ${active ? styles.frameCardActive : styles.frameCardInactive}`}
-                                        >
-                                            {active && <div className={styles.frameCheckIndicator}>✓</div>}
-                                            {!unlocked && <div className="absolute inset-0 bg-white/60 dark:bg-black/60 rounded-lg z-20 flex items-center justify-center backdrop-blur-[1px]"><span className="text-[10px] font-bold">🔒 {frame.points_required}</span></div>}
+                                <div className={styles.framesGrid}>
+                                    {frames.map((frame: any) => {
+                                        const active = isEquipped(frame.id);
+                                        const unlocked = isUnlocked(frame.id);
+                                        return (
+                                            <div
+                                                key={frame.id}
+                                                onClick={() => handleToggleEquip(frame.id)}
+                                                className={`${styles.frameCardBase} ${active ? styles.frameCardActive : styles.frameCardInactive}`}
+                                            >
+                                                {active && <div className={styles.frameCheckIndicator}>✓</div>}
+                                                {!unlocked && <div className="absolute inset-0 bg-white/60 dark:bg-black/60 rounded-lg z-20 flex items-center justify-center backdrop-blur-[1px]"><span className="text-[10px] font-bold">🔒 {frame.points_required}</span></div>}
 
-                                            <div className={styles.framePreviewWrapper}>
-                                                <div className={styles.framePreviewAvatar}>
-                                                    <span className={styles.framePreviewAvatarText}>Yo</span>
+                                                <div className={styles.framePreviewWrapper}>
+                                                    <div className={styles.framePreviewAvatar}>
+                                                        <span className={styles.framePreviewAvatarText}>Yo</span>
+                                                    </div>
+
+                                                    {frame.image_url && !frame.image_url.startsWith('#') ? (
+                                                        <img
+                                                            src={frame.image_url}
+                                                            alt={frame.name}
+                                                            className={`${styles.framePreviewImage} ${!unlocked ? 'opacity-50 grayscale' : ''}`}
+                                                            style={{ width: '110%', height: '110%' }}
+                                                        />
+                                                    ) : (
+                                                        <div
+                                                            className={`absolute z-10 w-[110%] h-[110%] rounded-full border-4 pointer-events-none ${!unlocked ? 'opacity-50 grayscale' : ''}`}
+                                                            style={{ borderColor: frame.image_url }}
+                                                        ></div>
+                                                    )}
                                                 </div>
 
-                                                {frame.image_url && !frame.image_url.startsWith('#') ? (
-                                                    <img
-                                                        src={frame.image_url}
-                                                        alt={frame.name}
-                                                        className={`${styles.framePreviewImage} ${!unlocked ? 'opacity-50 grayscale' : ''}`}
-                                                        style={{ width: '130%', height: '130%' }}
-                                                    />
-                                                ) : (
-                                                    <div 
-                                                        className={`absolute z-10 w-[130%] h-[130%] rounded-full border-4 pointer-events-none ${!unlocked ? 'opacity-50 grayscale' : ''}`}
-                                                        style={{ borderColor: frame.image_url }}
-                                                    ></div>
-                                                )}
+                                                <span className={`${styles.frameLabel} ${active ? styles.frameLabelActive : styles.frameLabelInactive}`}>
+                                                    {frame.name}
+                                                </span>
                                             </div>
-
-                                            <span className={`${styles.frameLabel} ${active ? styles.frameLabelActive : styles.frameLabelInactive}`}>
-                                                {frame.name}
-                                            </span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </section>
-                    </div>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+                        </div>
                     )}
                 </div>
             </DialogContent>
