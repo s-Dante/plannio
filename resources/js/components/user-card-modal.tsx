@@ -32,10 +32,10 @@ const styles = {
     avatarFallback: "text-xl rounded-full bg-primary/10 text-primary",
 
     userInfoContainer: "space-y-0.5 mb-5 px-1",
-    userName: "text-lg font-bold tracking-tight text-gray-900 dark:text-gray-100 flex items-center gap-2",
+    userName: "text-lg font-bold tracking-tight text-gray-900 dark:text-gray-100",
     userHandleContainer: "flex items-center text-sm gap-2",
     userHandle: "font-semibold text-gray-500 dark:text-gray-400",
-    badgesContainer: "flex gap-1 mt-1",
+    badgesContainer: "flex flex-wrap gap-1.5 mt-2",
     badgeSticker: "h-5 w-5 rounded-sm object-contain",
 
     actionsContainer: "space-y-1 bg-gray-50 dark:bg-[#2b2d31] p-2 rounded-xl border border-gray-100 dark:border-stone-800",
@@ -49,6 +49,12 @@ interface UserCardModalProps {
     onClose: () => void;
     onOpenRewards?: () => void;
 }
+
+const BADGE_EMOJIS = ['🏅', '⚡', '🎯', '🔥', '💎', '🌟', '🦁', '🚀', '🎖️', '👑'];
+
+const getBadgeEmoji = (name: string) => {
+    return BADGE_EMOJIS[name.charCodeAt(0) % BADGE_EMOJIS.length];
+};
 
 export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalProps) {
     const { auth } = usePage<SharedData>().props;
@@ -160,24 +166,37 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
                 </div>
 
                 <div className={styles.userInfoContainer}>
-                    <h2 className={styles.userName}>
-                        {MOCK_USER.name}
-                        {MOCK_USER.points > 0 && <span className="text-xs font-bold text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-0.5 rounded-full">⭐ {MOCK_USER.points}</span>}
-                    </h2>
+                    <h2 className={styles.userName}>{MOCK_USER.name}</h2>
                     <div className={styles.userHandleContainer}>
                         <span className={styles.userHandle}>{MOCK_USER.username}</span>
-                        {MOCK_USER.badges.length > 0 && (
-                            <div className={styles.badgesContainer}>
-                                {MOCK_USER.badges.map((badge: any) => (
-                                    badge.image_url?.startsWith('http') ? (
-                                        <img key={badge.id} src={badge.image_url} alt={badge.name} title={badge.name} className={styles.badgeSticker} />
-                                    ) : (
-                                        <div key={badge.id} className="h-5 w-5 rounded-full text-[10px] text-white flex items-center justify-center" style={{ backgroundColor: badge.image_url || '#ccc' }} title={badge.name}>★</div>
-                                    )
-                                ))}
-                            </div>
-                        )}
                     </div>
+
+                    {MOCK_USER.points > 0 && (
+                        <div className="mt-2">
+                            <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 px-2.5 py-1 rounded-full">
+                                ⭐ {MOCK_USER.points.toLocaleString()} <span className="font-normal opacity-70">pts</span>
+                            </span>
+                        </div>
+                    )}
+
+                    {MOCK_USER.badges.length > 0 && (
+                        <div className={styles.badgesContainer}>
+                            {MOCK_USER.badges.map((badge: any) => (
+                                badge.image_url?.startsWith('http') ? (
+                                    <img key={badge.id} src={badge.image_url} alt={badge.name} title={badge.name} className={styles.badgeSticker} />
+                                ) : (
+                                    <span
+                                        key={badge.id}
+                                        className="inline-flex items-center gap-1 text-[10px] font-bold text-white px-2 py-0.5 rounded-full"
+                                        style={{ backgroundColor: badge.image_url?.startsWith('#') ? badge.image_url : '#6366f1' }}
+                                        title={badge.name}
+                                    >
+                                        {getBadgeEmoji(badge.name)} {badge.name}
+                                    </span>
+                                )
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <div className={styles.actionsContainer}>

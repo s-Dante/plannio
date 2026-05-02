@@ -128,21 +128,44 @@ export function ChatSidebar({ onOpenSearch, onOpenNewGroup, onChatSelect, active
                                 <p className="text-sm">No tienes chats activos.</p>
                             </div>
                         ) : (
-                            filteredGroups.map((group: any) => (
-                                <button 
-                                    key={group.id} 
+                            filteredGroups.map((group: any) => {
+                                const otherMember = group.is_individual
+                                    ? group.members?.find((m: any) => m.id !== auth.user.id)
+                                    : null;
+                                const memberFrame = otherMember?.equipped_frame ?? null;
+
+                                return (
+                                <button
+                                    key={group.id}
                                     onClick={() => onChatSelect(group)}
                                     className={`${styles.itemBase} ${activeChat?.id === group.id ? 'bg-gray-50 border-[var(--color-accent)] dark:bg-stone-800' : styles.itemInactive}`}
                                 >
                                     <div className={styles.avatarWrapper}>
-                                        <img src={group.avatar || `https://ui-avatars.com/api/?name=${group.name}&background=random`} className={styles.avatarImage} alt="Avatar" />
+                                        <div className="relative flex items-center justify-center h-12 w-12">
+                                            <img src={group.avatar || `https://ui-avatars.com/api/?name=${group.name}&background=random`} className={styles.avatarImage} alt="Avatar" />
+                                            {memberFrame && memberFrame.image_url?.startsWith('#') && (
+                                                <div
+                                                    className="absolute z-10 w-[130%] h-[130%] rounded-full border-[3px] pointer-events-none"
+                                                    style={{ borderColor: memberFrame.image_url }}
+                                                />
+                                            )}
+                                            {memberFrame && memberFrame.image_url && !memberFrame.image_url.startsWith('#') && (
+                                                <img
+                                                    src={memberFrame.image_url}
+                                                    className="absolute z-10 pointer-events-none object-contain"
+                                                    style={{ width: '140%', height: '140%', maxWidth: 'none' }}
+                                                    alt="Frame"
+                                                />
+                                            )}
+                                        </div>
                                     </div>
                                     <div className={styles.textWrapper}>
                                         <span className={styles.nameTitle}>{group.name}</span>
                                         <span className="text-xs text-gray-500 truncate mt-0.5">{group.is_individual ? "Chat Privado" : `${group.members?.length || 0} miembros`}</span>
                                     </div>
                                 </button>
-                            ))
+                                );
+                            })
                         )}
                     </div>
                 </>

@@ -156,12 +156,12 @@ export default function TasksIndex({ tasks, groups, statuses, priorities, auth }
                 </div>
 
                 {/* Tablero Kanban */}
-                <div className="flex-1 overflow-x-auto p-8">
-                    <div className="flex gap-6 min-w-max max-w-7xl mx-auto h-full items-start">
+                <div className="flex-1 overflow-auto p-8">
+                    <div className="flex gap-6 min-w-max max-w-7xl mx-auto items-start">
                         {columns.map(column => (
-                            <div 
-                                key={column.id} 
-                                className={`w-80 rounded-2xl flex flex-col max-h-full border border-gray-200 dark:border-stone-700/50 ${column.color}`}
+                            <div
+                                key={column.id}
+                                className={`w-80 rounded-2xl flex flex-col border border-gray-200 dark:border-stone-700/50 ${column.color}`}
                                 onDragOver={handleDragOver}
                                 onDrop={(e) => handleDrop(e, column.id)}
                             >
@@ -172,7 +172,7 @@ export default function TasksIndex({ tasks, groups, statuses, priorities, auth }
                                     </span>
                                 </div>
 
-                                <div className="p-3 flex-1 overflow-y-auto space-y-3 custom-scrollbar">
+                                <div className="p-3 space-y-3">
                                     {localTasks.filter((t: any) => t.status === column.id && (filterGroup === 'personal' ? t.group_id === null : filterGroup ? t.group_id === filterGroup : true)).map((task: any) => (
                                         <div 
                                             key={task.id}

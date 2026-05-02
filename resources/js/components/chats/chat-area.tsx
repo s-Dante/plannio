@@ -158,17 +158,38 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia }: an
         }
     };
 
+    const headerOtherMember = activeChat?.is_individual
+        ? activeChat.members?.find((m: any) => m.id !== auth.user.id)
+        : null;
+    const headerFrame = headerOtherMember?.equipped_frame ?? null;
+
     return (
         <div className={styles.areaBase}>
             <div className={styles.bgPattern}></div>
 
             <div className={styles.headerContainer}>
                 <div className={styles.headerLeftMenu}>
-                    <div className={styles.headerAvatarGroup}>
-                        {activeChat.avatar ?
-                            <img src={activeChat.avatar} className="w-full h-full object-cover" /> :
-                            <Users className={styles.headerAvatarIcon} />
-                        }
+                    <div className="relative flex items-center justify-center h-10 w-10 flex-shrink-0">
+                        <div className={styles.headerAvatarGroup}>
+                            {activeChat.avatar ?
+                                <img src={activeChat.avatar} className="w-full h-full object-cover" /> :
+                                <Users className={styles.headerAvatarIcon} />
+                            }
+                        </div>
+                        {headerFrame && headerFrame.image_url?.startsWith('#') && (
+                            <div
+                                className="absolute z-10 w-[130%] h-[130%] rounded-full border-[3px] pointer-events-none"
+                                style={{ borderColor: headerFrame.image_url }}
+                            />
+                        )}
+                        {headerFrame && headerFrame.image_url && !headerFrame.image_url.startsWith('#') && (
+                            <img
+                                src={headerFrame.image_url}
+                                className="absolute z-10 pointer-events-none object-contain"
+                                style={{ width: '140%', height: '140%', maxWidth: 'none' }}
+                                alt="Frame"
+                            />
+                        )}
                     </div>
                     <div>
                         <h3 className={styles.headerTitle}>{activeChat.name}</h3>
