@@ -3,9 +3,9 @@ import AppLayout from '@/layouts/app-layout';
 import { MapSidebar } from '@/components/map/map-sidebar';
 import Map, { Marker, NavigationControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { useRef, useState, useMemo, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import type { MapRef } from 'react-map-gl/maplibre';
-import { MapPin, LogIn } from 'lucide-react';
+import { MapPin, List, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -33,7 +33,7 @@ const breadcrumbs = [
 const styles = {
     container: "relative w-full h-full overflow-hidden bg-[#e5e3df] dark:bg-stone-900 rounded-3xl",
     mapBackground: "absolute inset-0 transition-opacity duration-1000",
-    sidebarOverlay: "absolute inset-y-0 left-0 p-4 lg:p-6 w-full md:w-[420px] lg:w-[460px] z-20 pointer-events-none",
+    sidebarOverlay: "absolute inset-y-0 left-0 p-3 md:p-4 lg:p-6 w-full md:w-[420px] lg:w-[460px] z-20 pointer-events-none",
     sidebarPointerEventsAuto: "w-full h-full pointer-events-auto",
     markerPin: "cursor-pointer group flex flex-col items-center",
     markerPopup: "absolute bottom-10 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md px-3 py-1.5 rounded-xl text-xs font-bold shadow-xl border border-gray-100 dark:border-stone-800 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 text-[#0D304A] dark:text-gray-100 pointer-events-none"
@@ -46,6 +46,8 @@ export default function MapIndex() {
     const [activePlace, setActivePlace] = useState<Place | null>(null);
     const [addingMode, setAddingMode] = useState(false);
     const [newPlaceCoords, setNewPlaceCoords] = useState<{ lat: number, lng: number } | null>(null);
+    // Sidebar colapsable en mobile (por defecto cerrado)
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
         if (places) setLocalPlaces(places);
@@ -157,13 +159,19 @@ export default function MapIndex() {
                     </Map>
                 </div>
 
-                <div className={styles.sidebarOverlay}>
+                {/* Sidebar: en desktop siempre visible, en mobile según sidebarOpen */}
+                <div className={cn(
+                    styles.sidebarOverlay,
+                    // Mobile: ocultar con translate cuando está cerrado
+                    'transition-transform duration-300',
+                    !sidebarOpen && '-translate-x-full md:translate-x-0',
+                )}>
                     <div className={styles.sidebarPointerEventsAuto}>
                         <MapSidebar
                             places={localPlaces}
                             categories={categories}
                             activePlace={activePlace}
-                            onPlaceSelect={handleFlyTo}
+                            onPlaceSelect={(place) => { handleFlyTo(place); setSidebarOpen(false); }}
                             addingMode={addingMode}
                             setAddingMode={setAddingMode}
                             newPlaceCoords={newPlaceCoords}
@@ -171,6 +179,21 @@ export default function MapIndex() {
                         />
                     </div>
                 </div>
+
+                {/* FAB toggle sidebar — solo mobile */}
+                <button
+                    onClick={() => setSidebarOpen(v => !v)}
+                    className={cn(
+                        'md:hidden absolute bottom-6 left-4 z-30 pointer-events-auto',
+                        'flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl font-bold text-sm transition-all',
+                        sidebarOpen
+                            ? 'bg-[var(--color-sisth)] text-white'
+                            : 'bg-white text-[var(--color-sisth)] border-2 border-[var(--color-sisth)]'
+                    )}
+                >
+                    {sidebarOpen ? <X className="h-4 w-4" /> : <List className="h-4 w-4" />}
+                    {sidebarOpen ? 'Cerrar' : 'Lugares'}
+                </button>
 
             </div>
         </AppLayout>

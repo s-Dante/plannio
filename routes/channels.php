@@ -21,3 +21,13 @@ Broadcast::channel('chat.{groupId}', function ($user, $groupId) {
             $query->where('user_id', $user->id);
         })->exists();
 });
+
+// Canal de llamadas: autoriza sólo a miembros del grupo al que pertenece la llamada
+Broadcast::channel('call.{callId}', function ($user, $callId) {
+    $call = \App\Models\Call::find($callId);
+    if (! $call) return false;
+    return \App\Models\Group::where('id', $call->group_id)
+        ->whereHas('members', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->exists();
+});

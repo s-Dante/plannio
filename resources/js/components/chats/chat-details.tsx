@@ -1,11 +1,13 @@
-import { Plus, CheckSquare, ArrowRight } from 'lucide-react';
+import { Plus, CheckSquare, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { CreateTaskModal } from '@/components/create-task-modal';
 import { router } from '@inertiajs/react';
 import { toast } from 'sonner';
 
 const styles = {
-    detailsBase: "w-80 h-full hidden lg:flex flex-col bg-white dark:bg-stone-900 border-l border-gray-200 dark:border-stone-800 overflow-y-auto",
+    // Mobile: full-width visible (controlado desde Index con translate).
+    // Desktop: ancho fijo, siempre visible en lg+.
+    detailsBase: "w-full h-full flex flex-col bg-white dark:bg-stone-900 border-l border-gray-200 dark:border-stone-800 overflow-y-auto lg:w-80",
 
     headerContainer: "p-6 pb-4 text-center border-b border-gray-100 dark:border-stone-800",
     headerAvatarGroup: "h-24 w-24 rounded-full border-4 border-[var(--color-accent)]/20 bg-gray-100 dark:bg-stone-800 shadow-sm mx-auto mb-4 overflow-hidden relative group cursor-pointer",
@@ -43,7 +45,7 @@ const styles = {
     mediaGridItem: "aspect-square bg-gray-100 dark:bg-stone-800 rounded-xl hover:opacity-80 transition-opacity cursor-pointer border border-gray-200/50",
 };
 
-export function ChatDetails({ activeChat, messages = [], onOpenMedia, auth }: any) {
+export function ChatDetails({ activeChat, messages = [], onOpenMedia, auth, onBack }: any) {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [optimisticTasks, setOptimisticTasks] = useState<any[]>([]);
 
@@ -91,6 +93,18 @@ export function ChatDetails({ activeChat, messages = [], onOpenMedia, auth }: an
 
     return (
         <div className={styles.detailsBase}>
+
+            {/* Botón back — solo mobile */}
+            {onBack && (
+                <div className="lg:hidden px-4 pt-4 pb-0">
+                    <button
+                        onClick={onBack}
+                        className="flex items-center gap-1.5 text-sm font-bold text-gray-500 hover:text-[var(--color-accent)] transition-colors py-1"
+                    >
+                        <ArrowLeft className="h-4 w-4" /> Volver al chat
+                    </button>
+                </div>
+            )}
 
             <div className={styles.headerContainer}>
                 <div className={styles.headerAvatarGroup}>

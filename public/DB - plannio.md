@@ -93,3 +93,14 @@ Funcionalidades por hacer
 ⚠️  -> Recompenzas
 ⚠️      -> Sistema para ganar las recompenzas 
 ⚠️      -> Sistema de visualizacion de recompenzas
+
+
+
+
+Ejecucion del proyecto para Tunnel:
+-> Abrir 4 terminales
+-> En cada terminal ejecutar:
+    -> Terminal 1: ./tunnel.sh
+    -> Terminal 2: php artisan serve
+    -> Terminal 3: php artisan reverb:start
+    -> Terminal 4: npm run build

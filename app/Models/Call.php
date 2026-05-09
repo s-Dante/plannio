@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Group;
 
 use App\Enums\CallStatusEnum;
+use App\Enums\CallTypeEnum;
 
 class Call extends Model
 {
@@ -20,6 +21,7 @@ class Call extends Model
     protected $fillable = [
         'group_id',
         'caller_id',
+        'type',
         'status',
         'started_at',
         'ended_at',
@@ -33,6 +35,7 @@ class Call extends Model
             'ended_at' => 'datetime',
             'duration' => 'integer',
             'status' => CallStatusEnum::class,
+            'type'   => CallTypeEnum::class,
         ];
     }
 

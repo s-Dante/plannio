@@ -1,4 +1,4 @@
-import { Phone, Video, Lock, Unlock, Paperclip, Smile, Mic, Users, MapPin, SendHorizonal, Loader2 } from 'lucide-react';
+import { Phone, Video, Lock, Unlock, Paperclip, Smile, Users, MapPin, SendHorizonal, Loader2, ArrowLeft, Plus, X } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -14,7 +14,7 @@ const styles = {
     headerLeftMenu: "flex items-center gap-3",
     headerAvatarGroup: "h-10 w-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center overflow-hidden",
     headerAvatarIcon: "h-5 w-5",
-    headerTitle: "font-bold text-gray-800 dark:text-gray-100 leading-tight",
+    headerTitle: "text-sm font-semibold text-gray-800 dark:text-gray-100 leading-tight",
     headerRightMenu: "flex items-center gap-5 text-[var(--color-sisth)]/60 dark:text-gray-400",
     headerActionBtn: "hover:text-[var(--color-accent)] transition-colors cursor-pointer disabled:opacity-50 relative",
     headerIcon: "h-5 w-5",
@@ -33,13 +33,14 @@ const styles = {
     sendIcon: "h-6 w-6",
 };
 
-export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia }: any) {
+export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onStartCall, callState, onBack, onOpenDetails }: any) {
     const [messages, setMessages] = useState<any[]>([]);
     const [content, setContent] = useState('');
     const [isEncrypted, setIsEncrypted] = useState(true);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [showActions, setShowActions] = useState(false);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -169,35 +170,65 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia }: an
 
             <div className={styles.headerContainer}>
                 <div className={styles.headerLeftMenu}>
-                    <div className="relative flex items-center justify-center h-10 w-10 flex-shrink-0">
-                        <div className={styles.headerAvatarGroup}>
-                            {activeChat.avatar ?
-                                <img src={activeChat.avatar} className="w-full h-full object-cover" /> :
-                                <Users className={styles.headerAvatarIcon} />
-                            }
+                    {/* Botón back — solo mobile */}
+                    {onBack && (
+                        <button
+                            onClick={onBack}
+                            className="md:hidden p-2 -ml-2 rounded-xl text-gray-500 hover:text-[var(--color-accent)] hover:bg-gray-100 transition-colors"
+                        >
+                            <ArrowLeft className="h-5 w-5" />
+                        </button>
+                    )}
+
+                    {/* Avatar + nombre — clickeable para abrir detalles en mobile */}
+                    <button
+                        onClick={onOpenDetails}
+                        className="flex items-center gap-3 cursor-pointer md:cursor-default rounded-xl p-1 -ml-1 hover:bg-gray-100/60 md:hover:bg-transparent transition-colors"
+                    >
+                        <div className="relative flex items-center justify-center h-10 w-10 flex-shrink-0">
+                            <div className={styles.headerAvatarGroup}>
+                                {activeChat.avatar ?
+                                    <img src={activeChat.avatar} className="w-full h-full object-cover" /> :
+                                    <Users className={styles.headerAvatarIcon} />
+                                }
+                            </div>
+                            {headerFrame && headerFrame.image_url?.startsWith('#') && (
+                                <div
+                                    className="absolute z-10 w-[130%] h-[130%] rounded-full border-[3px] pointer-events-none"
+                                    style={{ borderColor: headerFrame.image_url }}
+                                />
+                            )}
+                            {headerFrame && headerFrame.image_url && !headerFrame.image_url.startsWith('#') && (
+                                <img
+                                    src={headerFrame.image_url}
+                                    className="absolute z-10 pointer-events-none object-contain"
+                                    style={{ width: '140%', height: '140%', maxWidth: 'none' }}
+                                    alt="Frame"
+                                />
+                            )}
                         </div>
-                        {headerFrame && headerFrame.image_url?.startsWith('#') && (
-                            <div
-                                className="absolute z-10 w-[130%] h-[130%] rounded-full border-[3px] pointer-events-none"
-                                style={{ borderColor: headerFrame.image_url }}
-                            />
-                        )}
-                        {headerFrame && headerFrame.image_url && !headerFrame.image_url.startsWith('#') && (
-                            <img
-                                src={headerFrame.image_url}
-                                className="absolute z-10 pointer-events-none object-contain"
-                                style={{ width: '140%', height: '140%', maxWidth: 'none' }}
-                                alt="Frame"
-                            />
-                        )}
-                    </div>
-                    <div>
-                        <h3 className={styles.headerTitle}>{activeChat.name}</h3>
-                    </div>
+                        <div>
+                            <h3 className={styles.headerTitle}>{activeChat.name}</h3>
+                        </div>
+                    </button>
                 </div>
                 <div className={styles.headerRightMenu}>
-                    <button className={styles.headerActionBtn} title="Llamada (Próximamente)"><Phone className={styles.headerIcon} /></button>
-                    <button className={styles.headerActionBtn} title="Videollamada"><Video className={styles.headerIcon} /></button>
+                    <button
+                        className={`${styles.headerActionBtn} ${callState !== 'idle' ? 'text-[var(--color-accent)] opacity-50 cursor-not-allowed' : ''}`}
+                        title="Llamada de voz"
+                        onClick={() => callState === 'idle' && onStartCall?.(1)}
+                        disabled={callState !== 'idle'}
+                    >
+                        <Phone className={styles.headerIcon} />
+                    </button>
+                    <button
+                        className={`${styles.headerActionBtn} ${callState !== 'idle' ? 'text-[var(--color-accent)] opacity-50 cursor-not-allowed' : ''}`}
+                        title="Videollamada"
+                        onClick={() => callState === 'idle' && onStartCall?.(2)}
+                        disabled={callState !== 'idle'}
+                    >
+                        <Video className={styles.headerIcon} />
+                    </button>
                     <button
                         className={styles.headerActionBtn}
                         onClick={() => setIsEncrypted(!isEncrypted)}
@@ -223,6 +254,7 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia }: an
 
             <div className={styles.inputWrapper}>
 
+                {/* Preview de archivo adjunto */}
                 {pendingFile && (
                     <div className={styles.filePreview}>
                         <div className="flex items-center gap-2 truncate">
@@ -233,12 +265,13 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia }: an
                     </div>
                 )}
 
-                <div className="flex w-full gap-2 relative">
-                    <div className={styles.inputBox}>
+                {/* Fila de acciones expandibles (emoji, adjuntar, ubicación) */}
+                {showActions && (
+                    <div className="flex items-center gap-1 px-1 animate-in slide-in-from-bottom-2 duration-150">
                         <Popover>
                             <PopoverTrigger asChild>
                                 <button className={styles.inputActionBtn} title="Emojis" disabled={uploading}>
-                                    <Smile className={styles.inputIconSmile} />
+                                    <Smile className="h-5 w-5" />
                                 </button>
                             </PopoverTrigger>
                             <PopoverContent side="top" align="start" className="w-auto p-0 border-none bg-transparent shadow-none mb-2 outline-none">
@@ -247,16 +280,30 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia }: an
                         </Popover>
 
                         <button className={styles.inputActionBtn} title="Adjuntar Documento" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-                            <Paperclip className={styles.inputIcon} />
+                            <Paperclip className="h-5 w-5" />
                         </button>
                         <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileSelect} />
 
                         <button className={styles.inputActionBtn} title="Compartir Ubicación" onClick={handleSendLocation} disabled={uploading}>
-                            <MapPin className={styles.inputIcon} />
+                            <MapPin className="h-5 w-5" />
+                        </button>
+                    </div>
+                )}
+
+                <div className="flex w-full gap-2 relative">
+                    <div className={styles.inputBox}>
+                        {/* Botón + / × para expandir/colapsar acciones */}
+                        <button
+                            onClick={() => setShowActions(v => !v)}
+                            disabled={uploading}
+                            title={showActions ? 'Cerrar' : 'Más opciones'}
+                            className={`${styles.inputActionBtn} transition-transform duration-150 ${showActions ? 'rotate-45' : 'rotate-0'}`}
+                        >
+                            <Plus className="h-5 w-5" />
                         </button>
 
                         <textarea
-                            placeholder={isEncrypted ? "Escribe un mensaje seguro..." : "Escribe un mensaje normal..."}
+                            placeholder={isEncrypted ? "Escribe un mensaje seguro..." : "Escribe un mensaje..."}
                             className={styles.textarea}
                             rows={1}
                             value={content}

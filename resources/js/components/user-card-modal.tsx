@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, usePage } from '@inertiajs/react';
 import { Settings, Gift, Moon, Sun, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const styles = {
-    modalWrapper: "absolute left-[85px] md:left-[96px] top-[90px] z-[9999] w-64 md:w-72 overflow-hidden rounded-2xl shadow-2xl bg-white dark:bg-[#111214] border border-gray-200 dark:border-stone-800 animate-in fade-in slide-in-from-left-4 duration-200",
+    // Portal → siempre hijo directo de <body>, inmune a transforms/overflow de ancestros.
+    // Mobile: aparece sobre la bottom nav (bottom-[72px] = 64px nav + 8px gap), ancho casi full.
+    // Desktop: aparece a la derecha del sidebar lateral (left-[96px], top fijo).
+    modalWrapper: "fixed left-4 bottom-[72px] md:left-[96px] md:bottom-auto md:top-[90px] z-[9999] w-[calc(100vw-2rem)] max-w-xs md:max-w-[18rem] overflow-hidden rounded-2xl shadow-2xl bg-white dark:bg-[#111214] border border-gray-200 dark:border-stone-800 animate-in fade-in zoom-in-95 duration-200",
     coverContainerBase: "h-24 w-full relative",
     themeSwitcherContainer: "absolute top-3 right-3 z-10",
     themeSwitcherButton: "h-7 w-7 rounded-full bg-black/20 text-white hover:bg-black/40 backdrop-blur-sm border-none shadow-sm",
@@ -91,7 +95,10 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
 
     if (!isOpen) return null;
 
-    return (
+    // Portal: el modal se monta directamente bajo <body>.
+    // Esto lo hace completamente inmune a transforms, overflow-hidden, backdrop-filter
+    // y cualquier otro stacking context que exista en el árbol de ancestros.
+    return createPortal(
         <div
             ref={modalRef}
             className={styles.modalWrapper}
@@ -156,7 +163,7 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
                                 />
                             )}
                             {MOCK_USER.frame && MOCK_USER.frame.image_url?.startsWith('#') && (
-                                <div 
+                                <div
                                     className="absolute z-10 w-[130%] h-[130%] rounded-full border-[5px] pointer-events-none shadow-sm"
                                     style={{ borderColor: MOCK_USER.frame.image_url }}
                                 ></div>
@@ -226,6 +233,7 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
                     </Button>
                 </div>
             </div>
-        </ div>
+        </div>,
+        document.body
     );
 }

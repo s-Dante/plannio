@@ -35,6 +35,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rewards Endpoints
     Route::get('rewards', [App\Http\Controllers\RewardController::class, 'index'])->name('rewards.index');
     Route::post('rewards/{reward}/equip', [App\Http\Controllers\RewardController::class, 'toggleEquip'])->name('rewards.equip');
+
+    // Call Endpoints
+    Route::post('calls/initiate', [App\Http\Controllers\CallController::class, 'initiate'])->name('calls.initiate');
+    Route::post('calls/{call}/join', [App\Http\Controllers\CallController::class, 'join'])->name('calls.join');
+    Route::post('calls/{call}/leave', [App\Http\Controllers\CallController::class, 'leave'])->name('calls.leave');
+    Route::post('calls/{call}/end', [App\Http\Controllers\CallController::class, 'end'])->name('calls.end');
+    Route::get('calls/{call}', [App\Http\Controllers\CallController::class, 'show'])->name('calls.show');
 });
 
 require __DIR__ . '/settings.php';

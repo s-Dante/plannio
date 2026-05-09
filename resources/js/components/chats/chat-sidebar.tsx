@@ -11,7 +11,7 @@ import { router, usePage } from '@inertiajs/react';
 import { toast } from 'sonner';
 
 const styles = {
-    sidebarBase: "w-80 h-full flex flex-col bg-white dark:bg-stone-900 border-r border-gray-200 dark:border-stone-800 z-10",
+    sidebarBase: "w-full md:w-80 h-full flex flex-col bg-white dark:bg-stone-900 border-r border-gray-200 dark:border-stone-800 z-10",
     headerContainer: "p-6 pb-2 flex flex-col border-b border-transparent",
     headerTitleBox: "flex items-center justify-between",
     headerTitle: "text-2xl font-extrabold text-[#0D304A] dark:text-gray-100",

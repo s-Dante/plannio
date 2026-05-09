@@ -20,7 +20,7 @@ const styles = {
     title: "text-xl font-bold text-[var(--color-sisth)]",
     subtitle: "text-sm text-[var(--color-sisth)]/60 mt-1",
     formContainer: "flex flex-col gap-4 w-full max-w-[360px] mx-auto",
-    inputGrid: "grid grid-cols-2 gap-3",
+    inputGrid: "grid grid-cols-1 sm:grid-cols-2 gap-3",
     input: "h-11 w-full rounded-full border-0 bg-[#d9dfe5]/70 focus-visible:ring-1 focus-visible:ring-[var(--color-accent)] shadow-inner px-5 text-sm placeholder:text-[var(--color-sisth)]/60 text-[var(--color-sisth)]",
     selectTrigger: "w-full h-11 rounded-full border-0 bg-[#d9dfe5]/70 shadow-inner px-5 text-sm text-[var(--color-sisth)] focus:ring-1 focus:ring-[var(--color-accent)] hover:bg-[#d9dfe5]/90 transition-colors",
     submitButton: "mt-4 h-11 w-full rounded-full bg-[var(--color-accent)] hover:bg-[#829965] text-white font-bold text-base shadow-md transition-all",
