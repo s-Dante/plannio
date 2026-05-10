@@ -9,6 +9,7 @@ use App\Enums\CallStatusEnum;
 use App\Enums\CallTypeEnum;
 use App\Events\CallInitiated;
 use App\Events\CallEnded;
+use App\Events\CameraToggled;
 use App\Events\ParticipantJoined;
 use App\Events\ParticipantLeft;
 
@@ -154,6 +155,25 @@ class CallController extends Controller
         if ($group && $group->is_individual) {
             $this->endCall($call);
         }
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Notifica a los demás participantes que el usuario apagó/encendió la cámara.
+     * Usa un broadcast real del servidor (más confiable que whispers en canal privado).
+     */
+    public function cameraToggle(Request $request, Call $call)
+    {
+        $request->validate(['cam_off' => 'required|boolean']);
+
+        $user = auth()->user();
+        $isMember = $user->groups()->where('groups.id', $call->group_id)->exists();
+        if (! $isMember) {
+            return response()->json(['error' => 'No autorizado.'], 403);
+        }
+
+        broadcast(new CameraToggled($call->group_id, $user->id, $request->boolean('cam_off')))->toOthers();
 
         return response()->json(['ok' => true]);
     }

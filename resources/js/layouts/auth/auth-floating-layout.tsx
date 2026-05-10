@@ -8,7 +8,7 @@ export default function AuthFloatingLayout({
     imageSrc,
 }: AuthLayoutProps) {
     return (
-        <div className="flex h-screen w-full items-center justify-center bg-[var(--color-primary)] p-4 font-sans selection:bg-[var(--color-accent)] selection:text-white">
+        <div className="flex h-dvh w-full items-center justify-center bg-[var(--color-primary)] p-4 font-sans selection:bg-[var(--color-accent)] selection:text-white">
             <div className="flex w-full h-full max-h-[850px] max-w-[1400px] overflow-hidden rounded-[2.5rem] bg-[#f0f1f3] shadow-[0px_10px_40px_rgba(0,0,0,0.1)] ring-1 ring-gray-950/5 relative">
 
                 <div className="hidden lg:flex w-1/2 p-3">

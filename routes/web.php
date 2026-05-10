@@ -43,6 +43,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('calls/{call}/leave', [App\Http\Controllers\CallController::class, 'leave'])->name('calls.leave');
     Route::post('calls/{call}/reject', [App\Http\Controllers\CallController::class, 'reject'])->name('calls.reject');
     Route::post('calls/{call}/end', [App\Http\Controllers\CallController::class, 'end'])->name('calls.end');
+    Route::post('calls/{call}/camera-toggle', [App\Http\Controllers\CallController::class, 'cameraToggle'])->name('calls.camera-toggle');
     Route::get('calls/{call}', [App\Http\Controllers\CallController::class, 'show'])->name('calls.show');
 });
 

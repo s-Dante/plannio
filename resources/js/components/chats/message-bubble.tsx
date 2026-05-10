@@ -169,7 +169,7 @@ function AudioPlayer({ src, isMine }: { src: string; isMine: boolean }) {
     };
 
     return (
-        <div className="flex items-center gap-3 w-full min-w-[240px]">
+        <div className="flex items-center gap-2 sm:gap-3 w-[220px] sm:w-[260px] max-w-full">
             <button
                 onClick={toggle}
                 className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center transition-transform hover:scale-105 active:scale-95 ${
@@ -195,16 +195,11 @@ function AudioPlayer({ src, isMine }: { src: string; isMine: boolean }) {
                     max="100"
                     value={progress}
                     onChange={handleSeek}
-                    className={`w-full h-1.5 rounded-full appearance-none cursor-pointer mb-1.5 focus:outline-none ${
+                    className={`w-full cursor-pointer focus:outline-none ${
                         isMine 
-                            ? 'bg-white/30 accent-white' 
-                            : 'bg-gray-200 dark:bg-stone-700 accent-[var(--color-accent)]'
+                            ? 'accent-white' 
+                            : 'accent-[var(--color-accent)]'
                     }`}
-                    style={isMine ? {
-                        background: `linear-gradient(to right, white ${progress}%, rgba(255,255,255,0.3) ${progress}%)`
-                    } : {
-                        background: `linear-gradient(to right, var(--color-accent) ${progress}%, rgba(156, 163, 175, 0.3) ${progress}%)`
-                    }}
                 />
                 <div className={`flex items-center justify-between text-[11px] font-bold tracking-wide ${isMine ? 'text-white/90' : 'text-gray-500 dark:text-gray-400'}`}>
                     <span className="flex items-center gap-1 opacity-80 uppercase text-[9px]">

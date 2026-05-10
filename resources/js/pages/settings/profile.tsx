@@ -315,7 +315,7 @@ export default function Profile({
                                     )}
 
                                     <div className={styles.actionsContainer}>
-                                        <Button disabled={processing} data-test="update-profile-button">
+                                        <Button disabled={processing} data-test="update-profile-button" className="bg-[var(--color-accent)] hover:bg-[#829965] text-white">
                                             Guardar Cambios
                                         </Button>
 

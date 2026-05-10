@@ -9,7 +9,7 @@ import { MessageBubble } from './message-bubble';
 
 const styles = {
     areaBase: "flex-1 flex flex-col h-full bg-[#f6f7f9] dark:bg-stone-900 border-r border-gray-200 dark:border-stone-800 relative z-0",
-    bgPattern: "absolute inset-0 opacity-[0.03] dark:opacity-[0.02] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]",
+    bgPattern: "absolute inset-0 opacity-[0.09] dark:opacity-[0.09] dark:invert pointer-events-none bg-repeat",
 
     headerContainer: "h-16 border-b border-gray-200 dark:border-stone-800 flex items-center justify-between px-6 bg-white/80 dark:bg-stone-900/80 backdrop-blur-md sticky top-0 z-10",
     headerLeftMenu: "flex items-center gap-3",
@@ -226,7 +226,12 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
 
     return (
         <div className={styles.areaBase}>
-            <div className={styles.bgPattern}></div>
+            <div className={styles.bgPattern} style={{ 
+                backgroundImage: "url('/imgs/assets/fondos-chats/FondoPlannio.png')", 
+                backgroundSize: '1100px',
+                backgroundRepeat: 'repeat', 
+                backgroundPosition: 'center' 
+            }}></div>
 
             <div className={styles.headerContainer}>
                 <div className={styles.headerLeftMenu}>

@@ -57,8 +57,8 @@ const styles = {
     bottomSection: "hidden md:flex flex-col items-center",
     logoutButton: "flex h-12 w-12 items-center justify-center rounded-2xl text-gray-500 hover:bg-red-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors",
     logoutIcon: "h-6 w-6 ml-1",
-    tooltipLogout: "font-semibold text-red-500",
-    tooltipRegular: "font-semibold",
+    tooltipLogout: "font-semibold text-red-500 bg-white dark:bg-stone-800 border border-gray-200 dark:border-stone-700 shadow-md",
+    tooltipRegular: "font-semibold bg-white dark:bg-stone-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-stone-700 shadow-md",
 };
 
 export function FloatingSidebar() {

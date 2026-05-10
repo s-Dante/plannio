@@ -17,7 +17,7 @@ const styles = {
     listContainer: "flex-1 overflow-y-auto px-4 py-6 space-y-3 custom-scrollbar",
     placeCardBase: "group w-full rounded-2xl bg-gray-50/50 dark:bg-stone-800/50 border border-gray-100 dark:border-stone-700/50 p-4 flex flex-col justify-center hover:shadow-md hover:bg-white dark:hover:bg-stone-800 hover:border-[var(--color-accent)]/30 transition-all cursor-pointer overflow-hidden relative",
     placeCardTitle: "font-bold text-[#0D304A] dark:text-gray-100 text-base leading-tight group-hover:text-[var(--color-accent)] transition-colors mb-1 pr-6",
-    placeCardCategory: "text-xs text-[var(--color-sisth)]/60 font-semibold uppercase tracking-wide",
+    placeCardCategory: "text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wide",
     fadeBottom: "absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white dark:from-stone-900 to-transparent pointer-events-none"
 };
 
@@ -158,7 +158,7 @@ export function MapSidebar({ places, categories, activePlace, onPlaceSelect, add
                         )}
                     </div>
                     
-                    <p className="text-[var(--color-sisth)]/80 text-sm mt-3 leading-relaxed">
+                    <p className="text-gray-600 dark:text-gray-300 text-sm mt-3 leading-relaxed">
                         {activePlace.description}
                     </p>
 
@@ -222,7 +222,7 @@ export function MapSidebar({ places, categories, activePlace, onPlaceSelect, add
                                             </div>
                                         </div>
                                         {r.comment && (
-                                            <p className="text-xs text-[var(--color-sisth)]/70 leading-relaxed mt-1 ml-9">{r.comment}</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mt-1 ml-9">{r.comment}</p>
                                         )}
                                     </div>
                                 ))

@@ -15,10 +15,10 @@ const styles = {
     headerContainer: "p-6 pb-2 flex flex-col border-b border-transparent",
     headerTitleBox: "flex items-center justify-between",
     headerTitle: "text-2xl font-extrabold text-[#0D304A] dark:text-gray-100",
-    moreOptionsBtn: "h-8 w-8 rounded-full hover:bg-gray-100 dark:hover:bg-stone-800 text-[var(--color-sisth)] flex items-center justify-center transition-colors cursor-pointer",
-    
-    dropdownContent: "w-56 rounded-2xl border-gray-100 shadow-lg p-2 font-medium text-[var(--color-sisth)]",
-    dropdownItem: "rounded-xl cursor-pointer py-2.5 focus:bg-[var(--color-accent)]/10 focus:text-[var(--color-accent)] flex items-center gap-2",
+    moreOptionsBtn: "h-8 w-8 rounded-full hover:bg-gray-100 dark:hover:bg-stone-800 text-gray-600 dark:text-gray-300 flex items-center justify-center transition-colors cursor-pointer",
+
+    dropdownContent: "w-56 rounded-2xl border-gray-100 dark:border-stone-700 bg-white dark:bg-stone-800 shadow-lg p-2 font-medium text-gray-700 dark:text-gray-200",
+    dropdownItem: "rounded-xl cursor-pointer py-2.5 focus:bg-[var(--color-accent)]/10 focus:text-[var(--color-accent)] dark:hover:bg-stone-700 flex items-center gap-2",
     dropdownIcon: "h-4 w-4",
 
     tabContainer: "flex gap-4 mt-4 border-b border-gray-100 dark:border-stone-800",
@@ -45,10 +45,12 @@ const styles = {
     badgeIndicator: "absolute right-[-6px] top-[-6px] bg-red-500 text-white text-[10px] h-5 w-5 flex items-center justify-center rounded-full font-bold border-2 border-white dark:border-stone-900"
 };
 
-export function ChatSidebar({ onOpenSearch, onOpenNewGroup, onChatSelect, activeChat, groups, pendingRequests }: any) {
+export function ChatSidebar({ onOpenSearch, onOpenNewGroup, onChatSelect, activeChat, groups, pendingRequests, onlineUsers, authUserId }: any) {
     const [activeTab, setActiveTab] = useState<'chats' | 'requests'>('chats');
     const [searchLocal, setSearchLocal] = useState('');
     const { auth } = usePage<any>().props;
+    // Usar authUserId prop si está disponible, si no, el del contexto de página
+    const myId = authUserId ?? auth?.user?.id;
 
     const filteredGroups = useMemo(() => {
         if(!groups) return [];
@@ -130,9 +132,13 @@ export function ChatSidebar({ onOpenSearch, onOpenNewGroup, onChatSelect, active
                         ) : (
                             filteredGroups.map((group: any) => {
                                 const otherMember = group.is_individual
-                                    ? group.members?.find((m: any) => m.id !== auth.user.id)
+                                    ? group.members?.find((m: any) => m.id !== myId)
                                     : null;
                                 const memberFrame = otherMember?.equipped_frame ?? null;
+                                // Presencia en tiempo real desde el Set de onlineUsers
+                                const isOtherOnline = otherMember
+                                    ? (onlineUsers instanceof Set ? onlineUsers.has(otherMember.id) : false)
+                                    : false;
 
                                 return (
                                 <button
@@ -157,8 +163,8 @@ export function ChatSidebar({ onOpenSearch, onOpenNewGroup, onChatSelect, active
                                                     alt="Frame"
                                                 />
                                             )}
-                                            {/* Online indicator for individual chats */}
-                                            {group.is_individual && otherMember?.is_online && (
+                                            {/* Punto verde de presencia — solo en chats individuales */}
+                                            {group.is_individual && isOtherOnline && (
                                                 <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-white dark:border-stone-900 z-20" />
                                             )}
                                         </div>
@@ -167,7 +173,9 @@ export function ChatSidebar({ onOpenSearch, onOpenNewGroup, onChatSelect, active
                                         <span className={styles.nameTitle}>{group.name}</span>
                                         <span className="text-xs text-gray-500 truncate mt-0.5">
                                             {group.is_individual
-                                                ? (otherMember?.is_online ? <span className="text-green-500 font-semibold">En línea</span> : "Chat Privado")
+                                                ? (isOtherOnline
+                                                    ? <span className="text-green-500 font-semibold">En línea</span>
+                                                    : "Chat Privado")
                                                 : `${group.members?.length || 0} miembros`
                                             }
                                         </span>
