@@ -171,9 +171,6 @@ class User extends Authenticatable
         $this->is_online = $status;
         $this->last_seen_at = now();
         $this->save();
-
-        // Broadcast cambio de estado
-        
     }
 
     public function getEquippedFrameAttribute()

@@ -8,11 +8,10 @@ use App\Enums\RewardTypeEnum;
 
 class RewardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // En lugar de una vista entera, podríamos devolver JSON o pasarlo a Inertia
         $rewards = Reward::all();
-        $unlocked = auth()->user()->unlockedRewards()->withPivot('is_equipped')->get();
+        $unlocked = $request->user()->unlockedRewards()->withPivot('is_equipped')->get();
 
         return response()->json([
             'rewards' => $rewards,
@@ -22,11 +21,12 @@ class RewardController extends Controller
 
     public function toggleEquip(Request $request, Reward $reward)
     {
-        $user = auth()->user();
+        $user = $request->user();
 
-        // Verificar si el usuario la tiene desbloqueada
+        // Obtenemos la recompensa
         $unlockedReward = $user->unlockedRewards()->where('rewards.id', $reward->id)->first();
 
+        // Verificamos que el usuario la haya desbloqueado
         if (!$unlockedReward) {
             return response()->json(['message' => 'No has desbloqueado esta recompensa'], 403);
         }
@@ -34,13 +34,11 @@ class RewardController extends Controller
         $isEquipped = $unlockedReward->pivot->is_equipped;
 
         if ($isEquipped) {
-            // Desequipar
+            // Desequipar recompensa
             $user->unlockedRewards()->updateExistingPivot($reward->id, ['is_equipped' => false]);
             return back()->with('success', 'Recompensa desequipada.');
         } else {
-            // Reglas para equipar
             if ($reward->type->value === RewardTypeEnum::FRAME->value) {
-                // Desequipar el marco actual (solo puede haber 1)
                 $currentFrame = $user->unlockedRewards()
                     ->wherePivot('is_equipped', true)
                     ->where('type', RewardTypeEnum::FRAME->value)
@@ -50,7 +48,6 @@ class RewardController extends Controller
                     $user->unlockedRewards()->updateExistingPivot($currentFrame->id, ['is_equipped' => false]);
                 }
             } else if ($reward->type->value === RewardTypeEnum::BADGE->value) {
-                // Verificar cuantas insignias tiene equipadas (máximo 3)
                 $equippedBadgesCount = $user->unlockedRewards()
                     ->wherePivot('is_equipped', true)
                     ->where('type', RewardTypeEnum::BADGE->value)
@@ -61,7 +58,6 @@ class RewardController extends Controller
                 }
             }
 
-            // Equipar la nueva recompensa
             $user->unlockedRewards()->updateExistingPivot($reward->id, ['is_equipped' => true]);
             return back()->with('success', 'Recompensa equipada.');
         }

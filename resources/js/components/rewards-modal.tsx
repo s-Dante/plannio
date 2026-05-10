@@ -97,10 +97,9 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
         }
 
         axios.post(`/rewards/${rewardId}/equip`).then(() => {
-            // Refrescar info local
             axios.get('/rewards').then(res => {
                 setUnlocked(res.data.unlocked);
-                router.reload(); // Para que el sidebar y otras vistas actualicen su estado
+                router.reload();
             });
         }).catch(err => {
             toast.error(err.response?.data?.errors?.message?.[0] || 'No se pudo equipar.');

@@ -30,7 +30,6 @@
             background-color: oklch(0.145 0 0);
         }
 
-        /* Evitar scroll/zoom no deseado en móvil */
         html, body {
             height: 100%;
             overflow: hidden;
@@ -47,7 +46,7 @@
 
     <link rel="icon" href="/Pin_White_new.ico" sizes="any" media="(prefers-color-scheme: dark)">
     <link rel="icon" href="/Pin_Black_new.ico" sizes="any" media="(prefers-color-scheme: light)">
-    <link rel="icon" href="/Pin_Black_new.ico" sizes="any"> <!-- Fallback -->
+    <link rel="icon" href="/Pin_Black_new.ico" sizes="any">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
     <link rel="preconnect" href="https://fonts.bunny.net">

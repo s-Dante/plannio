@@ -5,6 +5,9 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+use App\Models\User;
+use App\Models\Place;
+
 class PlaceSeeder extends Seeder
 {
     /**
@@ -55,12 +58,11 @@ class PlaceSeeder extends Seeder
             ],
         ];
 
-        // Seeder user 1 fallback
-        $firstUser = \App\Models\User::first();
-        $fallbackId = $firstUser ? $firstUser->id : \App\Models\User::factory()->create()->id;
+        $firstUser = User::first();
+        $fallbackId = $firstUser ? $firstUser->id : User::factory()->create()->id;
 
         foreach ($venues as $venue) {
-            \App\Models\Place::firstOrCreate(
+            Place::firstOrCreate(
                 ['name' => $venue['name']],
                 array_merge($venue, [
                     'created_by' => $fallbackId,

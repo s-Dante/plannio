@@ -46,7 +46,7 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Comprime imágenes a WebP antes de subirlas para reducir tamaño
+    // Comprimimos imagenes a WEBP para reducir el tamaño
     const compressImageToWebP = (file: File, maxDim = 1280, quality = 0.85): Promise<File> => {
         return new Promise((resolve) => {
             const img = new Image();
@@ -91,7 +91,6 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
             .finally(() => setLoading(false));
     }, [activeChat]);
 
-    // Sincronizar mensajes hacia Index.tsx para que ChatDetails pueda leerlos
     useEffect(() => {
         if (onMessagesUpdate) {
             onMessagesUpdate(messages);
@@ -132,7 +131,6 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
         scrollToBottom();
 
         try {
-            // Enviar texto primero (si hay)
             if (originalContent.trim()) {
                 const formData = new FormData();
                 formData.append('is_encrypted', isEncrypted ? '1' : '0');
@@ -144,7 +142,6 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
                 scrollToBottom();
             }
 
-            // Enviar cada archivo como mensaje independiente
             for (const file of filesToSend) {
                 const formData = new FormData();
                 formData.append('is_encrypted', isEncrypted ? '1' : '0');
@@ -178,7 +175,6 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
         }
 
         setPendingFiles(prev => [...prev, ...processed]);
-        // Reset input so same file can be re-selected
         e.target.value = '';
     };
 
@@ -235,7 +231,6 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
 
             <div className={styles.headerContainer}>
                 <div className={styles.headerLeftMenu}>
-                    {/* Botón back — solo mobile */}
                     {onBack && (
                         <button
                             onClick={onBack}
@@ -245,7 +240,6 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
                         </button>
                     )}
 
-                    {/* Avatar + nombre — clickeable para abrir detalles en mobile */}
                     <button
                         onClick={onOpenDetails}
                         className="flex items-center gap-3 cursor-pointer md:cursor-default rounded-xl p-1 -ml-1 hover:bg-gray-100/60 md:hover:bg-transparent transition-colors"
@@ -316,7 +310,6 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
                 {loading && <div className="text-center text-sm text-[var(--color-accent)] py-4 font-bold"><Loader2 className="animate-spin h-5 w-5 mx-auto" /></div>}
 
                 {(() => {
-                    // Agrupar mensajes multimedia consecutivos del mismo usuario (en <15 seg)
                     const MEDIA_TYPES = [2, 3]; // IMAGE, VIDEO
                     const rendered: React.ReactNode[] = [];
                     let i = 0;
@@ -326,7 +319,6 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
                         const isMine = msg.user_id === auth.user.id;
                         const showName = !isMine && (!messages[i - 1] || messages[i - 1].user_id !== msg.user_id);
 
-                        // Si es multimedia sin texto, intentar agrupar con siguientes
                         if (MEDIA_TYPES.includes(msg.type) && !msg.content) {
                             const group: any[] = [msg];
                             let j = i + 1;
@@ -341,7 +333,6 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
                                 j++;
                             }
 
-                            // Renderizar primer mensaje con la galería completa
                             rendered.push(
                                 <MessageBubble
                                     key={msg.id}
@@ -359,7 +350,7 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
                                     groupedMedia={group.length > 1 ? group : undefined}
                                 />
                             );
-                            i = j; // saltar los agrupados
+                            i = j;
                         } else {
                             rendered.push(
                                 <MessageBubble

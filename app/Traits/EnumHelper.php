@@ -5,7 +5,7 @@ namespace App\Traits;
 trait EnumHelper
 {
     /**
-     * Get associative array of all enum values with their labels
+     * Obtenemos todos los valores del anum junto con su label para usarlo en front
      */
     public static function getOptions(): array
     {
@@ -20,7 +20,7 @@ trait EnumHelper
     }
 
     /**
-     * Get label dynamically given a value
+     * Obtener el label de un enum dado su valor
      */
     public static function fetchLabel(string|int $value): string
     {

@@ -57,13 +57,12 @@ export function ChatDetails({ activeChat, messages = [], onOpenMedia, auth, onBa
 
     if (!activeChat) return null;
 
-    // Extraer solo imagenes o videos del historial
-    const mediaItems = messages.filter((m: any) => m.type === 2 || m.type === 3).reverse(); // Reverse para que las mas nuevas salgan primero
+
+    const mediaItems = messages.filter((m: any) => m.type === 2 || m.type === 3).reverse();
 
     const toggleTask = (task: any, isCheckedForMe: boolean) => {
-        const newStatus = isCheckedForMe ? 1 : 3; // 1 = TODO, 3 = DONE
+        const newStatus = isCheckedForMe ? 1 : 3;
         
-        // Optimistic UI update based on completions instead of just global status
         setOptimisticTasks(prev => prev.map(t => {
             if (t.id === task.id) {
                 if (newStatus === 3) {
@@ -84,7 +83,6 @@ export function ChatDetails({ activeChat, messages = [], onOpenMedia, auth, onBa
                 }
             },
             onError: () => {
-                // Revert si falla
                 setOptimisticTasks(activeChat.tasks);
                 toast.error('Error al actualizar la tarea');
             }
@@ -94,7 +92,6 @@ export function ChatDetails({ activeChat, messages = [], onOpenMedia, auth, onBa
     return (
         <div className={styles.detailsBase}>
 
-            {/* Botón back — solo mobile */}
             {onBack && (
                 <div className="lg:hidden px-4 pt-4 pb-0">
                     <button

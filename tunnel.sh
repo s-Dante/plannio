@@ -2,16 +2,12 @@
 # ──────────────────────────────────────────────────────────────
 # tunnel.sh — Plannio dev tunnel
 #
-# Levanta dos cloudflared quick tunnels:
+# Levantamos dos tunels de cloudflared:
 #   • Puerto 8000 → App Laravel
 #   • Puerto 8080 → Reverb (WebSockets)
 #
-# Actualiza .env con el host de Reverb automáticamente y
-# lo restaura a localhost cuando cierras con Ctrl+C.
-#
-# Uso:
-#   chmod +x tunnel.sh
-#   ./tunnel.sh
+# Actualizamos el archivo .env con el host de Reverb automáticamente y
+# lo restauramos a localhost cuando cerramos con Ctrl+C.
 # ──────────────────────────────────────────────────────────────
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -29,7 +25,7 @@ echo -e "${BLUE}║       Plannio — Dev Tunnel Setup       ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
 echo ""
 
-# ── Verificar cloudflared ──────────────────────────────────────
+# ── Verificación cloudflared ──────────────────────────────────────
 if ! command -v cloudflared &> /dev/null; then
     echo -e "${RED}❌ cloudflared no encontrado.${NC}"
     echo "   Instálalo con:"

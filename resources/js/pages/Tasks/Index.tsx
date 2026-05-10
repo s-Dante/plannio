@@ -24,23 +24,22 @@ export default function TasksIndex({ tasks, groups, statuses, priorities, auth }
 
     const getPriorityColor = (priority: number) => {
         switch (priority) {
-            case 1: return 'text-gray-500 bg-gray-100'; // Baja
-            case 2: return 'text-blue-500 bg-blue-100'; // Media
-            case 3: return 'text-orange-500 bg-orange-100'; // Alta
-            case 4: return 'text-red-500 bg-red-100'; // Urgente
+            case 1: return 'text-gray-500 bg-gray-100';      // Baja
+            case 2: return 'text-blue-500 bg-blue-100';      // Media
+            case 3: return 'text-orange-500 bg-orange-100';  // Alta
+            case 4: return 'text-red-500 bg-red-100';        // Urgente
             default: return 'text-gray-500 bg-gray-100';
         }
     };
 
     const getPriorityLabel = (val: number) => priorities.find((p: any) => p.value === val)?.name || 'Media';
 
-    // Manejo de Drag & Drop (HTML5 Nativo)
     const handleDragStart = (e: React.DragEvent, taskId: number) => {
         e.dataTransfer.setData('taskId', taskId.toString());
     };
 
     const handleDragOver = (e: React.DragEvent) => {
-        e.preventDefault(); // Permitir el drop
+        e.preventDefault();
     };
 
     const handleDrop = (e: React.DragEvent, newStatus: number) => {
@@ -49,7 +48,6 @@ export default function TasksIndex({ tasks, groups, statuses, priorities, auth }
 
         if (!task || task.status === newStatus) return;
 
-        // Optimistic UI Update
         const updatedTasks = localTasks.map((t: any) => {
             if (t.id === taskId) {
                 return { ...t, status: newStatus };
@@ -58,7 +56,6 @@ export default function TasksIndex({ tasks, groups, statuses, priorities, auth }
         });
         setLocalTasks(updatedTasks);
 
-        // Backend Update
         router.put(`/tasks/${taskId}/status`, { status: newStatus }, {
             preserveScroll: true,
             onSuccess: () => {
@@ -68,7 +65,7 @@ export default function TasksIndex({ tasks, groups, statuses, priorities, auth }
             },
             onError: () => {
                 toast.error('No se pudo actualizar la tarea');
-                setLocalTasks(tasks); // Rollback
+                setLocalTasks(tasks);
             }
         });
     };
@@ -84,7 +81,7 @@ export default function TasksIndex({ tasks, groups, statuses, priorities, auth }
         const daysPassed = Math.max(0, differenceInDays(now, start));
         
         let percentage = Math.min(100, Math.max(0, (daysPassed / totalDays) * 100));
-        if (task.status === 3) percentage = 100; // Completada
+        if (task.status === 3) percentage = 100;
 
         const isOverdue = now > end && task.status !== 3;
 
@@ -110,7 +107,6 @@ export default function TasksIndex({ tasks, groups, statuses, priorities, auth }
 
             <div className="flex flex-col h-full bg-[#f6f7f9] dark:bg-stone-900 relative">
                 
-                {/* Cabecera */}
                 <div className="px-8 py-6 border-b border-gray-200 dark:border-stone-800 bg-white/50 dark:bg-stone-900/50 backdrop-blur-md">
                     <div className="flex items-center justify-between max-w-7xl mx-auto">
                         <div>

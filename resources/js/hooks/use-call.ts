@@ -5,7 +5,6 @@ import axios from 'axios';
 // ─────────────────────────────────────────────────────────
 // Tipos
 // ─────────────────────────────────────────────────────────
-
 export type CallState = 'idle' | 'initiating' | 'ringing' | 'in_call' | 'ended';
 export type CallType  = 1 | 2; // 1 = voz, 2 = video
 
@@ -49,7 +48,6 @@ interface UseCallOptions {
 // ─────────────────────────────────────────────────────────
 // Hook
 // ─────────────────────────────────────────────────────────
-
 export function useCall({
     authUserId,
     authName,
@@ -69,7 +67,7 @@ export function useCall({
     const peerRef        = useRef<Peer | null>(null);
     const localStreamRef = useRef<MediaStream | null>(null);
 
-    // ── Refs para evitar stale closures en listeners de Echo ──
+    // Refs para evitar stale closures en listeners de Echo
     const callStateRef    = useRef<CallState>('idle');
     const callIdRef       = useRef<number | null>(null);
     const incomingCallRef = useRef<IncomingCallInfo | null>(null);
@@ -78,16 +76,15 @@ export function useCall({
     useEffect(() => { callIdRef.current = callId; });
     useEffect(() => { incomingCallRef.current = incomingCall; });
 
-    // ── Mapa de info de participantes (peerId → info) ──────
+    // Mapeo de info de participantes (peerId -> info)
     const participantInfoRef = useRef<Map<string, Omit<RemotePeer, 'stream' | 'connection'>>>(new Map());
 
-    // ── Cola de llamadas PeerJS llegadas antes del stream ──
+    // Cola de llamadas PeerJS llegadas antes del stream
     const pendingPeerCallsRef = useRef<MediaConnection[]>([]);
 
     // ─────────────────────────────────────────────────────
     // Helpers internos
     // ─────────────────────────────────────────────────────
-
     const handleNewConnection = useCallback((conn: MediaConnection) => {
         conn.on('stream', (remoteStream: MediaStream) => {
             const metadata = conn.metadata || {};
@@ -230,7 +227,6 @@ export function useCall({
     // ─────────────────────────────────────────────────────
     // Listeners de señalización Echo
     // ─────────────────────────────────────────────────────
-
     useEffect(() => {
         if (!window.Echo || !authUserId) return;
         const userChannel = window.Echo.private(`user.${authUserId}`);
@@ -245,7 +241,7 @@ export function useCall({
 
         userChannel.listen('.CallInitiated', handleIncoming);
 
-        // ── Recuperar llamada pendiente si navegamos desde otra página ──
+        // Recuperar llamada pendiente si navegamos desde otra página
         const pendingStr = sessionStorage.getItem('pendingIncomingCall');
         if (pendingStr) {
             try {
@@ -296,7 +292,7 @@ export function useCall({
             });
         });
 
-        // ── Cámara apagada/encendida — evento real del servidor (confiable) ──
+        // Cámara apagada/encendida
         echoChannel.listen('.CameraToggled', (e: { user_id: number; cam_off: boolean }) => {
             setRemotePeers(prev => prev.map(p =>
                 p.userId === e.user_id ? { ...p, camOff: e.cam_off } : p
@@ -318,7 +314,6 @@ export function useCall({
     // ─────────────────────────────────────────────────────
     // Acciones públicas
     // ─────────────────────────────────────────────────────
-
     const startCall = useCallback(async (type: CallType) => {
         if (!groupId) return;
         setCallType(type);
@@ -415,7 +410,7 @@ export function useCall({
         if (notifyServer && callIdRef.current) {
             try {
                 await axios.post(`/calls/${callIdRef.current}/leave`);
-            } catch (_) { /* silencio */ }
+            } catch (_) { }
         }
         cleanupLocal();
         callStateRef.current = 'ended';
@@ -433,36 +428,19 @@ export function useCall({
         setIsMuted(newMuted);
     }, [isMuted]);
 
-    /**
-     * Apagar / encender cámara.
-     *
-     * Camera OFF: deshabilita el track de video (envía frames negros al peer remoto)
-     *             y notifica al servidor via HTTP para que haga un broadcast confiable.
-     *
-     * Camera ON:  solicita un nuevo track de cámara (reactiva el LED), reemplaza el
-     *             track en todas las conexiones activas y notifica al servidor.
-     *
-     * El evento servidor `.CameraToggled` llega al peer remoto y activa el avatar fallback
-     * en su VideoTile. Esto es más confiable que whispers (que dependen de configuración
-     * de client-events en el servidor de WebSockets).
-     */
+    // Apagar / encender cámara
     const toggleCamera = useCallback(async () => {
         if (!localStreamRef.current || !callIdRef.current) return;
 
         if (!isCamOff) {
-            // ── Apagar cámara ──────────────────────────────────────────
             localStreamRef.current.getVideoTracks().forEach(t => {
-                t.enabled = false; // envía frames negros, mantiene el track vivo
+                t.enabled = false;
             });
             setIsCamOff(true);
-            // Notificar al servidor → broadcast confiable a los demás
             axios.post(`/calls/${callIdRef.current}/camera-toggle`, { cam_off: true }).catch(() => {});
-            // Forzar re-render del stream local para que el tile propio muestre avatar
             setLocalStream(new MediaStream(localStreamRef.current.getTracks()));
         } else {
-            // ── Encender cámara ────────────────────────────────────────
             try {
-                // Intentar reactivar el track existente primero (si el dispositivo lo soporta)
                 const existingTracks = localStreamRef.current.getVideoTracks();
                 if (existingTracks.length > 0 && existingTracks[0].readyState === 'live') {
                     existingTracks[0].enabled = true;
@@ -472,20 +450,17 @@ export function useCall({
                     return;
                 }
 
-                // Track terminado → obtener nuevo stream de cámara
                 const newStream = await navigator.mediaDevices.getUserMedia({
                     video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
                 });
                 const [newTrack] = newStream.getVideoTracks();
 
-                // Retirar tracks viejos del stream local
                 localStreamRef.current.getVideoTracks().forEach(t => {
                     t.stop();
                     localStreamRef.current!.removeTrack(t);
                 });
                 localStreamRef.current.addTrack(newTrack);
 
-                // Reemplazar track en todas las conexiones P2P activas
                 setRemotePeers(prev => {
                     prev.forEach(p => {
                         if (!p.connection) return;
@@ -508,7 +483,6 @@ export function useCall({
     // ─────────────────────────────────────────────────────
     // Cleanup
     // ─────────────────────────────────────────────────────
-
     const cleanupLocal = useCallback(() => {
         setRemotePeers(prev => {
             prev.forEach(p => p.connection?.close());

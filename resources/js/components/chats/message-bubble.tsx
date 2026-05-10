@@ -8,18 +8,13 @@ import {
 // ─────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────
-
-/** Devuelve el nombre del archivo desde una URL, limpiando hashes o ids. */
+/** Devuelve el nombre del archivo desde una URL*/
 function filenameFromUrl(url: string): string {
     try {
         const parts = new URL(url, window.location.origin).pathname.split('/');
         let raw = decodeURIComponent(parts[parts.length - 1] || 'archivo');
-        
-        // Limpiar prefijo uniqid_ (ej. 672e811f2a3b4_reporte.xlsx -> reporte.xlsx)
-        // uniqid() en PHP genera 13 caracteres, pero a veces con prefix puede variar.
         raw = raw.replace(/^[a-f0-9]{13,14}_/i, '');
-        
-        // Si es un hash viejo (40 caracteres alfanuméricos) + extensión
+
         if (/^[a-zA-Z0-9]{40}\./.test(raw)) {
             const ext = raw.split('.').pop()?.toUpperCase() || 'ARCHIVO';
             return `Documento.${ext.toLowerCase()}`;
@@ -31,7 +26,7 @@ function filenameFromUrl(url: string): string {
     }
 }
 
-/** Formatea bytes en KB / MB legibles. */
+/** Formatea bytes en KB / MB */
 function formatSize(bytes: number | null): string {
     if (!bytes) return '';
     if (bytes < 1024) return `${bytes} B`;
@@ -39,7 +34,7 @@ function formatSize(bytes: number | null): string {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-/** Ícono y color de acuerdo al mime type. */
+/** Ícono y color de acuerdo al tipo. */
 function FileIcon({ mime, className }: { mime: string | null; className?: string }) {
     const c = className ?? 'h-8 w-8';
     if (!mime) return <FileText className={c} />;
@@ -73,10 +68,10 @@ function fileTypeLabel(mime: string | null): string {
     return 'Archivo';
 }
 
+
 // ─────────────────────────────────────────────────────────
 // Estilos
 // ─────────────────────────────────────────────────────────
-
 const bubbleStyles = {
     rowStart: "flex justify-start flex-col items-start gap-1 w-full",
     rowEnd: "flex justify-end flex-col items-end gap-1 w-full",
@@ -99,7 +94,6 @@ const bubbleStyles = {
 // ─────────────────────────────────────────────────────────
 // Sub-componentes de media
 // ─────────────────────────────────────────────────────────
-
 /** Thumbnail de video con overlay de Play */
 function VideoThumb({ src, className, onClick }: { src: string; className?: string; onClick: () => void }) {
     return (
@@ -114,13 +108,11 @@ function VideoThumb({ src, className, onClick }: { src: string; className?: stri
                 muted
                 playsInline
             />
-            {/* Overlay oscuro + botón Play */}
             <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
                 <div className="h-12 w-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                     <Play className="h-6 w-6 text-gray-800 ml-0.5" fill="currentColor" />
                 </div>
             </div>
-            {/* Badge "VIDEO" */}
             <div className="absolute top-2 right-2 bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wide flex items-center gap-1">
                 <FileVideo className="h-2.5 w-2.5" /> VIDEO
             </div>
@@ -135,7 +127,6 @@ function formatAudioTime(seconds: number) {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
-/** Reproductor de audio integrado con UI personalizada */
 function AudioPlayer({ src, isMine }: { src: string; isMine: boolean }) {
     const [playing, setPlaying] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -232,7 +223,7 @@ function MediaGallery({ items, onOpenMedia }: { items: any[]; onOpenMedia: (m: a
         count <= 4 ? 'grid-cols-2' :
         'grid-cols-3';
 
-    // Max 9 visible, con +N overlay en el último
+    // Max 9 visible, con +N al final
     const visible = items.slice(0, 9);
     const hidden  = items.length - visible.length;
 
@@ -262,7 +253,7 @@ function MediaGallery({ items, onOpenMedia }: { items: any[]; onOpenMedia: (m: a
                                 </div>
                             </>
                         )}
-                        {/* Overlay "+N más" */}
+                        {/* Overlay "+N" */}
                         {isLast && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                                 <span className="text-white text-lg font-bold">+{hidden + 1}</span>
@@ -275,27 +266,25 @@ function MediaGallery({ items, onOpenMedia }: { items: any[]; onOpenMedia: (m: a
     );
 }
 
+
 // ─────────────────────────────────────────────────────────
 // Tipos de mensaje para grupos multimedia
 // ─────────────────────────────────────────────────────────
-
 export interface MessageGroup {
-    /** Mensajes que van en la misma burbuja (multimedia del mismo usuario en <5s) */
     messages: any[];
     isMine: boolean;
     showName: boolean;
 }
 
+
 // ─────────────────────────────────────────────────────────
 // Componente principal
 // ─────────────────────────────────────────────────────────
-
 export function MessageBubble({
     message,
     isMine,
     showName,
     onOpenMedia,
-    /** Mensajes multimedia agrupados para mostrar galería */
     groupedMedia,
 }: {
     message: any;
@@ -306,13 +295,12 @@ export function MessageBubble({
 }) {
     const formattedTime = new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // 1: TEXT, 2: IMAGE, 3: VIDEO, 4: AUDIO, 5: FILE, 6: LOCATION
+    // 1: TEXTO, 2: IMAGEN, 3: VIDEO, 4: AUDIO, 5: ARCHIVO, 6: UBICACIÓN
     const renderMedia = () => {
         if (message.type === 1) return null;
 
         const isPure = !message.content;
 
-        // Si hay galería agrupada, renderizarla
         if (groupedMedia && groupedMedia.length > 0 && (message.type === 2 || message.type === 3)) {
             return (
                 <div className={isPure ? '' : bubbleStyles.mediaWrapper + ' !block mb-2'}>
@@ -322,7 +310,7 @@ export function MessageBubble({
         }
 
         switch (message.type) {
-            case 2: // IMAGE
+            case 2: // IMAGEN
                 return (
                     <div
                         className={(isPure ? '' : bubbleStyles.mediaWrapper) + ' cursor-pointer'}
@@ -336,7 +324,7 @@ export function MessageBubble({
                     </div>
                 );
 
-            case 3: // VIDEO — con overlay de play
+            case 3: // VIDEO
                 return (
                     <div className={isPure ? '' : bubbleStyles.mediaWrapper}>
                         <VideoThumb
@@ -347,14 +335,14 @@ export function MessageBubble({
                     </div>
                 );
 
-            case 4: // AUDIO — reproductor integrado
+            case 4: // AUDIO
                 return (
                     <div className="w-full min-w-[220px] mb-1 mt-0.5 px-0.5">
                         <AudioPlayer src={message.media_url} isMine={isMine} />
                     </div>
                 );
 
-            case 6: // LOCATION
+            case 6: // LUGAR
                 return (
                     <a
                         href={`https://www.google.com/maps/search/?api=1&query=${message.latitude},${message.longitude}`}
@@ -368,7 +356,7 @@ export function MessageBubble({
                     </a>
                 );
 
-            default: { // FILE (5) y cualquier otro
+            default: { // ARCHIVO y OTROS
                 const fileName = filenameFromUrl(message.media_url ?? '');
                 const fileSize = formatSize(message.file_size);
                 const typeLabel = fileTypeLabel(message.mime_type);

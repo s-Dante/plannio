@@ -15,9 +15,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const styles = {
-    // Portal → siempre hijo directo de <body>, inmune a transforms/overflow de ancestros.
-    // Mobile: aparece sobre la bottom nav (bottom-[72px] = 64px nav + 8px gap), ancho casi full.
-    // Desktop: aparece a la derecha del sidebar lateral (left-[96px], top fijo).
     modalWrapper: "fixed left-4 bottom-[72px] md:left-[96px] md:bottom-auto md:top-[90px] z-[9999] w-[calc(100vw-2rem)] max-w-xs md:max-w-[18rem] overflow-hidden rounded-2xl shadow-2xl bg-white dark:bg-[#111214] border border-gray-200 dark:border-stone-800 animate-in fade-in zoom-in-95 duration-200",
     coverContainerBase: "h-24 w-full relative",
     themeSwitcherContainer: "absolute top-3 right-3 z-10",
@@ -95,9 +92,6 @@ export function UserCardModal({ isOpen, onClose, onOpenRewards }: UserCardModalP
 
     if (!isOpen) return null;
 
-    // Portal: el modal se monta directamente bajo <body>.
-    // Esto lo hace completamente inmune a transforms, overflow-hidden, backdrop-filter
-    // y cualquier otro stacking context que exista en el árbol de ancestros.
     return createPortal(
         <div
             ref={modalRef}

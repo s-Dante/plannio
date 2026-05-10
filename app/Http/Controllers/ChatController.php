@@ -14,13 +14,13 @@ use App\Enums\FriendshipStatusEnum;
 
 class ChatController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $user = auth()->user();
+        $user = $request->user();
 
-        // Obtenemos los grupos del usuario y sus miembros, así como sus tareas
+        // Obtenemos los grupos a los que pertenece y sus tareas
         $groups = $user->groups()->with(['members', 'tasks.completions'])->get()->map(function ($group) use ($user) {
-            // Si es un chat individual, obtenemos el otro usuario
+            // Si es un chat individual, obtenemos el otro usuario para mostrar su nombre y avatar
             if ($group->is_individual) {
                 $otherUser = $group->members->firstWhere('id', '!=', $user->id);
                 if ($otherUser) {
@@ -28,12 +28,12 @@ class ChatController extends Controller
                     $group->avatar = $otherUser->avatar;
                 }
             }
-            // Obtener la fecha del último mensaje para ordenar
+
+            // Obtenemos la fecha del último mensaje para ordenar
             $group->last_message_at = $group->messages()->max('created_at');
             return $group;
         })->sortByDesc('last_message_at')->values();
 
-        // Retornamos la vista con los grupos, amigos y solicitudes pendientes
         return Inertia::render('Chats/Index', [
             'groups' => $groups,
             'friends' => $user->friends,
@@ -51,7 +51,7 @@ class ChatController extends Controller
         $query = $request->get('q');
         if (!$query) return response()->json([]);
 
-        $users = User::where('id', '!=', auth()->id())
+        $users = User::where('id', '!=', $request->user()->id)
             ->where(function ($q) use ($query) {
                 $q->where('username', 'LIKE', "%{$query}%")
                     ->orWhere('email', 'LIKE', "%{$query}%")
@@ -66,7 +66,7 @@ class ChatController extends Controller
 
     public function listUsers(Request $request)
     {
-        $authUser = auth()->user();
+        $authUser = $request->user();
         $perPage = 10;
         $page = max(1, (int) $request->get('page', 1));
 
@@ -75,7 +75,6 @@ class ChatController extends Controller
             ->orderBy('name')
             ->paginate($perPage, ['*'], 'page', $page);
 
-        // Construir mapa de estado de amistad: userId => status
         $friendships = \App\Models\Friend::where('user_id', $authUser->id)
             ->orWhere('friend_id', $authUser->id)
             ->get();
@@ -105,14 +104,13 @@ class ChatController extends Controller
             'friend_id' => 'required|exists:users,id'
         ]);
 
-        $user = auth()->user();
+        $user = $request->user();
         $friendId = $request->friend_id;
 
         if ($user->id === $friendId) {
             return back()->withErrors(['message' => 'No puedes enviarte una solicitud a ti mismo.']);
         }
 
-        // Verificar si ya existe relación previa
         $existing = Friend::where(function ($q) use ($user, $friendId) {
             $q->where('user_id', $user->id)->where('friend_id', $friendId);
         })->orWhere(function ($q) use ($user, $friendId) {
@@ -129,7 +127,7 @@ class ChatController extends Controller
             'status' => FriendshipStatusEnum::PENDING->value,
         ]);
 
-        // Bradcast de envio de solicitud para que se reciba en tiempo real
+        // Broadcast de solicitud de amistad
         broadcast(new \App\Events\FriendRequestReceived($friendId, $user))->toOthers();
 
         return back()->with('success', 'Solicitud de amistad enviada.');
@@ -141,7 +139,7 @@ class ChatController extends Controller
             'friend_id' => 'required|exists:users,id'
         ]);
 
-        $user = auth()->user();
+        $user = $request->user();
         $friendId = $request->friend_id;
 
         $friendship = Friend::where('user_id', $friendId)
@@ -167,7 +165,7 @@ class ChatController extends Controller
             $group->name = $user->name . ' ' . $user->father_lastname;
             $group->avatar = $user->avatar;
 
-            // Broadcast de que se acepto la solicitud
+            // Broadcast de que se aceptó la solicitud
             broadcast(new \App\Events\FriendRequestAccepted($friendId, $user, $group))->toOthers();
         });
 
@@ -182,7 +180,7 @@ class ChatController extends Controller
             'members.*' => 'exists:users,id'
         ]);
 
-        $user = auth()->user();
+        $user = $request->user();
 
         $group = DB::transaction(function () use ($request, $user) {
             $logosJPG = [1930, 1934, 1938, 1950, 1954, 1958, 1962];
@@ -222,7 +220,7 @@ class ChatController extends Controller
                 $userIds[] = $memberId;
             }
 
-            // Broadcast de que se creo el grupo
+            // Broadcast de creacion de grupo
             broadcast(new \App\Events\GroupCreated($group, $userIds))->toOthers();
 
             return $group;

@@ -13,8 +13,7 @@ export default function AppFloatingLayout({
     const { auth } = usePage<any>().props;
     const { url }  = usePage();
 
-    // ── Notificación global de llamada entrante ───────────────────────────────
-    // Se muestra en cualquier vista de la app (chats, mapa, tareas, etc.)
+    // Notificación global de llamada entrante
     const [incomingCallGlobal, setIncomingCallGlobal] = useState<IncomingCallInfo | null>(null);
 
     useEffect(() => {
@@ -26,21 +25,17 @@ export default function AppFloatingLayout({
             if (e.callData.caller.id === auth.user.id) return; // yo soy el caller
             setIncomingCallGlobal(e.callData);
         });
-
-        // No hacemos stopListening: Chats/Index también usa este canal para otros eventos.
     }, [auth?.user?.id]);
 
-    // ── Aceptar ───────────────────────────────────────────────────────────────
+    // Aceptar
     const handleGlobalAccept = () => {
         if (!incomingCallGlobal) return;
 
         if (url.startsWith('/chats')) {
-            // Ya estamos en /chats: delegar al hook de useCall vía evento DOM.
-            // ChatsIndex escucha 'call:accept' y llama a acceptCall().
+            // Si ya estamos en /chats
             window.dispatchEvent(new CustomEvent('call:accept', { detail: incomingCallGlobal }));
         } else {
-            // En otra página: guardar y navegar. ChatsIndex al montar leerá
-            // sessionStorage, seleccionará el chat y el hook auto-aceptará.
+            // Si estamos en otra pagina
             sessionStorage.setItem('pendingIncomingCall',        JSON.stringify(incomingCallGlobal));
             sessionStorage.setItem('pendingIncomingCall_Accept', 'true');
             router.visit('/chats');
@@ -49,10 +44,9 @@ export default function AppFloatingLayout({
         setIncomingCallGlobal(null);
     };
 
-    // ── Rechazar ──────────────────────────────────────────────────────────────
+    // Rechazar
     const handleGlobalReject = () => {
         if (url.startsWith('/chats')) {
-            // Pedir a ChatsIndex que limpie el estado interno del hook
             window.dispatchEvent(new CustomEvent('call:reject'));
         }
         setIncomingCallGlobal(null);
@@ -68,11 +62,6 @@ export default function AppFloatingLayout({
                 </main>
             </div>
 
-            {/*
-             * Portal → se monta directamente bajo <body>, fuera del contenedor
-             * con overflow-hidden. La notificación es visible en toda la app
-             * y siempre aparece por encima de cualquier otro elemento (z-[9999]).
-             */}
             {incomingCallGlobal && createPortal(
                 <IncomingCallNotification
                     call={incomingCallGlobal}

@@ -22,13 +22,12 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create Base Entities
+        // 1. Crear algunas recompenzas y usuarios
         $rewards = Reward::factory(20)->create();
         $users = User::factory(50)->create();
 
-        // 2. Assign Unlocked Rewards & Places
+        // 2. Asignar recompenzas desbloqueadas y lugares
         foreach ($users as $user) {
-            // Give 1-3 random rewards to this user
             $userRewards = $rewards->random(rand(1, 3));
             foreach ($userRewards as $reward) {
                 UserUnlockedReward::factory()->create([
@@ -38,13 +37,13 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // 3. Create Places
+        // 3. Crear lugares
         $this->call(PlaceSeeder::class);
         $places = Place::factory(20)->create(function () use ($users) {
             return ['created_by' => $users->random()->id];
         });
 
-        // 4. Create Place Ratings
+        // 4. Crear valoraciones de lugares
         foreach ($places as $place) {
             $raters = $users->random(rand(2, 5));
             foreach ($raters as $rater) {
@@ -55,12 +54,11 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // 5. Create Friendships
+        // 5. Crear amistades
         foreach ($users as $user) {
-            // Friend 1-3 random users
             $friends = $users->where('id', '!=', $user->id)->random(rand(1, 3));
             foreach ($friends as $friend) {
-                // Ensure no duplicate friendship
+                // Evitar duplicar amistades
                 $exists = Friend::where(function($q) use ($user, $friend) {
                     $q->where('user_id', $user->id)->where('friend_id', $friend->id);
                 })->orWhere(function($q) use ($user, $friend) {
@@ -76,13 +74,12 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // 6. Create Groups & Members
+        // 6. Crear grupos y miembros
         $groups = Group::factory(10)->create(function () use ($users) {
             return ['created_by' => $users->random()->id];
         });
 
         foreach ($groups as $group) {
-            // Each group has a creator + 2 to 5 random members
             $members = collect([$users->firstWhere('id', $group->created_by)]);
             $members = $members->merge($users->where('id', '!=', $group->created_by)->random(rand(2, 5)))->unique();
 
@@ -90,17 +87,17 @@ class DatabaseSeeder extends Seeder
                 GroupUser::factory()->create([
                     'group_id' => $group->id,
                     'user_id' => $member->id,
-                    'role' => $member->id === $group->created_by ? 2 : 1, // 2: admin
+                    'role' => $member->id === $group->created_by ? 2 : 1,
                 ]);
             }
 
-            // Create Messages inside the group
+            // Crear mensajes
             $messages = Message::factory(rand(5, 15))->create([
                 'group_id' => $group->id,
                 'user_id' => $members->random()->id,
             ]);
 
-            // Create Message Reads
+            // Crear lecturas de mensajes
             foreach ($messages as $message) {
                 $readers = $members->where('id', '!=', $message->user_id)->random(rand(1, $members->count() - 1));
                 foreach ($readers as $reader) {
@@ -111,10 +108,10 @@ class DatabaseSeeder extends Seeder
                 }
             }
 
-            // Create Tasks & Completions
+            // Crear tareas y completaciones
             $tasks = Task::factory(rand(1, 4))->create([
                 'group_id' => $group->id,
-                'user_id' => $members->random()->id, // The assigner
+                'user_id' => $members->random()->id,
             ]);
 
             foreach ($tasks as $task) {
@@ -126,7 +123,7 @@ class DatabaseSeeder extends Seeder
                 }
             }
 
-            // Create Calls (10% chance)
+            // Crear llamadas (10% probabilidad)
             if (rand(1, 100) > 90) {
                 $call = Call::factory()->create([
                     'group_id' => $group->id,

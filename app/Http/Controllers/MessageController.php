@@ -13,14 +13,14 @@ use App\Events\MessageSent;
 class MessageController extends Controller
 {
     /**
-     * Recuperamos todos los mensajes de un grupo, descifrándolos si es necesario.
+     * Obtenemos los ultimos mensajes de un grupo
      */
-    public function index($groupId)
+    public function index(Request $request, $groupId)
     {
         $group = Group::findOrFail($groupId);
 
-        // Security check: ensure user is in group
-        if (!$group->members()->where('user_id', auth()->id())->exists()) {
+        // Validamos que el usuairo pertenece al grupo
+        if (!$group->members()->where('user_id', $request->user()->id)->exists()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -30,7 +30,7 @@ class MessageController extends Controller
             ->limit(100)
             ->get();
 
-        // Mapeamos para descifrar los mensajes
+        // Desencriptamos los mensajes
         $messages->transform(function ($message) {
             if ($message->is_encrypted && $message->content) {
                 try {
@@ -46,13 +46,15 @@ class MessageController extends Controller
     }
 
     /**
-     * Guardamos y ciframos un mensaje, procesamos el archivo multimedia y lo enviamos por broadcast.
+     * Guardamos y ciframos un mensaje
+     * Ademas procesamos la multimedia en caso de subirse
+     * Finalmente enviamos el mensaje por broadcast
      */
     public function store(Request $request, $groupId)
     {
         $group = Group::findOrFail($groupId);
 
-        if (!$group->members()->where('user_id', auth()->id())->exists()) {
+        if (!$group->members()->where('user_id', $request->user()->id)->exists()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -74,14 +76,12 @@ class MessageController extends Controller
             $content = Crypt::encryptString($content);
         }
 
-        // Manejamos que tipo de multimedia se sube
-        //      Quiza debamos modificar para permitir envio de mas de un solo documento multimedia a la vez
+        // Procesamos la multimedia en caso de subirse
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $mimeType = $file->getMimeType();
             $fileSize = $file->getSize();
 
-            // Usamos un uniqid para evitar colisiones, pero mantenemos el nombre original
             $originalName = $file->getClientOriginalName();
             $safeName = uniqid() . '_' . str_replace([' ', '#', '?', '&'], '_', $originalName);
             
@@ -105,7 +105,7 @@ class MessageController extends Controller
 
         $message = Message::create([
             'group_id' => $group->id,
-            'user_id' => auth()->id(),
+            'user_id' => $request->user()->id,
             'type' => $type,
             'content' => $content,
             'media_url' => $mediaUrl,
@@ -118,7 +118,7 @@ class MessageController extends Controller
 
         $message->load('user');
 
-        // Desciframos el mensaje para el payload del broadcast
+        // Desciframos el mensaje
         if ($message->is_encrypted && $message->content) {
             try {
                 $message->content = Crypt::decryptString($message->content);

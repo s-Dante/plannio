@@ -4,12 +4,14 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+use App\Enums\MessageTypeEnum;
+
 class MessageFactory extends Factory
 {
     public function definition(): array
     {
         return [
-            'type' => fake()->randomElement(\App\Enums\MessageTypeEnum::cases())->value,
+            'type' => fake()->randomElement(MessageTypeEnum::cases())->value,
             'content' => fake()->text(),
             'media_url' => fake()->optional(0.3)->imageUrl(),
             'mime_type' => fake()->optional(0.3)->mimeType(),

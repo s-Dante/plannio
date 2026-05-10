@@ -13,7 +13,7 @@ export default function Welcome({ auth }: { auth?: { user: any } }) {
                 {/* ── Header ── */}
                 <header className="w-full max-w-7xl mx-auto px-5 py-5 flex justify-between items-center z-20 shrink-0 relative">
 
-                    {/* Logo: pinn en mobile, plannio en desktop */}
+                    {/* Logo: pin en mobile, plannio en desktop */}
                     <div className="flex items-center">
                         <img
                             src="/imgs/logos/Pin_Black_new.PNG"
@@ -45,7 +45,7 @@ export default function Welcome({ auth }: { auth?: { user: any } }) {
                         </Link>
                     </div>
 
-                    {/* Hamburger mobile */}
+                    {/* Menú en móvil */}
                     <button
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         className="md:hidden p-2 rounded-xl border-2 border-[var(--color-sisth)]/30 hover:border-[var(--color-sisth)] transition-colors"
@@ -100,10 +100,8 @@ export default function Welcome({ auth }: { auth?: { user: any } }) {
                         </h1>
                     </div>
 
-                    {/* ── Action Bar ── */}
-                    {/* Desktop: pill horizontal | Mobile: pills en columna dentro de un contenedor */}
+                    {/* Barra de acción */}
                     <div className="mb-12 md:mb-20 w-full flex justify-center">
-                        {/* Desktop pill */}
                         <div className="hidden md:flex items-center gap-4 bg-[var(--color-primary)] border-2 border-[var(--color-sisth)] rounded-full p-2 shadow-[4px_4px_0px_#161f27]">
                             <div className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-[var(--color-sisth)]/80">
                                 <MapPin className="w-4 h-4" /> Conoce la ciudad
@@ -121,7 +119,6 @@ export default function Welcome({ auth }: { auth?: { user: any } }) {
                             </span>
                         </div>
 
-                        {/* Mobile: 3 chips en fila 2+1 */}
                         <div className="md:hidden w-full max-w-sm flex flex-col gap-2">
                             <div className="flex gap-2">
                                 <div className="flex-1 flex items-center justify-center gap-1.5 bg-[var(--color-primary)] border-2 border-[var(--color-sisth)] rounded-2xl px-3 py-2.5 text-xs font-bold shadow-[3px_3px_0px_#161f27]">
@@ -143,10 +140,8 @@ export default function Welcome({ auth }: { auth?: { user: any } }) {
                     </div>
 
                     {/* ── Cards ── */}
-                    {/* Desktop: fan layout superpuesto | Mobile: columna vertical */}
                     <div className="w-full max-w-[1000px]">
 
-                        {/* Desktop fan */}
                         <div className="hidden md:flex relative h-[400px] justify-center items-end pb-10">
                             <div className="flex flex-col text-center shadow-[8px_8px_0px_#161f27] border-[3px] border-[var(--color-sisth)] cursor-default transition-transform absolute left-8 bottom-6 w-72 h-[320px] bg-white rounded-[2rem] p-6 transform -rotate-[4deg] z-10 hover:-translate-y-4 hover:-rotate-[2deg] group">
                                 <span className="text-[10px] uppercase font-bold text-[var(--color-sisth)]/50 tracking-widest mb-2 block">Solo necesitas Plannio</span>
@@ -176,7 +171,6 @@ export default function Welcome({ auth }: { auth?: { user: any } }) {
                             </div>
                         </div>
 
-                        {/* Mobile: cards apiladas */}
                         <div className="md:hidden flex flex-col gap-4 pb-10">
                             {[
                                 { icon: Map,   title: 'Descubre lugares increíbles',    deco: 'bg-[var(--color-accent)]/10' },

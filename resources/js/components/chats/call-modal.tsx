@@ -17,9 +17,7 @@ interface CallModalProps {
 }
 
 // ─────────────────────────────────────────────────────────
-// Video tile — muestra el stream de video (o avatar si no hay video)
-// SIEMPRE tiene un <video> montado para que el audio fluya aunque
-// el video esté desactivado.
+// Video tile — muestra el stream de video o avatar si no hay video
 // ─────────────────────────────────────────────────────────
 function VideoTile({
     stream,
@@ -45,8 +43,7 @@ function VideoTile({
         }
     }, [stream]);
 
-    // Mostrar avatar cuando: no hay stream, camOff explícito, o el único track de video
-    // viene de un canvas (track negro que enviamos cuando se apaga la cámara)
+    // Mostramos el avatar cuando: no hay stream, camOff explícito, o el único track de video
     const hasRealVideo = !!stream &&
         stream.getVideoTracks().some(t =>
             t.readyState === 'live' &&
@@ -59,9 +56,8 @@ function VideoTile({
         <div className="relative flex flex-col items-center justify-center bg-stone-800 md:rounded-2xl overflow-hidden md:aspect-video w-full h-full min-h-0">
             {/*
               <video> siempre presente:
-              - Cuando hay video → muestra el stream.
-              - Cuando no hay video → está oculto pero el audio
-                del stream sigue reproduciéndose (muted solo para local).
+              - Cuando hay video     → mostramos el stream.
+              - Cuando no hay video  → está oculto pero el audio sigue reproduciéndose. (muted solo para local)
             */}
             <video
                 ref={videoRef}
@@ -102,7 +98,6 @@ function VideoTile({
 
 // ─────────────────────────────────────────────────────────
 // Audio tile — para llamadas de voz.
-// Tiene un <audio> oculto que reproduce el stream remoto.
 // ─────────────────────────────────────────────────────────
 function AudioTile({
     stream,
@@ -124,7 +119,6 @@ function AudioTile({
 
     return (
         <div className="flex flex-col items-center gap-2">
-            {/* Elemento de audio oculto — reproduce el stream remoto */}
             {!isLocal && (
                 <audio ref={audioRef} autoPlay playsInline className="hidden" />
             )}
@@ -140,7 +134,6 @@ function AudioTile({
                         <Users className="h-10 w-10 text-stone-400" />
                     </div>
                 )}
-                {/* Indicador de mic activo */}
                 <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-green-500 border-2 border-stone-900 flex items-center justify-center">
                     <Mic className="h-2.5 w-2.5 text-white" />
                 </div>
@@ -180,8 +173,8 @@ export function CallModal({
         ended:      'Llamada finalizada',
     }[callState] ?? '';
 
-    // Grid de video: calcular columnas según participantes
-    const totalVideo = remotePeers.length + 1; // +1 por mí
+    // Grid de video
+    const totalVideo = remotePeers.length + 1;
     const gridCols =
         totalVideo <= 1 ? 'grid-cols-1 grid-rows-1' :
         totalVideo <= 2 ? 'grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1' :
@@ -210,7 +203,7 @@ export function CallModal({
                 <div className="flex-1 md:p-6 min-h-[320px] flex items-center justify-center overflow-hidden">
                     {isVideo ? (
                         <div className={`w-full h-full md:h-auto grid gap-1 md:gap-3 ${gridCols}`}>
-                            {/* Mi propio stream */}
+                            {/* Stream local */}
                             <VideoTile
                                 stream={localStream}
                                 name="Tú"
@@ -231,9 +224,9 @@ export function CallModal({
                         </div>
                     ) : (
                         <div className="flex flex-wrap items-center justify-center gap-10 py-6">
-                            {/* Mi avatar (sin audio = isLocal) */}
+                            {/* Avatar local */}
                             <AudioTile name="Tú" avatar={authAvatar} isLocal stream={null} />
-                            {/* Participantes remotos con su stream de audio */}
+                            {/* Participantes remotos */}
                             {remotePeers.map(peer => (
                                 <AudioTile
                                     key={peer.peerId}

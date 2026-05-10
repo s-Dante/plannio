@@ -77,7 +77,7 @@ export function CreateGroupModal({ isOpen, onClose, friends }: Props) {
                         <div className="space-y-1">
                             <Label>Nombre del Grupo</Label>
                             <Input 
-                                placeholder="Ej: Viaje a la playa" 
+                                placeholder="Ej: Macroplaza Trip" 
                                 className="h-10 rounded-xl bg-gray-50 dark:bg-stone-800"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}

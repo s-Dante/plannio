@@ -49,7 +49,7 @@ export function ChatSidebar({ onOpenSearch, onOpenNewGroup, onChatSelect, active
     const [activeTab, setActiveTab] = useState<'chats' | 'requests'>('chats');
     const [searchLocal, setSearchLocal] = useState('');
     const { auth } = usePage<any>().props;
-    // Usar authUserId prop si está disponible, si no, el del contexto de página
+
     const myId = authUserId ?? auth?.user?.id;
 
     const filteredGroups = useMemo(() => {
@@ -135,7 +135,7 @@ export function ChatSidebar({ onOpenSearch, onOpenNewGroup, onChatSelect, active
                                     ? group.members?.find((m: any) => m.id !== myId)
                                     : null;
                                 const memberFrame = otherMember?.equipped_frame ?? null;
-                                // Presencia en tiempo real desde el Set de onlineUsers
+
                                 const isOtherOnline = otherMember
                                     ? (onlineUsers instanceof Set ? onlineUsers.has(otherMember.id) : false)
                                     : false;
@@ -163,7 +163,7 @@ export function ChatSidebar({ onOpenSearch, onOpenNewGroup, onChatSelect, active
                                                     alt="Frame"
                                                 />
                                             )}
-                                            {/* Punto verde de presencia — solo en chats individuales */}
+
                                             {group.is_individual && isOtherOnline && (
                                                 <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-white dark:border-stone-900 z-20" />
                                             )}

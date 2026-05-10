@@ -11,7 +11,7 @@ use Inertia\Response;
 class TouristMapController extends Controller
 {
     /**
-     * Cargamos el mapa con todos los puntos cargados en la BD.
+     * Cargamos el mapa con todos los lugares que exiten en la BD.
      */
     public function index(): Response
     {
@@ -37,7 +37,7 @@ class TouristMapController extends Controller
         ]);
 
         $place = Place::create([
-            'created_by' => auth()->id(),
+            'created_by' => $request->user()->id,
             'name' => $validated['name'],
             'description' => $validated['description'],
             'latitude' => $validated['latitude'],
@@ -61,7 +61,7 @@ class TouristMapController extends Controller
             'comment' => 'nullable|string|max:1000',
         ]);
 
-        $place->rateByUser(auth()->id(), $validated['rating'], $validated['comment']);
+        $place->rateByUser($request->user()->id, $validated['rating'], $validated['comment']);
 
         // Enviamos el evento a broadcast para que todos los usuarios vean el cambio.
         broadcast(new \App\Events\PlaceRated($place))->toOthers();

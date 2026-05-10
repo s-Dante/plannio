@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\TaskCompletition;
+use App\Enums\TaskStatusEnum;
+use App\Enums\TaskPriorityEnum;
 
 class Task extends Model
 {
@@ -34,8 +36,8 @@ class Task extends Model
     protected function casts(): array
     {
         return [
-            'status' => \App\Enums\TaskStatusEnum::class,
-            'priority' => \App\Enums\TaskPriorityEnum::class,
+            'status' => TaskStatusEnum::class,
+            'priority' => TaskPriorityEnum::class,
             'start_date' => 'datetime',
             'due_date' => 'datetime',
             'is_completed' => 'boolean',
@@ -68,7 +70,6 @@ class Task extends Model
      */
     public function markCompletedBy($userId)
     {
-        // Crear registro de completación
         TaskCompletition::firstOrCreate([
             'task_id' => $this->id,
             'user_id' => $userId
@@ -80,7 +81,7 @@ class Task extends Model
             $completedCount = $this->completions()->count();
 
             if ($completedCount >= $totalMembers && !$this->is_completed) {
-                $this->status = \App\Enums\TaskStatusEnum::DONE;
+                $this->status = TaskStatusEnum::DONE;
                 $this->is_completed = true;
                 $this->completed_at = now();
                 $this->points_reward = rand(15, 60);
@@ -92,9 +93,9 @@ class Task extends Model
                 });
             }
         } else {
-            // Tarea Personal/Global: Se completa de inmediato
+            // Tarea Personal: Se completa de inmediato
             if (!$this->is_completed) {
-                $this->status = \App\Enums\TaskStatusEnum::DONE;
+                $this->status = TaskStatusEnum::DONE;
                 $this->is_completed = true;
                 $this->completed_at = now();
                 $this->points_reward = rand(10, 30);

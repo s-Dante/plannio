@@ -22,7 +22,7 @@ Broadcast::channel('chat.{groupId}', function ($user, $groupId) {
         })->exists();
 });
 
-// Canal de llamadas: autoriza sólo a miembros del grupo al que pertenece la llamada
+// Canal de llamadas: autorizamos sólo a miembros del grupo al que pertenece la llamada
 Broadcast::channel('call.{callId}', function ($user, $callId) {
     $call = \App\Models\Call::find($callId);
     if (! $call) return false;

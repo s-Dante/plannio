@@ -10,11 +10,11 @@ use App\Enums\TaskPriorityEnum;
 
 class TaskController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $user = auth()->user();
+        $user = $request->user();
 
-        // Obtener tareas personales o de grupos a los que pertenece
+        // Obtenemos las tareas del usuario o de sus grupos
         $tasks = Task::where(function ($query) use ($user) {
             $query->where('user_id', $user->id)
                   ->whereNull('group_id');
@@ -56,7 +56,7 @@ class TaskController extends Controller
 
         $task = Task::create([
             ...$validated,
-            'user_id' => auth()->id(),
+            'user_id' => $request->user()->id,
             'status' => TaskStatusEnum::TODO,
             'is_completed' => false,
         ]);
@@ -72,15 +72,15 @@ class TaskController extends Controller
 
         $task->status = TaskStatusEnum::from($validated['status']);
         
-        // Si se mueve a DONE y no estaba completada, invocar markCompletedBy para generar puntos
+        // Si se mueve a DONE y no estaba completada, la marcamos como terminada
         if ($task->status === TaskStatusEnum::DONE && !$task->is_completed) {
-            $task->markCompletedBy(auth()->id());
+            $task->markCompletedBy($request->user()->id);
         } else {
-            // Si se mueve fuera de DONE, resetear
+            // Si se mueve fuera de DONE, la reseteamos
             if ($task->status !== TaskStatusEnum::DONE && $task->is_completed) {
                 $task->is_completed = false;
                 $task->completed_at = null;
-                $task->points_reward = 0; // Se podría quitar los puntos al usuario, pero es complejo. Lo dejamos así.
+                $task->points_reward = 0;
             }
             $task->save();
         }
@@ -88,10 +88,9 @@ class TaskController extends Controller
         return back();
     }
 
-    public function destroy(Task $task)
+    public function destroy(Request $request, Task $task)
     {
-        // Solo el creador o un admin puede borrar
-        if ($task->user_id === auth()->id() || ($task->group_id && $task->group->created_by === auth()->id())) {
+        if ($task->user_id === $request->user()->id || ($task->group_id && $task->group->created_by === $request->user()->id())) {
             $task->delete();
             return back()->with('success', 'Tarea eliminada.');
         }

@@ -12,13 +12,13 @@ export function SearchUsersModal({ isOpen, onClose }: { isOpen: boolean, onClose
     const [loading, setLoading] = useState(false);
     const [sentRequests, setSentRequests] = useState<number[]>([]);
 
-    // Paginación — solo aplica cuando no hay búsqueda activa
+    // Paginacion de usuarios si aun no busca
     const [page, setPage] = useState(1);
     const [lastPage, setLastPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [isSearchMode, setIsSearchMode] = useState(false);
 
-    // Cargar todos los usuarios al abrir el modal
+    // Cargamos todos los usuarios al abrir el modal
     const loadAllUsers = useCallback(async (p = 1) => {
         setLoading(true);
         try {
@@ -43,7 +43,7 @@ export function SearchUsersModal({ isOpen, onClose }: { isOpen: boolean, onClose
         }
     }, [isOpen, loadAllUsers]);
 
-    // Búsqueda con debounce
+    // Buscamos por nombre y apellido
     useEffect(() => {
         if (!query.trim()) {
             if (isSearchMode) {
@@ -86,7 +86,6 @@ export function SearchUsersModal({ isOpen, onClose }: { isOpen: boolean, onClose
 
     const getButtonState = (user: any) => {
         if (sentRequests.includes(user.id)) return 'sent';
-        // friendship_status: 1 = pending, 2 = accepted
         if (user.friendship_status === 2) return 'friends';
         if (user.friendship_status === 1) return 'pending';
         return 'none';
@@ -192,7 +191,7 @@ export function SearchUsersModal({ isOpen, onClose }: { isOpen: boolean, onClose
                         })}
                     </div>
 
-                    {/* Paginación — solo cuando no hay búsqueda */}
+                    {/* Paginación */}
                     {!isSearchMode && lastPage > 1 && (
                         <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-stone-800">
                             <Button

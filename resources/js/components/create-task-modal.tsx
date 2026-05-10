@@ -20,7 +20,7 @@ interface CreateTaskModalProps {
 export function CreateTaskModal({ isOpen, onClose, groupId = null }: CreateTaskModalProps) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [priority, setPriority] = useState(2); // Media
+    const [priority, setPriority] = useState(2);
     const [date, setDate] = useState<DateRange | undefined>({
         from: undefined,
         to: undefined,
@@ -75,7 +75,7 @@ export function CreateTaskModal({ isOpen, onClose, groupId = null }: CreateTaskM
                         <Input 
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Ej. Revisar diseño final..."
+                            placeholder="Ej. De rol a fundidora"
                             className="mt-1 dark:bg-stone-800"
                         />
                     </div>

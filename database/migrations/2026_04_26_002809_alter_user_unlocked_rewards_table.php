@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('user_unlocked_rewards', function (Blueprint $table) {
             $table->boolean('is_equipped')->default(false)->after('reward_id');
-            // Optimizar busqueda al equipar
             $table->index(['user_id', 'is_equipped']);
         });
     }

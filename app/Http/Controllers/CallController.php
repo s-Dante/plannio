@@ -17,7 +17,6 @@ class CallController extends Controller
 {
     /**
      * Inicia una nueva llamada en un grupo.
-     * El frontend envía: group_id, type (1=voz / 2=video), peer_id del caller.
      */
     public function initiate(Request $request)
     {
@@ -27,21 +26,20 @@ class CallController extends Controller
             'peer_id'  => 'required|string|max:255',
         ]);
 
-        $user = auth()->user();
+        $user = $request->user();
 
-        // Verificar que el usuario es miembro del grupo
+        // Como precausion verificamos que el usuario si sea parte del grupo
         $isMember = $user->groups()->where('groups.id', $request->group_id)->exists();
         if (! $isMember) {
             return response()->json(['error' => 'No perteneces a este grupo.'], 403);
         }
 
-        // Verificar que no haya una llamada activa en ese grupo
+        // Verificamos que no exista ya una llaada en procso
         $activeCall = Call::where('group_id', $request->group_id)
             ->whereIn('status', [CallStatusEnum::INITIATED->value, CallStatusEnum::ONGOING->value])
             ->first();
 
         if ($activeCall) {
-            // Devolver la llamada activa para que el front pueda unirse
             return response()->json([
                 'call'         => $activeCall->load('participants'),
                 'participants' => $this->getParticipantsWithPeers($activeCall),
@@ -57,7 +55,6 @@ class CallController extends Controller
             'started_at' => now(),
         ]);
 
-        // Registrar al caller como primer participante
         CallParticipant::create([
             'call_id'   => $call->id,
             'user_id'   => $user->id,
@@ -69,14 +66,13 @@ class CallController extends Controller
 
         return response()->json([
             'call'         => $call,
-            'participants' => [],   // El caller es el único hasta ahora
+            'participants' => [],
             'already_active' => false,
         ]);
     }
 
     /**
      * Un usuario se une a una llamada existente.
-     * El frontend envía: peer_id del usuario que se une.
      */
     public function join(Request $request, Call $call)
     {
@@ -84,31 +80,29 @@ class CallController extends Controller
             'peer_id' => 'required|string|max:255',
         ]);
 
-        $user = auth()->user();
+        $user = $request->user();
 
-        // Verificar membresía
+        // Como precausion verificamos que el usuario si sea parte del grupo
         $isMember = $user->groups()->where('groups.id', $call->group_id)->exists();
         if (! $isMember) {
             return response()->json(['error' => 'No perteneces a este grupo.'], 403);
         }
 
-        // Verificar que la llamada sigue activa
+        // Verificamos que la llamada sigue activa
         if (! in_array($call->status->value, [CallStatusEnum::INITIATED->value, CallStatusEnum::ONGOING->value])) {
             return response()->json(['error' => 'La llamada ya terminó.'], 422);
         }
 
-        // Crear o actualizar la participación (puede que ya exista si se reconectó)
         CallParticipant::updateOrCreate(
             ['call_id' => $call->id, 'user_id' => $user->id],
             ['peer_id' => $request->peer_id, 'joined_at' => now(), 'left_at' => null]
         );
 
-        // Marcar la llamada como en curso si aún estaba en INITIATED
         if ($call->status->value === CallStatusEnum::INITIATED->value) {
             $call->update(['status' => CallStatusEnum::ONGOING->value]);
         }
 
-        // Obtener peer_ids de los demás participantes activos (para que el recién unido los llame)
+        // Obtenemos el id de peer para que el nuevo los llame
         $existingParticipants = $this->getParticipantsWithPeers($call, $user->id);
 
         broadcast(new ParticipantJoined($call, $user, $request->peer_id))->toOthers();
@@ -120,11 +114,11 @@ class CallController extends Controller
     }
 
     /**
-     * Un usuario abandona la llamada (sin terminarla para los demás).
+     * Un usuario abandona la llamada.
      */
     public function leave(Request $request, Call $call)
     {
-        $user = auth()->user();
+        $user = $request->user();
 
         CallParticipant::where('call_id', $call->id)
             ->where('user_id', $user->id)
@@ -132,7 +126,7 @@ class CallController extends Controller
 
         broadcast(new ParticipantLeft($call, $user))->toOthers();
 
-        // Revisar si quedan participantes activos
+        // Revisamos que aún queden participantes activos
         $activeCount = CallParticipant::where('call_id', $call->id)
             ->whereNull('left_at')
             ->count();
@@ -145,13 +139,13 @@ class CallController extends Controller
     }
 
     /**
-     * Un usuario rechaza la llamada (sin haber entrado).
+     * Un usuario rechaza la llamada.
      */
     public function reject(Request $request, Call $call)
     {
         $group = \App\Models\Group::find($call->group_id);
         
-        // Si es un chat individual y uno rechaza, terminamos la llamada para ambos
+        // Si el grupo es individual terminamos la llamada para ambos
         if ($group && $group->is_individual) {
             $this->endCall($call);
         }
@@ -160,14 +154,13 @@ class CallController extends Controller
     }
 
     /**
-     * Notifica a los demás participantes que el usuario apagó/encendió la cámara.
-     * Usa un broadcast real del servidor (más confiable que whispers en canal privado).
+     * Notificamos a los demás participantes que el usuario apagó/encendió la cámara.
      */
     public function cameraToggle(Request $request, Call $call)
     {
         $request->validate(['cam_off' => 'required|boolean']);
 
-        $user = auth()->user();
+        $user = $request->user();
         $isMember = $user->groups()->where('groups.id', $call->group_id)->exists();
         if (! $isMember) {
             return response()->json(['error' => 'No autorizado.'], 403);
@@ -179,19 +172,17 @@ class CallController extends Controller
     }
 
     /**
-     * Terminar la llamada completamente (desde el caller o cuando todos salieron).
+     * Terminar la llamada completamente.
      */
     public function end(Request $request, Call $call)
     {
-        $user = auth()->user();
+        $user = $request->user();
 
-        // Sólo el caller o un miembro del grupo puede forzar el fin
         $isMember = $user->groups()->where('groups.id', $call->group_id)->exists();
         if (! $isMember) {
             return response()->json(['error' => 'No autorizado.'], 403);
         }
 
-        // Marcar a todos como salidos
         CallParticipant::where('call_id', $call->id)
             ->whereNull('left_at')
             ->update(['left_at' => now()]);
@@ -202,11 +193,11 @@ class CallController extends Controller
     }
 
     /**
-     * Obtener el estado actual de una llamada (participantes + peer_ids).
+     * Obtener el estado actual de una llamada).
      */
-    public function show(Call $call)
+    public function show(Request $request, Call $call)
     {
-        $user = auth()->user();
+        $user = $request->user();
         $isMember = $user->groups()->where('groups.id', $call->group_id)->exists();
         if (! $isMember) {
             return response()->json(['error' => 'No autorizado.'], 403);
@@ -218,10 +209,13 @@ class CallController extends Controller
         ]);
     }
 
-    // ──────────────────────────────────────────────
-    // Helpers privados
-    // ──────────────────────────────────────────────
 
+    // ──────────────────────────────────────────────
+    // Helpers
+    // ──────────────────────────────────────────────
+    /**
+     * Terminamos la llamada
+     */
     private function endCall(Call $call): void
     {
         $startedAt = $call->started_at ?? now();
@@ -237,8 +231,7 @@ class CallController extends Controller
     }
 
     /**
-     * Devuelve los participantes activos de una llamada con su peer_id,
-     * opcionalmente excluyendo a un usuario (útil al hacer join).
+     * Devuelve los participantes activos de una llamada con su id de peer,
      */
     private function getParticipantsWithPeers(Call $call, ?int $excludeUserId = null): array
     {

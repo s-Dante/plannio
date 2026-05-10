@@ -20,40 +20,31 @@ import { UserCardModal } from './user-card-modal';
 import { RewardsModal } from './rewards-modal';
 
 const styles = {
-    // ── Desktop (md+): sidebar lateral ──────────────────────
     sidebarBase: [
-        // Mobile: barra inferior horizontal
         "flex w-full h-16 flex-row items-center justify-around",
         "border-t border-gray-200 dark:border-stone-800",
         "bg-white dark:bg-stone-900/95 backdrop-blur-md",
         "px-2",
-        // Desktop: columna lateral
         "md:w-20 md:h-full md:flex-col md:justify-between",
         "md:border-t-0 md:border-r",
         "md:bg-gray-100/80 md:dark:bg-stone-900/80",
         "md:py-6 md:px-0",
     ].join(' '),
 
-    // Logo — solo visible en desktop
     logoContainer: "hidden md:flex h-12 w-12 items-center justify-center transition-transform hover:scale-105",
     logoImageLight: "w-full h-full object-contain dark:hidden",
     logoImageDark: "w-full h-full object-contain hidden dark:block",
-
-    // Desktop: columna de nav | Mobile: fila (ya en el aside)
     topSection: "flex md:flex-col items-center gap-1 md:gap-6",
     navContainer: "flex flex-row md:flex-col items-center gap-1 md:gap-4 md:mt-4",
 
-    // Botones de nav
     linkBase: "relative flex h-12 w-12 items-center justify-center rounded-2xl transition-all cursor-pointer",
     linkActive: "bg-white shadow-sm dark:bg-stone-800 text-primary",
     linkInactive: "text-gray-500 hover:bg-gray-200/50 dark:text-gray-400 dark:hover:bg-stone-800/50",
 
-    // Indicador activo: izquierda en desktop, abajo en mobile
     activeIndicator: "absolute left-0 top-1/2 -mt-3 h-6 w-1 rounded-r-full bg-primary md:block hidden",
     activeIndicatorMobile: "absolute bottom-0 left-1/2 -ml-3 w-6 h-1 rounded-t-full bg-primary md:hidden",
     iconSize: "h-6 w-6",
 
-    // Logout — en mobile se mete en la fila de nav, en desktop abajo separado
     bottomSection: "hidden md:flex flex-col items-center",
     logoutButton: "flex h-12 w-12 items-center justify-center rounded-2xl text-gray-500 hover:bg-red-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors",
     logoutIcon: "h-6 w-6 ml-1",
@@ -82,7 +73,6 @@ export function FloatingSidebar() {
     return (
         <aside className={styles.sidebarBase}>
 
-            {/* Logo — solo desktop */}
             <div className={styles.topSection}>
                 <Link href="/" className={styles.logoContainer}>
                     <img src="/imgs/logos/Pin_Black_new.PNG" alt="Plannio Icon" className={styles.logoImageLight} />
@@ -101,9 +91,7 @@ export function FloatingSidebar() {
 
                             const linkContent = (
                                 <>
-                                    {/* Indicador desktop (izquierda) */}
                                     {isActive && <span className={styles.activeIndicator} />}
-                                    {/* Indicador mobile (abajo) */}
                                     {isActive && <span className={styles.activeIndicatorMobile} />}
                                     <item.icon className={styles.iconSize} />
                                 </>
@@ -131,7 +119,6 @@ export function FloatingSidebar() {
                             );
                         })}
 
-                        {/* Logout dentro de la fila en mobile */}
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Link
@@ -154,7 +141,6 @@ export function FloatingSidebar() {
             <UserCardModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} onOpenRewards={() => setIsRewardsOpen(true)} />
             <RewardsModal isOpen={isRewardsOpen} onClose={() => setIsRewardsOpen(false)} />
 
-            {/* Logout desktop (abajo, separado) */}
             <div className={styles.bottomSection}>
                 <TooltipProvider delayDuration={0}>
                     <Tooltip>

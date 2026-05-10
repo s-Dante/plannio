@@ -11,7 +11,6 @@ import { useCall } from '@/hooks/use-call';
 import { toast } from 'sonner';
 import { MessageCircle, X } from 'lucide-react';
 
-// Panel visible en mobile: 'list' | 'chat' | 'details'
 type MobilePanel = 'list' | 'chat' | 'details';
 
 const breadcrumbs = [{ title: 'Chats', href: '/chats' }];
@@ -27,11 +26,10 @@ export default function ChatsIndex() {
     const [activeChatChannel, setActiveChatChannel] = useState<any>(null);
     const [localGroups,       setLocalGroups]       = useState<any[]>(groups || []);
 
-    // ── Presencia online/offline ──────────────────────────────────────────────
-    // Set de IDs de usuarios actualmente conectados (canal de presencia users.status)
+    // Presencia online/offline
     const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set());
 
-    // ── Refs para poder acceder a las funciones del hook desde event listeners ─
+    // Refs para poder acceder a las funciones del hook desde event listeners
     const acceptCallRef = useRef<(() => void) | null>(null);
     const rejectCallRef = useRef<(() => void) | null>(null);
 
@@ -45,7 +43,7 @@ export default function ChatsIndex() {
         });
     };
 
-    // ── Hook de llamadas ──────────────────────────────────────────────────────
+    // Hook de llamadas
     const {
         callState,
         callType,
@@ -67,14 +65,11 @@ export default function ChatsIndex() {
         groupId:     activeChat?.id ?? null,
     });
 
-    // Mantener refs actualizadas para usarlas en event listeners DOM
+    // Mantenemos las refs actualizadas para usarlas en event listeners DOM
     useEffect(() => { acceptCallRef.current = acceptCall; }, [acceptCall]);
     useEffect(() => { rejectCallRef.current = rejectCall; }, [rejectCall]);
 
-    // ── Auto-seleccionar chat desde llamada pendiente (sessionStorage) ────────
-    // Cuando el usuario acepta desde otra página, se navega a /chats con la
-    // info de la llamada en sessionStorage. El hook useCall auto-acepta la llamada
-    // pero necesitamos también seleccionar el chat correcto para mostrar el modal.
+    // Auto-seleccionar chat desde llamada pendiente (sessionStorage)
     useEffect(() => {
         const pendingStr = sessionStorage.getItem('pendingIncomingCall');
         if (!pendingStr) return;
@@ -86,16 +81,13 @@ export default function ChatsIndex() {
                 setMobilePanel('chat');
             }
         } catch (_) {}
-        // No eliminamos el item aquí: useCall lo lee y elimina en su propio efecto.
-    }, []); // solo al montar
+    }, []);
 
-    // ── Eventos DOM para comunicarse con el layout global ────────────────────
-    // AppFloatingLayout despacha 'call:accept' / 'call:reject' cuando el usuario
-    // interactúa con la notificación global mientras está en /chats.
+    // Eventos DOM para comunicarse con el layout global
     useEffect(() => {
         const onAccept = (e: Event) => {
             const callData = (e as CustomEvent).detail;
-            // Seleccionar el chat correcto si aún no está activo
+
             if (callData?.group_id) {
                 const targetGroup = (groups || []).find((g: any) => g.id === callData.group_id);
                 if (targetGroup) {
@@ -117,14 +109,12 @@ export default function ChatsIndex() {
             window.removeEventListener('call:accept', onAccept);
             window.removeEventListener('call:reject', onReject);
         };
-    }, [groups]); // re-registrar si groups cambia para tener la lista actualizada
+    }, [groups]);
 
-    // Sincronizar localGroups cuando cambian los grupos desde el servidor
     useEffect(() => {
         setLocalGroups(groups || []);
     }, [groups]);
 
-    // Actualizar el chat activo cuando cambian los grupos (tras reload)
     useEffect(() => {
         if (activeChat && groups) {
             const updatedChat = groups.find((g: any) => g.id === activeChat.id);
@@ -132,7 +122,7 @@ export default function ChatsIndex() {
         }
     }, [groups]);
 
-    // Suscripción al canal Echo del chat activo
+    // Entramos al chat desde una llamada
     useEffect(() => {
         if (!window.Echo || !activeChat) {
             setActiveChatChannel(null);
@@ -142,11 +132,11 @@ export default function ChatsIndex() {
         setActiveChatChannel(channel);
     }, [activeChat?.id]);
 
-    // ── Websockets globales ───────────────────────────────────────────────────
+    // Websockets globales
     useEffect(() => {
         if (!window.Echo || !auth.user) return;
 
-        // Canal de presencia: quién está online
+        // Canal de presencia: para saber quién está online
         window.Echo.join(`users.status`)
             .here((users: any[]) => {
                 setOnlineUsers(new Set(users.map((u: any) => u.id)));
@@ -162,7 +152,7 @@ export default function ChatsIndex() {
                 });
             });
 
-        // Canal privado del usuario: solicitudes, grupos, etc.
+        // Canal privado del usuario: para recibir notificaciones
         window.Echo.private(`user.${auth.user.id}`)
             .listen('FriendRequestReceived', (e: any) => {
                 toast.info(`${e.sender.name} te ha enviado una solicitud de amistad.`, { icon: '👥' });
@@ -219,7 +209,7 @@ export default function ChatsIndex() {
                     />
                 </div>
 
-                {/* ── Panel 2 + 3 ── */}
+                {/* ── Panel 2 y 3 ── */}
                 <div className={[
                     'flex-1 flex overflow-hidden',
                     'absolute inset-0 md:relative md:inset-auto',
@@ -283,7 +273,7 @@ export default function ChatsIndex() {
                 <SearchUsersModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
                 <CreateGroupModal isOpen={isCreateGroupOpen} onClose={() => setIsCreateGroupOpen(false)} friends={friends} />
 
-                {/* Modal de llamada activa */}
+                {/* Modal de llamada */}
                 <CallModal
                     callState={callState}
                     callType={callType}
@@ -298,7 +288,6 @@ export default function ChatsIndex() {
                     onToggleCamera={toggleCamera}
                 />
 
-                {/* Lightbox */}
                 {lightboxMedia && (() => {
                     const isGallery = Array.isArray(lightboxMedia?.items);
                     const galleryItems: any[] = isGallery ? lightboxMedia.items : [lightboxMedia];

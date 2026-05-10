@@ -51,7 +51,6 @@ export default function MapIndex() {
     const [newPlaceCoords, setNewPlaceCoords] = useState<{ lat: number, lng: number } | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // Detectar modo oscuro
     const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
     useEffect(() => {
         const obs = new MutationObserver(() => {
@@ -65,7 +64,6 @@ export default function MapIndex() {
         if (places) setLocalPlaces(places);
     }, [places]);
 
-    // Actualización de calificación en tiempo real
     useEffect(() => {
         if (!window.Echo) return;
 
@@ -88,7 +86,7 @@ export default function MapIndex() {
         return () => window.Echo.leaveChannel('tourist-map');
     }, []);
 
-    // Coordenadas iniciales para que se vea Monterrey por defecto
+    // Seteamos las coordenadas iniciales para que se vea Monterrey por defecto
     const initialViewState = {
         longitude: -100.316112,
         latitude: 25.686614,
@@ -171,10 +169,8 @@ export default function MapIndex() {
                     </Map>
                 </div>
 
-                {/* Sidebar: en desktop siempre visible, en mobile según sidebarOpen */}
                 <div className={cn(
                     styles.sidebarOverlay,
-                    // Mobile: ocultar con translate cuando está cerrado
                     'transition-transform duration-300',
                     !sidebarOpen && '-translate-x-full md:translate-x-0',
                 )}>
@@ -192,7 +188,6 @@ export default function MapIndex() {
                     </div>
                 </div>
 
-                {/* FAB toggle sidebar — solo mobile */}
                 <button
                     onClick={() => setSidebarOpen(v => !v)}
                     className={cn(
