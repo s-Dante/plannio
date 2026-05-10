@@ -34,9 +34,19 @@ class CallInitiated implements ShouldBroadcastNow
 
     public function broadcastOn(): array
     {
-        return [
-            new PrivateChannel('chat.' . $this->callData['group_id']),
-        ];
+        $group = \App\Models\Group::find($this->callData['group_id']);
+        $channels = [new PrivateChannel('chat.' . $this->callData['group_id'])];
+
+        if ($group) {
+            foreach ($group->members as $member) {
+                // No enviar al que inicia la llamada (opcional, pero buena práctica)
+                if ($member->id !== $this->callData['caller']['id']) {
+                    $channels[] = new PrivateChannel('user.' . $member->id);
+                }
+            }
+        }
+
+        return $channels;
     }
 
     public function broadcastAs(): string

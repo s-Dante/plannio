@@ -1,3 +1,4 @@
+import React from 'react';
 import { Phone, Video, Lock, Unlock, Paperclip, Smile, Users, MapPin, SendHorizonal, Loader2, ArrowLeft, Plus, X } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
@@ -39,11 +40,43 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
     const [isEncrypted, setIsEncrypted] = useState(true);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [pendingFiles, setPendingFiles] = useState<File[]>([]);
     const [showActions, setShowActions] = useState(false);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Comprime imágenes a WebP antes de subirlas para reducir tamaño
+    const compressImageToWebP = (file: File, maxDim = 1280, quality = 0.85): Promise<File> => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const url = URL.createObjectURL(file);
+            img.onload = () => {
+                URL.revokeObjectURL(url);
+                const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+                const w = Math.round(img.width * scale);
+                const h = Math.round(img.height * scale);
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d')!;
+                ctx.drawImage(img, 0, 0, w, h);
+                canvas.toBlob(
+                    (blob) => {
+                        if (blob) {
+                            resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' }));
+                        } else {
+                            resolve(file);
+                        }
+                    },
+                    'image/webp',
+                    quality
+                );
+            };
+            img.onerror = () => resolve(file);
+            img.src = url;
+        });
+    };
 
     // Manejo del chat activo
     useEffect(() => {
@@ -88,42 +121,69 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
         }, 100);
     };
 
-    const handleSendMessage = () => {
-        if (!content.trim() && !pendingFile) return;
+    const handleSendMessage = async () => {
+        if (!content.trim() && pendingFiles.length === 0) return;
 
         setUploading(true);
-        const optimisticId = Math.random();
-
-        const formData = new FormData();
-        formData.append('is_encrypted', isEncrypted ? '1' : '0');
-        if (content.trim()) formData.append('content', content);
-        if (pendingFile) formData.append('file', pendingFile);
-
         const originalContent = content;
         setContent('');
-        setPendingFile(null);
+        const filesToSend = [...pendingFiles];
+        setPendingFiles([]);
         scrollToBottom();
 
-        axios.post(`/chats/${activeChat.id}/messages`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        }).then(res => {
-            setMessages(prev => {
-                if (prev.some(m => m.id === res.data.id)) return prev;
-                return [...prev, res.data];
-            });
-            scrollToBottom();
-        }).catch(() => {
-            toast.error("No se pudo enviar el mensaje");
+        try {
+            // Enviar texto primero (si hay)
+            if (originalContent.trim()) {
+                const formData = new FormData();
+                formData.append('is_encrypted', isEncrypted ? '1' : '0');
+                formData.append('content', originalContent);
+                const res = await axios.post(`/chats/${activeChat.id}/messages`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                setMessages(prev => prev.some(m => m.id === res.data.id) ? prev : [...prev, res.data]);
+                scrollToBottom();
+            }
+
+            // Enviar cada archivo como mensaje independiente
+            for (const file of filesToSend) {
+                const formData = new FormData();
+                formData.append('is_encrypted', isEncrypted ? '1' : '0');
+                formData.append('file', file);
+                const res = await axios.post(`/chats/${activeChat.id}/messages`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                setMessages(prev => prev.some(m => m.id === res.data.id) ? prev : [...prev, res.data]);
+                scrollToBottom();
+            }
+        } catch {
+            toast.error('No se pudo enviar el mensaje');
             setContent(originalContent);
-        }).finally(() => {
+        } finally {
             setUploading(false);
-        });
+        }
     };
 
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setPendingFile(e.target.files[0]);
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+
+        const processed: File[] = [];
+        for (const file of files) {
+            if (file.type.startsWith('image/')) {
+                const compressed = await compressImageToWebP(file);
+                processed.push(compressed);
+            } else {
+                processed.push(file);
+            }
         }
+
+        setPendingFiles(prev => [...prev, ...processed]);
+        // Reset input so same file can be re-selected
+        e.target.value = '';
+    };
+
+    const removePendingFile = (idx: number) => {
+        setPendingFiles(prev => prev.filter((_, i) => i !== idx));
     };
 
     const handleSendLocation = () => {
@@ -209,6 +269,14 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
                         </div>
                         <div>
                             <h3 className={styles.headerTitle}>{activeChat.name}</h3>
+                            {activeChat.is_individual && headerOtherMember && (
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                    <span className={`h-2 w-2 rounded-full ${headerOtherMember.is_online ? 'bg-green-500' : 'bg-gray-300 dark:bg-stone-600'}`} />
+                                    <span className={`text-xs font-semibold ${headerOtherMember.is_online ? 'text-green-500' : 'text-gray-400'}`}>
+                                        {headerOtherMember.is_online ? 'En línea' : 'Desconectado'}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </button>
                 </div>
@@ -242,26 +310,92 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
             <div className={styles.messagesContainer}>
                 {loading && <div className="text-center text-sm text-[var(--color-accent)] py-4 font-bold"><Loader2 className="animate-spin h-5 w-5 mx-auto" /></div>}
 
-                {messages.map((msg: any, idx: number) => {
-                    const isMine = msg.user_id === auth.user.id;
-                    const showName = !isMine && (!messages[idx - 1] || messages[idx - 1].user_id !== msg.user_id);
-                    return <MessageBubble key={msg.id} message={msg} isMine={isMine} showName={showName} onOpenMedia={onOpenMedia} />;
-                })}
+                {(() => {
+                    // Agrupar mensajes multimedia consecutivos del mismo usuario (en <15 seg)
+                    const MEDIA_TYPES = [2, 3]; // IMAGE, VIDEO
+                    const rendered: React.ReactNode[] = [];
+                    let i = 0;
 
-                <div ref={messagesEndRef} className="h-2"></div>
-                <div className="h-10 shrink-0"></div>
+                    while (i < messages.length) {
+                        const msg = messages[i];
+                        const isMine = msg.user_id === auth.user.id;
+                        const showName = !isMine && (!messages[i - 1] || messages[i - 1].user_id !== msg.user_id);
+
+                        // Si es multimedia sin texto, intentar agrupar con siguientes
+                        if (MEDIA_TYPES.includes(msg.type) && !msg.content) {
+                            const group: any[] = [msg];
+                            let j = i + 1;
+                            while (
+                                j < messages.length &&
+                                MEDIA_TYPES.includes(messages[j].type) &&
+                                !messages[j].content &&
+                                messages[j].user_id === msg.user_id &&
+                                Math.abs(new Date(messages[j].created_at).getTime() - new Date(msg.created_at).getTime()) < 15000
+                            ) {
+                                group.push(messages[j]);
+                                j++;
+                            }
+
+                            // Renderizar primer mensaje con la galería completa
+                            rendered.push(
+                                <MessageBubble
+                                    key={msg.id}
+                                    message={msg}
+                                    isMine={isMine}
+                                    showName={showName}
+                                    onOpenMedia={(item) => {
+                                        if (group.length > 1) {
+                                            const idx = group.findIndex((g: any) => g.id === item.id);
+                                            onOpenMedia({ items: group, index: idx >= 0 ? idx : 0 });
+                                        } else {
+                                            onOpenMedia(item);
+                                        }
+                                    }}
+                                    groupedMedia={group.length > 1 ? group : undefined}
+                                />
+                            );
+                            i = j; // saltar los agrupados
+                        } else {
+                            rendered.push(
+                                <MessageBubble
+                                    key={msg.id}
+                                    message={msg}
+                                    isMine={isMine}
+                                    showName={showName}
+                                    onOpenMedia={onOpenMedia}
+                                />
+                            );
+                            i++;
+                        }
+                    }
+                    return rendered;
+                })()}
+
+                <div ref={messagesEndRef} className="h-2" />
+                <div className="h-10 shrink-0" />
             </div>
 
             <div className={styles.inputWrapper}>
 
-                {/* Preview de archivo adjunto */}
-                {pendingFile && (
-                    <div className={styles.filePreview}>
-                        <div className="flex items-center gap-2 truncate">
-                            <Paperclip className="h-4 w-4" />
-                            <span className="truncate max-w-[200px]">{pendingFile.name}</span>
-                        </div>
-                        <button onClick={() => setPendingFile(null)} className="text-red-500 hover:text-red-700">✕</button>
+                {/* Preview de archivos adjuntos */}
+                {pendingFiles.length > 0 && (
+                    <div className="flex flex-wrap gap-2 px-1 animate-in slide-in-from-bottom-2">
+                        {pendingFiles.map((file, idx) => {
+                            const isImg = file.type.startsWith('image/');
+                            const isVid = file.type.startsWith('video/');
+                            return (
+                                <div key={idx} className="relative group flex items-center gap-1.5 bg-white dark:bg-stone-800 border border-gray-200 dark:border-stone-700 rounded-xl px-2 py-1.5 text-xs font-medium text-[var(--color-accent)] shadow-sm">
+                                    {isImg && <span>🖼️</span>}
+                                    {isVid && <span>🎬</span>}
+                                    {!isImg && !isVid && <Paperclip className="h-3 w-3" />}
+                                    <span className="max-w-[120px] truncate">{file.name}</span>
+                                    <button
+                                        onClick={() => removePendingFile(idx)}
+                                        className="ml-1 text-red-400 hover:text-red-600 font-bold leading-none"
+                                    >✕</button>
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
 
@@ -279,10 +413,10 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
                             </PopoverContent>
                         </Popover>
 
-                        <button className={styles.inputActionBtn} title="Adjuntar Documento" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                        <button className={styles.inputActionBtn} title="Adjuntar archivos" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
                             <Paperclip className="h-5 w-5" />
                         </button>
-                        <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileSelect} />
+                        <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileSelect} multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.zip" />
 
                         <button className={styles.inputActionBtn} title="Compartir Ubicación" onClick={handleSendLocation} disabled={uploading}>
                             <MapPin className="h-5 w-5" />
@@ -314,7 +448,7 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
                         />
                     </div>
 
-                    <button className={styles.sendBtn} onClick={handleSendMessage} disabled={(!content.trim() && !pendingFile) || uploading}>
+                    <button className={styles.sendBtn} onClick={handleSendMessage} disabled={(!content.trim() && pendingFiles.length === 0) || uploading}>
                         {uploading ? <Loader2 className="h-6 w-6 animate-spin" /> : <SendHorizonal className={styles.sendIcon} />}
                     </button>
                 </div>

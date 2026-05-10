@@ -28,6 +28,19 @@ export default function ChatsIndex() {
     const [mobilePanel,       setMobilePanel]       = useState<MobilePanel>('list');
     // Canal de Echo del chat activo — como state para que el hook reaccione al cambio
     const [activeChatChannel,  setActiveChatChannel]  = useState<any>(null);
+    // Lista de grupos ordenada por último mensaje (actualizada optimisticamente)
+    const [localGroups,        setLocalGroups]        = useState<any[]>(groups || []);
+
+    // Burbujear un chat al tope cuando llega un nuevo mensaje
+    const bumpGroupToTop = (groupId: number) => {
+        setLocalGroups(prev => {
+            const idx = prev.findIndex((g: any) => g.id === groupId);
+            if (idx <= 0) return prev; // ya está primero
+            const updated = [...prev];
+            const [group] = updated.splice(idx, 1);
+            return [group, ...updated];
+        });
+    };
 
     // ── Hook de llamadas ──────────────────────────────────
     const {
@@ -46,9 +59,16 @@ export default function ChatsIndex() {
         toggleCamera,
     } = useCall({
         authUserId:  auth.user.id,
+        authName:    auth.user.name + ' ' + auth.user.father_lastname,
+        authAvatar:  auth.user.avatar,
         echoChannel: activeChatChannel,
         groupId:     activeChat?.id ?? null,
     });
+
+    // Sincronizar localGroups cuando cambian los grupos desde el servidor
+    useEffect(() => {
+        setLocalGroups(groups || []);
+    }, [groups]);
 
     // Actualizar el chat activo cuando cambian los grupos (tras reload)
     useEffect(() => {
@@ -137,7 +157,7 @@ export default function ChatsIndex() {
                         onOpenNewGroup={() => setIsCreateGroupOpen(true)}
                         onChatSelect={handleChatSelect}
                         activeChat={activeChat}
-                        groups={groups}
+                        groups={localGroups}
                         pendingRequests={pendingRequests}
                     />
                 </div>
@@ -176,7 +196,10 @@ export default function ChatsIndex() {
                                 <ChatArea
                                     activeChat={activeChat}
                                     auth={auth}
-                                    onMessagesUpdate={setChatMessages}
+                                    onMessagesUpdate={(msgs: any[]) => {
+                                        setChatMessages(msgs);
+                                        if (activeChat && msgs.length > 0) bumpGroupToTop(activeChat.id);
+                                    }}
                                     onOpenMedia={setLightboxMedia}
                                     onStartCall={startCall}
                                     callState={callState}
@@ -218,6 +241,7 @@ export default function ChatsIndex() {
                     isMuted={isMuted}
                     isCamOff={isCamOff}
                     chatName={activeChat?.name ?? 'Llamada'}
+                    authAvatar={auth.user.avatar}
                     onHangUp={hangUp}
                     onToggleMute={toggleMute}
                     onToggleCamera={toggleCamera}
@@ -230,24 +254,81 @@ export default function ChatsIndex() {
                     onReject={rejectCall}
                 />
 
-                {/* Lightbox */}
-                {lightboxMedia && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in">
-                        <button
-                            onClick={() => setLightboxMedia(null)}
-                            className="absolute top-6 right-6 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
-                        >
-                            <X className="h-6 w-6" />
-                        </button>
-                        <div className="max-w-5xl w-full max-h-[90vh] flex items-center justify-center">
-                            {lightboxMedia.type === 2 ? (
-                                <img src={lightboxMedia.media_url} className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl" />
-                            ) : (
-                                <video src={lightboxMedia.media_url} controls autoPlay className="max-w-full max-h-[90vh] rounded-xl shadow-2xl" />
+                {/* Lightbox — soporta galería multi-item */}
+                {lightboxMedia && (() => {
+                    // lightboxMedia puede ser un objeto mensaje o { items, index }
+                    const isGallery = Array.isArray(lightboxMedia?.items);
+                    const galleryItems: any[] = isGallery ? lightboxMedia.items : [lightboxMedia];
+                    const currentIdx: number  = isGallery ? (lightboxMedia.index ?? 0) : 0;
+                    const current = galleryItems[currentIdx];
+
+                    const goTo = (idx: number) => {
+                        if (!isGallery) return;
+                        setLightboxMedia({ items: galleryItems, index: idx });
+                    };
+
+                    return (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in">
+                            {/* Cerrar */}
+                            <button
+                                onClick={() => setLightboxMedia(null)}
+                                className="absolute top-6 right-6 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-10"
+                            >
+                                <X className="h-6 w-6" />
+                            </button>
+
+                            {/* Contador galería */}
+                            {galleryItems.length > 1 && (
+                                <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-black/50 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                                    {currentIdx + 1} / {galleryItems.length}
+                                </div>
+                            )}
+
+                            {/* Navegación prev */}
+                            {galleryItems.length > 1 && currentIdx > 0 && (
+                                <button
+                                    onClick={() => goTo(currentIdx - 1)}
+                                    className="absolute left-4 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-10"
+                                >
+                                    ‹
+                                </button>
+                            )}
+
+                            {/* Media */}
+                            <div className="max-w-5xl w-full max-h-[85vh] flex items-center justify-center">
+                                {current?.type === 2 || current?.media_url?.match(/\.(jpe?g|png|gif|webp|avif)($|\?)/i) ? (
+                                    <img src={current.media_url} className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl" />
+                                ) : (
+                                    <video src={current?.media_url} controls autoPlay className="max-w-full max-h-[85vh] rounded-xl shadow-2xl" />
+                                )}
+                            </div>
+
+                            {/* Navegación next */}
+                            {galleryItems.length > 1 && currentIdx < galleryItems.length - 1 && (
+                                <button
+                                    onClick={() => goTo(currentIdx + 1)}
+                                    className="absolute right-4 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-10"
+                                >
+                                    ›
+                                </button>
+                            )}
+
+                            {/* Descargar */}
+                            {current?.media_url && (
+                                <a
+                                    href={current.media_url}
+                                    download
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="absolute bottom-6 right-6 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-10"
+                                    title="Descargar"
+                                >
+                                    ↓
+                                </a>
                             )}
                         </div>
-                    </div>
-                )}
+                    );
+                })()}
             </div>
         </AppLayout>
     );

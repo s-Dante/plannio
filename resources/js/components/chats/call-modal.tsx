@@ -10,6 +10,7 @@ interface CallModalProps {
     isMuted:        boolean;
     isCamOff:       boolean;
     chatName:       string;
+    authAvatar?:    string | null;
     onHangUp:       () => void;
     onToggleMute:   () => void;
     onToggleCamera: () => void;
@@ -25,11 +26,13 @@ function VideoTile({
     name,
     avatar,
     isLocal = false,
+    camOff  = false,
 }: {
     stream:   MediaStream | null;
     name:     string;
     avatar?:  string | null;
     isLocal?: boolean;
+    camOff?:  boolean;
 }) {
     const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -42,11 +45,18 @@ function VideoTile({
         }
     }, [stream]);
 
-    const hasVideo = !!stream &&
-        stream.getVideoTracks().some(t => t.readyState === 'live' && t.enabled);
+    // Mostrar avatar cuando: no hay stream, camOff explícito, o el único track de video
+    // viene de un canvas (track negro que enviamos cuando se apaga la cámara)
+    const hasRealVideo = !!stream &&
+        stream.getVideoTracks().some(t =>
+            t.readyState === 'live' &&
+            t.enabled &&
+            !t.label.toLowerCase().includes('canvas') &&
+            !camOff
+        );
 
     return (
-        <div className="relative flex flex-col items-center justify-center bg-stone-800 rounded-2xl overflow-hidden aspect-video min-w-0">
+        <div className="relative flex flex-col items-center justify-center bg-stone-800 md:rounded-2xl overflow-hidden md:aspect-video w-full h-full min-h-0">
             {/*
               <video> siempre presente:
               - Cuando hay video → muestra el stream.
@@ -58,12 +68,12 @@ function VideoTile({
                 autoPlay
                 playsInline
                 muted={isLocal}
-                className={`w-full h-full object-cover ${hasVideo ? '' : 'hidden'}`}
+                className={`w-full h-full object-cover ${hasRealVideo ? '' : 'hidden'}`}
             />
 
-            {/* Avatar cuando no hay video */}
-            {!hasVideo && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+            {/* Avatar cuando la cámara está apagada o no hay video */}
+            {!hasRealVideo && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-stone-900">
                     {avatar ? (
                         <img
                             src={avatar}
@@ -72,6 +82,12 @@ function VideoTile({
                     ) : (
                         <div className="h-16 w-16 rounded-full bg-stone-600 flex items-center justify-center">
                             <Users className="h-8 w-8 text-stone-400" />
+                        </div>
+                    )}
+                    {camOff && (
+                        <div className="flex items-center gap-1.5 mt-1">
+                            <VideoOff className="h-4 w-4 text-stone-400" />
+                            <span className="text-xs text-stone-400 font-semibold">Cámara apagada</span>
                         </div>
                     )}
                 </div>
@@ -148,6 +164,7 @@ export function CallModal({
     isMuted,
     isCamOff,
     chatName,
+    authAvatar,
     onHangUp,
     onToggleMute,
     onToggleCamera,
@@ -166,14 +183,14 @@ export function CallModal({
     // Grid de video: calcular columnas según participantes
     const totalVideo = remotePeers.length + 1; // +1 por mí
     const gridCols =
-        totalVideo <= 1 ? 'grid-cols-1' :
-        totalVideo <= 2 ? 'grid-cols-2' :
-        totalVideo <= 4 ? 'grid-cols-2' :
-        'grid-cols-3';
+        totalVideo <= 1 ? 'grid-cols-1 grid-rows-1' :
+        totalVideo <= 2 ? 'grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1' :
+        totalVideo <= 4 ? 'grid-cols-2 grid-rows-2' :
+        'grid-cols-2 md:grid-cols-3';
 
     return (
-        <div className="fixed inset-0 z-[9000] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative w-full max-w-3xl mx-4 bg-stone-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+        <div className="fixed inset-0 z-[9000] flex items-center justify-center bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="relative w-full h-[100dvh] md:h-auto md:max-h-[90vh] md:max-w-4xl md:mx-4 bg-stone-900 md:rounded-3xl shadow-2xl overflow-hidden flex flex-col">
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-stone-800">
@@ -190,14 +207,16 @@ export function CallModal({
                 </div>
 
                 {/* Área de streams / avatares */}
-                <div className="flex-1 p-6 min-h-[320px] flex items-center justify-center">
+                <div className="flex-1 md:p-6 min-h-[320px] flex items-center justify-center overflow-hidden">
                     {isVideo ? (
-                        <div className={`w-full grid gap-3 ${gridCols}`}>
+                        <div className={`w-full h-full md:h-auto grid gap-1 md:gap-3 ${gridCols}`}>
                             {/* Mi propio stream */}
                             <VideoTile
                                 stream={localStream}
                                 name="Tú"
+                                avatar={authAvatar}
                                 isLocal
+                                camOff={isCamOff}
                             />
                             {/* Streams remotos */}
                             {remotePeers.map(peer => (
@@ -206,13 +225,14 @@ export function CallModal({
                                     stream={peer.stream}
                                     name={peer.name}
                                     avatar={peer.avatar}
+                                    camOff={peer.camOff}
                                 />
                             ))}
                         </div>
                     ) : (
                         <div className="flex flex-wrap items-center justify-center gap-10 py-6">
                             {/* Mi avatar (sin audio = isLocal) */}
-                            <AudioTile name="Tú" isLocal stream={null} />
+                            <AudioTile name="Tú" avatar={authAvatar} isLocal stream={null} />
                             {/* Participantes remotos con su stream de audio */}
                             {remotePeers.map(peer => (
                                 <AudioTile

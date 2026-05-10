@@ -157,11 +157,20 @@ export function ChatSidebar({ onOpenSearch, onOpenNewGroup, onChatSelect, active
                                                     alt="Frame"
                                                 />
                                             )}
+                                            {/* Online indicator for individual chats */}
+                                            {group.is_individual && otherMember?.is_online && (
+                                                <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-white dark:border-stone-900 z-20" />
+                                            )}
                                         </div>
                                     </div>
                                     <div className={styles.textWrapper}>
                                         <span className={styles.nameTitle}>{group.name}</span>
-                                        <span className="text-xs text-gray-500 truncate mt-0.5">{group.is_individual ? "Chat Privado" : `${group.members?.length || 0} miembros`}</span>
+                                        <span className="text-xs text-gray-500 truncate mt-0.5">
+                                            {group.is_individual
+                                                ? (otherMember?.is_online ? <span className="text-green-500 font-semibold">En línea</span> : "Chat Privado")
+                                                : `${group.members?.length || 0} miembros`
+                                            }
+                                        </span>
                                     </div>
                                 </button>
                                 );

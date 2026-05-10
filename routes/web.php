@@ -14,6 +14,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Chat endpoints
     Route::get('chats', [App\Http\Controllers\ChatController::class, 'index'])->name('chats.index');
     Route::get('api/chats/search', [App\Http\Controllers\ChatController::class, 'searchUsers'])->name('api.chats.search');
+    Route::get('api/chats/users', [App\Http\Controllers\ChatController::class, 'listUsers'])->name('api.chats.users');
     Route::post('chats/request', [App\Http\Controllers\ChatController::class, 'sendRequest'])->name('chats.request');
     Route::post('chats/accept', [App\Http\Controllers\ChatController::class, 'acceptRequest'])->name('chats.accept');
     Route::post('chats/groups', [App\Http\Controllers\ChatController::class, 'createGroup'])->name('chats.groups.create');
@@ -40,6 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('calls/initiate', [App\Http\Controllers\CallController::class, 'initiate'])->name('calls.initiate');
     Route::post('calls/{call}/join', [App\Http\Controllers\CallController::class, 'join'])->name('calls.join');
     Route::post('calls/{call}/leave', [App\Http\Controllers\CallController::class, 'leave'])->name('calls.leave');
+    Route::post('calls/{call}/reject', [App\Http\Controllers\CallController::class, 'reject'])->name('calls.reject');
     Route::post('calls/{call}/end', [App\Http\Controllers\CallController::class, 'end'])->name('calls.end');
     Route::get('calls/{call}', [App\Http\Controllers\CallController::class, 'show'])->name('calls.show');
 });

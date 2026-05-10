@@ -50,6 +50,7 @@ export function MapSidebar({ places, categories, activePlace, onPlaceSelect, add
     });
 
     const [ratingVal, setRatingVal] = useState(0);
+    const [ratingComment, setRatingComment] = useState('');
 
     const handleAddPlace = (e: React.FormEvent) => {
         e.preventDefault();
@@ -72,13 +73,15 @@ export function MapSidebar({ places, categories, activePlace, onPlaceSelect, add
         if (!activePlace || ratingVal === 0) return;
         router.post(`/map/places/${activePlace.id}/rate`, {
             rating: ratingVal,
-            comment: null
+            comment: ratingComment.trim() || null
         }, {
             preserveScroll: true,
             preserveState: true,
             onSuccess: () => {
                 toast.success('Puntuación enviada.');
                 setRateAnimation(true);
+                setRatingVal(0);
+                setRatingComment('');
                 setTimeout(() => setRateAnimation(false), 2000);
             }
         });
@@ -175,6 +178,14 @@ export function MapSidebar({ places, categories, activePlace, onPlaceSelect, add
                                 />
                             ))}
                         </div>
+                        <textarea
+                            value={ratingComment}
+                            onChange={e => setRatingComment(e.target.value)}
+                            placeholder="Añade un comentario (opcional)..."
+                            maxLength={1000}
+                            rows={3}
+                            className="w-full mb-3 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-gray-800 dark:text-gray-200 placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/40 transition"
+                        />
                         <Button variant="secondary" onClick={handleRate} disabled={ratingVal === 0} className="w-full rounded-xl">
                             Enviar Puntuación
                         </Button>
@@ -188,6 +199,36 @@ export function MapSidebar({ places, categories, activePlace, onPlaceSelect, add
                         </div>
                         <p className="text-xs opacity-50 mt-1">De {activePlace.ratings_count} usuarios</p>
                     </div>
+
+                    {/* Opiniones individuales */}
+                    {activePlace.ratings && activePlace.ratings.length > 0 && (
+                        <div className="mt-6 space-y-3">
+                            <h4 className="font-bold text-sm opacity-80">Opiniones</h4>
+                            {[...activePlace.ratings]
+                                .sort((a: any, b: any) => b.rating - a.rating)
+                                .map((r: any) => (
+                                    <div key={r.id} className="bg-gray-50 dark:bg-stone-800/60 rounded-2xl p-3 border border-gray-100 dark:border-stone-700/50">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <img
+                                                src={r.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(r.user?.name || 'U')}`}
+                                                className="h-7 w-7 rounded-full object-cover"
+                                                alt={r.user?.name}
+                                            />
+                                            <span className="text-xs font-bold text-[#0D304A] dark:text-gray-200 flex-1 truncate">{r.user?.name}</span>
+                                            <div className="flex items-center gap-0.5">
+                                                {[1,2,3,4,5].map(s => (
+                                                    <Star key={s} className={cn('h-3 w-3', r.rating >= s ? 'fill-[var(--color-tertiary)] text-[var(--color-tertiary)]' : 'text-gray-300 dark:text-stone-600')} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                        {r.comment && (
+                                            <p className="text-xs text-[var(--color-sisth)]/70 leading-relaxed mt-1 ml-9">{r.comment}</p>
+                                        )}
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    )}
                 </div>
             </div>
         );

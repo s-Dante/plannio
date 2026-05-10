@@ -28,8 +28,10 @@ class ChatController extends Controller
                     $group->avatar = $otherUser->avatar;
                 }
             }
+            // Obtener la fecha del último mensaje para ordenar
+            $group->last_message_at = $group->messages()->max('created_at');
             return $group;
-        });
+        })->sortByDesc('last_message_at')->values();
 
         // Retornamos la vista con los grupos, amigos y solicitudes pendientes
         return Inertia::render('Chats/Index', [
@@ -60,6 +62,41 @@ class ChatController extends Controller
             ->get();
 
         return response()->json($users);
+    }
+
+    public function listUsers(Request $request)
+    {
+        $authUser = auth()->user();
+        $perPage = 10;
+        $page = max(1, (int) $request->get('page', 1));
+
+        $users = User::where('id', '!=', $authUser->id)
+            ->select('id', 'name', 'father_lastname', 'username', 'avatar', 'is_online')
+            ->orderBy('name')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        // Construir mapa de estado de amistad: userId => status
+        $friendships = \App\Models\Friend::where('user_id', $authUser->id)
+            ->orWhere('friend_id', $authUser->id)
+            ->get();
+
+        $friendMap = [];
+        foreach ($friendships as $f) {
+            $otherId = $f->user_id === $authUser->id ? $f->friend_id : $f->user_id;
+            $friendMap[$otherId] = $f->status;
+        }
+
+        $items = collect($users->items())->map(function ($user) use ($friendMap) {
+            $user->friendship_status = $friendMap[$user->id] ?? null;
+            return $user;
+        });
+
+        return response()->json([
+            'data' => $items,
+            'current_page' => $users->currentPage(),
+            'last_page' => $users->lastPage(),
+            'total' => $users->total(),
+        ]);
     }
 
     public function sendRequest(Request $request)

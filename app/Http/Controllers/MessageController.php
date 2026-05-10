@@ -81,23 +81,26 @@ class MessageController extends Controller
             $mimeType = $file->getMimeType();
             $fileSize = $file->getSize();
 
-            if (str_starts_with($mimeType, 'image/')) {
-                $type = MessageTypeEnum::IMAGE;
-                $path = $file->storePublicly('chats/' . $groupId, 'public');
-                $mediaUrl = Storage::url($path);
-            } elseif (str_starts_with($mimeType, 'video/')) {
-                $type = MessageTypeEnum::VIDEO;
-                $path = $file->storePublicly('chats/' . $groupId, 'public');
-                $mediaUrl = Storage::url($path);
-            } elseif (str_starts_with($mimeType, 'audio/')) {
+            // Usamos un uniqid para evitar colisiones, pero mantenemos el nombre original
+            $originalName = $file->getClientOriginalName();
+            $safeName = uniqid() . '_' . str_replace([' ', '#', '?', '&'], '_', $originalName);
+            
+            $extension = strtolower($file->getClientOriginalExtension());
+            $audioExts = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'weba'];
+            $videoExts = ['mp4', 'mov', 'avi', 'webm', 'mkv', 'm4v'];
+
+            if (in_array($extension, $audioExts) || str_starts_with($mimeType, 'audio/')) {
                 $type = MessageTypeEnum::AUDIO;
-                $path = $file->storePublicly('chats/' . $groupId, 'public');
-                $mediaUrl = Storage::url($path);
+            } elseif (in_array($extension, $videoExts) || str_starts_with($mimeType, 'video/')) {
+                $type = MessageTypeEnum::VIDEO;
+            } elseif (str_starts_with($mimeType, 'image/')) {
+                $type = MessageTypeEnum::IMAGE;
             } else {
                 $type = MessageTypeEnum::FILE;
-                $path = $file->storePublicly('chats/' . $groupId, 'public');
-                $mediaUrl = Storage::url($path);
             }
+            
+            $path = $file->storeAs('chats/' . $groupId, $safeName, 'public');
+            $mediaUrl = Storage::url($path);
         }
 
         $message = Message::create([

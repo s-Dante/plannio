@@ -144,6 +144,21 @@ class CallController extends Controller
     }
 
     /**
+     * Un usuario rechaza la llamada (sin haber entrado).
+     */
+    public function reject(Request $request, Call $call)
+    {
+        $group = \App\Models\Group::find($call->group_id);
+        
+        // Si es un chat individual y uno rechaza, terminamos la llamada para ambos
+        if ($group && $group->is_individual) {
+            $this->endCall($call);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
      * Terminar la llamada completamente (desde el caller o cuando todos salieron).
      */
     public function end(Request $request, Call $call)

@@ -182,15 +182,24 @@ export function ChatDetails({ activeChat, messages = [], onOpenMedia, auth, onBa
                             <p className="text-xs text-gray-400 col-span-3 text-center py-4">No hay multimedia</p>
                         )}
                         {mediaItems.slice(0, 9).map((media: any) => (
-                            <div 
-                                key={media.id} 
-                                className={styles.mediaGridItem + " overflow-hidden"}
+                            <div
+                                key={media.id}
+                                className={styles.mediaGridItem + " overflow-hidden relative group"}
                                 onClick={() => onOpenMedia(media)}
                             >
                                 {media.type === 2 ? (
                                     <img src={media.media_url} className="w-full h-full object-cover" />
                                 ) : (
-                                    <video src={media.media_url} className="w-full h-full object-cover"></video>
+                                    <>
+                                        <video src={media.media_url} className="w-full h-full object-cover" preload="metadata" muted playsInline />
+                                        {/* Overlay de video */}
+                                        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+                                            <div className="h-7 w-7 rounded-full bg-white/90 flex items-center justify-center shadow">
+                                                <svg className="h-3.5 w-3.5 text-gray-800 ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                                            </div>
+                                        </div>
+                                        <div className="absolute top-1 right-1 bg-black/60 text-white text-[7px] font-bold px-1 py-0.5 rounded uppercase">VID</div>
+                                    </>
                                 )}
                             </div>
                         ))}

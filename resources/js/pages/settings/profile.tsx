@@ -80,6 +80,38 @@ export default function Profile({
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
+    // Convierte una imagen a WebP con un tamaño máximo para reducir el peso del archivo
+    const compressImageToWebP = (file: File, maxSize = 512, quality = 0.8): Promise<File> => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const url = URL.createObjectURL(file);
+            img.onload = () => {
+                URL.revokeObjectURL(url);
+                const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+                const w = Math.round(img.width * scale);
+                const h = Math.round(img.height * scale);
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d')!;
+                ctx.drawImage(img, 0, 0, w, h);
+                canvas.toBlob(
+                    (blob) => {
+                        if (blob) {
+                            resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' }));
+                        } else {
+                            resolve(file); // fallback
+                        }
+                    },
+                    'image/webp',
+                    quality
+                );
+            };
+            img.onerror = () => resolve(file); // fallback
+            img.src = url;
+        });
+    };
+
     const initialDate = user.birthdate ? new Date(user.birthdate) : undefined;
     const [date, setDate] = useState<Date | undefined>(initialDate);
 
@@ -106,11 +138,12 @@ export default function Profile({
         _method: 'patch',
     });
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setAvatarPreview(URL.createObjectURL(file));
-            setData('avatar', file);
+            const compressed = await compressImageToWebP(file);
+            setAvatarPreview(URL.createObjectURL(compressed));
+            setData('avatar', compressed);
         }
     };
 

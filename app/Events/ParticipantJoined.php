@@ -21,11 +21,9 @@ class ParticipantJoined implements ShouldBroadcastNow
         $this->data = [
             'call_id'  => $call->id,
             'group_id' => $call->group_id,
-            'user'     => [
-                'id'     => $user->id,
-                'name'   => $user->name . ' ' . $user->father_lastname,
-                'avatar' => $user->avatar,
-            ],
+            'user_id'  => $user->id,
+            'name'     => $user->name . ' ' . $user->father_lastname,
+            'avatar'   => $user->avatar,
             'peer_id'  => $peerId,
         ];
     }

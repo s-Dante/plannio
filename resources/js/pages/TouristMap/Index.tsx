@@ -9,6 +9,9 @@ import { MapPin, List, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
+const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+const DARK_STYLE  = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
+
 export interface Place {
     id: number;
     name: string;
@@ -46,8 +49,17 @@ export default function MapIndex() {
     const [activePlace, setActivePlace] = useState<Place | null>(null);
     const [addingMode, setAddingMode] = useState(false);
     const [newPlaceCoords, setNewPlaceCoords] = useState<{ lat: number, lng: number } | null>(null);
-    // Sidebar colapsable en mobile (por defecto cerrado)
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    // Detectar modo oscuro
+    const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
+    useEffect(() => {
+        const obs = new MutationObserver(() => {
+            setIsDark(document.documentElement.classList.contains('dark'));
+        });
+        obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        return () => obs.disconnect();
+    }, []);
 
     useEffect(() => {
         if (places) setLocalPlaces(places);
@@ -112,7 +124,7 @@ export default function MapIndex() {
                     <Map
                         ref={mapRef}
                         initialViewState={initialViewState}
-                        mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+                        mapStyle={isDark ? DARK_STYLE : LIGHT_STYLE}
                         interactive={true}
                         onClick={handleMapClick}
                         cursor={addingMode ? 'crosshair' : 'grab'}
