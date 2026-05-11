@@ -85,7 +85,7 @@ export default function Welcome({ auth }: { auth?: { user: any } }) {
                     )}
                 </header>
 
-                <main className="flex-1 w-full max-w-[1200px] mx-auto flex flex-col items-center pt-8 lg:pt-16 px-5 relative z-10">
+                <main className="flex-1 w-full max-w-[1200px] mx-auto flex flex-col items-center pt-12 lg:pt-20 px-5 relative z-10">
 
                     {/* ── Hero ── */}
                     <div className="text-center w-full max-w-4xl mx-auto mb-8 md:mb-10">

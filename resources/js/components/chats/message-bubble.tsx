@@ -437,12 +437,34 @@ export function MessageBubble({
                         <div className="text-xs font-bold text-[var(--color-accent)] mb-1 pb-1 border-b border-gray-100 dark:border-stone-700/50 flex items-center gap-1">
                             {message.user?.name}
                             {message.user?.equipped_badges?.length > 0 && (
-                                <div className="flex gap-0.5 ml-1">
-                                    {message.user.equipped_badges.map((b: any) => (
-                                        b.image_url?.startsWith('http') ?
-                                        <img key={b.id} src={b.image_url} className="h-3 w-3 object-contain" title={b.name} /> :
-                                        <div key={b.id} className="h-3 w-3 rounded-full flex items-center justify-center text-[6px] text-white" style={{ backgroundColor: b.image_url || '#ccc' }} title={b.name}>★</div>
-                                    ))}
+                                <div className="flex gap-1 ml-1 items-center">
+                                    {message.user.equipped_badges.map((b: any) => {
+                                        const rarityColors: Record<number, string> = {
+                                            1: '#94a3b8', // common — slate
+                                            2: '#34d399', // uncommon — emerald
+                                            3: '#60a5fa', // rare — blue
+                                            4: '#c084fc', // epic — purple
+                                            5: '#fbbf24', // legendary — amber
+                                        };
+                                        const color = rarityColors[b.rarity] ?? '#94a3b8';
+                                        return (
+                                            <span
+                                                key={b.id}
+                                                title={b.name}
+                                                className="relative group/badge cursor-default"
+                                            >
+                                                {/* Punto de color */}
+                                                <span
+                                                    className="block h-2 w-2 rounded-full ring-1 ring-white/60"
+                                                    style={{ backgroundColor: color }}
+                                                />
+                                                {/* Tooltip al hacer hover */}
+                                                <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded-md bg-gray-900 dark:bg-stone-700 px-2 py-0.5 text-[10px] font-semibold text-white shadow-lg opacity-0 group-hover/badge:opacity-100 transition-opacity z-50">
+                                                    {b.name}
+                                                </span>
+                                            </span>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>

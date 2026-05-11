@@ -107,25 +107,27 @@ export default function TasksIndex({ tasks, groups, statuses, priorities, auth }
 
             <div className="flex flex-col h-full bg-[#f6f7f9] dark:bg-stone-900 relative">
                 
-                <div className="px-8 py-6 border-b border-gray-200 dark:border-stone-800 bg-white/50 dark:bg-stone-900/50 backdrop-blur-md">
-                    <div className="flex items-center justify-between max-w-7xl mx-auto">
-                        <div>
-                            <h1 className="text-2xl font-bold text-[#0D304A] dark:text-gray-100 flex items-center gap-2">
-                                <LayoutDashboard className="h-6 w-6 text-[var(--color-accent)]" /> 
-                                Panel de Actividades
+                <div className="px-4 md:px-8 py-4 md:py-6 border-b border-gray-200 dark:border-stone-800 bg-white/50 dark:bg-stone-900/50 backdrop-blur-md">
+                    <div className="flex items-center justify-between max-w-7xl mx-auto gap-3">
+                        <div className="min-w-0">
+                            <h1 className="text-lg md:text-2xl font-bold text-[#0D304A] dark:text-gray-100 flex items-center gap-2 truncate">
+                                <LayoutDashboard className="h-5 w-5 md:h-6 md:w-6 text-[var(--color-accent)] shrink-0" />
+                                <span>Panel de Actividades</span>
                             </h1>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Organiza tus tareas personales y colaborativas.</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm mt-0.5 hidden md:block">Organiza tus tareas personales y colaborativas.</p>
                         </div>
-                        <button 
-                            className="bg-[var(--color-accent)] hover:bg-[#829965] text-white px-4 py-2 rounded-xl shadow-sm flex items-center gap-2 transition-transform active:scale-95 font-semibold text-sm"
+                        <button
+                            className="shrink-0 bg-[var(--color-accent)] hover:bg-[#829965] text-white px-3 md:px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5 transition-transform active:scale-95 font-semibold text-sm"
                             onClick={() => setIsCreateModalOpen(true)}
                         >
-                            <Plus className="h-4 w-4" /> Nueva Tarea
+                            <Plus className="h-4 w-4" />
+                            <span className="hidden sm:inline">Nueva Tarea</span>
+                            <span className="sm:hidden">Nueva</span>
                         </button>
                     </div>
 
                     {/* Filtros de Grupos */}
-                    <div className="max-w-7xl mx-auto mt-6 flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
+                    <div className="max-w-7xl mx-auto mt-4 flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
                         <button 
                             onClick={() => setFilterGroup(null)}
                             className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${filterGroup === null ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)] shadow-md' : 'bg-white dark:bg-stone-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-stone-700 hover:bg-gray-50'}`}
@@ -152,12 +154,13 @@ export default function TasksIndex({ tasks, groups, statuses, priorities, auth }
                 </div>
 
                 {/* Tablero Kanban */}
-                <div className="flex-1 overflow-auto p-8">
-                    <div className="flex gap-6 min-w-max max-w-7xl mx-auto items-start">
+                <div className="flex-1 overflow-auto p-3 md:p-8">
+                    <div className="flex gap-3 md:gap-6 md:min-w-max max-w-7xl md:mx-auto items-start
+                                    overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 md:pb-0">
                         {columns.map(column => (
                             <div
                                 key={column.id}
-                                className={`w-80 rounded-2xl flex flex-col border border-gray-200 dark:border-stone-700/50 ${column.color}`}
+                                className={`w-[82vw] md:w-80 shrink-0 snap-center rounded-2xl flex flex-col border border-gray-200 dark:border-stone-700/50 ${column.color}`}
                                 onDragOver={handleDragOver}
                                 onDrop={(e) => handleDrop(e, column.id)}
                             >
@@ -216,9 +219,17 @@ export default function TasksIndex({ tasks, groups, statuses, priorities, auth }
                     </div>
                 </div>
 
-                <CreateTaskModal 
-                    isOpen={isCreateModalOpen} 
-                    onClose={() => setIsCreateModalOpen(false)} 
+                <div className="flex md:hidden justify-center gap-2 pb-3 pt-1">
+                    {columns.map((col, i) => (
+                        <span key={col.id} className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                            {col.title}
+                        </span>
+                    ))}
+                </div>
+
+                <CreateTaskModal
+                    isOpen={isCreateModalOpen}
+                    onClose={() => setIsCreateModalOpen(false)}
                 />
 
             </div>

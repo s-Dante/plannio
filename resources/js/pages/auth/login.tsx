@@ -38,13 +38,13 @@ export default function Login({
             <Head title="Iniciar sesión" />
 
             <div className={styles.socialContainer}>
-                <button type="button" className={styles.socialButton}>
+                <button type="button" className={styles.socialButton} onClick={() => toast.info('Próximamente disponible', { description: 'El inicio de sesión con Google estará disponible pronto.' })}>
                     <img src="/imgs/svgs/Google.svg" alt="Google Login" className={styles.socialIcon} />
                 </button>
-                <button type="button" className={styles.socialButton}>
+                <button type="button" className={styles.socialButton} onClick={() => toast.info('Próximamente disponible', { description: 'El inicio de sesión con Facebook estará disponible pronto.' })}>
                     <img src="/imgs/svgs/Facebook.svg" alt="Facebook Login" className={styles.socialIcon} />
                 </button>
-                <button type="button" className={styles.socialButton}>
+                <button type="button" className={styles.socialButton} onClick={() => toast.info('Próximamente disponible', { description: 'El inicio de sesión con GitHub estará disponible pronto.' })}>
                     <img src="/imgs/svgs/Github.svg" alt="Github Login" className={styles.socialIcon} />
                 </button>
             </div>

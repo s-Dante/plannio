@@ -22,59 +22,66 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Crear algunas recompenzas y usuarios
+        $this->call([
+            RewardSeeder::class,
+            PlaceSeeder::class,
+        ]);
+
+        if (app()->isProduction()) {
+            return;
+        }
+
+        // 1. Usuarios y recompensas de prueba
         $rewards = Reward::factory(20)->create();
         $users = User::factory(50)->create();
 
-        // 2. Asignar recompenzas desbloqueadas y lugares
+        // 2. Asignar recompensas desbloqueadas
         foreach ($users as $user) {
             $userRewards = $rewards->random(rand(1, 3));
             foreach ($userRewards as $reward) {
                 UserUnlockedReward::factory()->create([
-                    'user_id' => $user->id,
+                    'user_id'   => $user->id,
                     'reward_id' => $reward->id,
                 ]);
             }
         }
 
-        // 3. Crear lugares
-        $this->call(PlaceSeeder::class);
+        // 3. Lugares de prueba
         $places = Place::factory(20)->create(function () use ($users) {
             return ['created_by' => $users->random()->id];
         });
 
-        // 4. Crear valoraciones de lugares
+        // 4. Valoraciones de lugares
         foreach ($places as $place) {
             $raters = $users->random(rand(2, 5));
             foreach ($raters as $rater) {
                 PlaceRating::factory()->create([
                     'place_id' => $place->id,
-                    'user_id' => $rater->id,
+                    'user_id'  => $rater->id,
                 ]);
             }
         }
 
-        // 5. Crear amistades
+        // 5. Amistades
         foreach ($users as $user) {
             $friends = $users->where('id', '!=', $user->id)->random(rand(1, 3));
             foreach ($friends as $friend) {
-                // Evitar duplicar amistades
-                $exists = Friend::where(function($q) use ($user, $friend) {
+                $exists = Friend::where(function ($q) use ($user, $friend) {
                     $q->where('user_id', $user->id)->where('friend_id', $friend->id);
-                })->orWhere(function($q) use ($user, $friend) {
+                })->orWhere(function ($q) use ($user, $friend) {
                     $q->where('user_id', $friend->id)->where('friend_id', $user->id);
                 })->exists();
 
-                if (!$exists) {
+                if (! $exists) {
                     Friend::factory()->create([
-                        'user_id' => $user->id,
+                        'user_id'   => $user->id,
                         'friend_id' => $friend->id,
                     ]);
                 }
             }
         }
 
-        // 6. Crear grupos y miembros
+        // 6. Grupos, mensajes, tareas y llamadas
         $groups = Group::factory(10)->create(function () use ($users) {
             return ['created_by' => $users->random()->id];
         });
@@ -86,32 +93,29 @@ class DatabaseSeeder extends Seeder
             foreach ($members as $member) {
                 GroupUser::factory()->create([
                     'group_id' => $group->id,
-                    'user_id' => $member->id,
-                    'role' => $member->id === $group->created_by ? 2 : 1,
+                    'user_id'  => $member->id,
+                    'role'     => $member->id === $group->created_by ? 2 : 1,
                 ]);
             }
 
-            // Crear mensajes
             $messages = Message::factory(rand(5, 15))->create([
                 'group_id' => $group->id,
-                'user_id' => $members->random()->id,
+                'user_id'  => $members->random()->id,
             ]);
 
-            // Crear lecturas de mensajes
             foreach ($messages as $message) {
                 $readers = $members->where('id', '!=', $message->user_id)->random(rand(1, $members->count() - 1));
                 foreach ($readers as $reader) {
                     MessageRead::factory()->create([
                         'message_id' => $message->id,
-                        'user_id' => $reader->id,
+                        'user_id'    => $reader->id,
                     ]);
                 }
             }
 
-            // Crear tareas y completaciones
             $tasks = Task::factory(rand(1, 4))->create([
                 'group_id' => $group->id,
-                'user_id' => $members->random()->id,
+                'user_id'  => $members->random()->id,
             ]);
 
             foreach ($tasks as $task) {
@@ -123,14 +127,12 @@ class DatabaseSeeder extends Seeder
                 }
             }
 
-            // Crear llamadas (10% probabilidad)
             if (rand(1, 100) > 90) {
                 $call = Call::factory()->create([
-                    'group_id' => $group->id,
+                    'group_id'  => $group->id,
                     'caller_id' => $members->random()->id,
                 ]);
 
-                // Call participants
                 foreach ($members->random(rand(1, $members->count())) as $participant) {
                     CallParticipant::factory()->create([
                         'call_id' => $call->id,

@@ -19,44 +19,44 @@ class RewardSeeder extends Seeder
         $rewards = [
             // Badges
             [
-                'name' => 'Pionero',
-                'description' => 'Otorgado a los primeros usuarios de la plataforma.',
-                'image_url' => 'https://api.dicebear.com/7.x/icons/svg?seed=Pionero&backgroundColor=ffdfbf',
+                'name'            => 'Pionero',
+                'description'     => 'Otorgado a los primeros usuarios de la plataforma.',
+                'image_url'       => '🌟',
                 'points_required' => 0,
-                'type' => RewardTypeEnum::BADGE->value,
-                'rarity' => RewardRarityEnum::COMMON->value,
+                'type'            => RewardTypeEnum::BADGE->value,
+                'rarity'          => RewardRarityEnum::COMMON->value,
             ],
             [
-                'name' => 'Aprendiz',
-                'description' => 'Has completado tus primeras tareas.',
-                'image_url' => 'https://api.dicebear.com/7.x/icons/svg?seed=Aprendiz&backgroundColor=b6e3f4',
+                'name'            => 'Aprendiz',
+                'description'     => 'Has completado tus primeras tareas.',
+                'image_url'       => '📚',
                 'points_required' => 50,
-                'type' => RewardTypeEnum::BADGE->value,
-                'rarity' => RewardRarityEnum::COMMON->value,
+                'type'            => RewardTypeEnum::BADGE->value,
+                'rarity'          => RewardRarityEnum::COMMON->value,
             ],
             [
-                'name' => 'Comunicador',
-                'description' => 'Maestro de los chats.',
-                'image_url' => 'https://api.dicebear.com/7.x/icons/svg?seed=Chat&backgroundColor=c0aede',
+                'name'            => 'Comunicador',
+                'description'     => 'Maestro de los chats.',
+                'image_url'       => '💬',
                 'points_required' => 100,
-                'type' => RewardTypeEnum::BADGE->value,
-                'rarity' => RewardRarityEnum::RARE->value,
+                'type'            => RewardTypeEnum::BADGE->value,
+                'rarity'          => RewardRarityEnum::RARE->value,
             ],
             [
-                'name' => 'Estratega',
-                'description' => 'Un genio de la productividad.',
-                'image_url' => 'https://api.dicebear.com/7.x/icons/svg?seed=Estrategia&backgroundColor=ffd5dc',
+                'name'            => 'Estratega',
+                'description'     => 'Un genio de la productividad.',
+                'image_url'       => '🧠',
                 'points_required' => 500,
-                'type' => RewardTypeEnum::BADGE->value,
-                'rarity' => RewardRarityEnum::EPIC->value,
+                'type'            => RewardTypeEnum::BADGE->value,
+                'rarity'          => RewardRarityEnum::EPIC->value,
             ],
             [
-                'name' => 'Líder',
-                'description' => 'Lideras a tu equipo hacia el éxito.',
-                'image_url' => 'https://api.dicebear.com/7.x/icons/svg?seed=Lider&backgroundColor=d1d4f9',
+                'name'            => 'Líder',
+                'description'     => 'Lideras a tu equipo hacia el éxito.',
+                'image_url'       => '👑',
                 'points_required' => 1000,
-                'type' => RewardTypeEnum::BADGE->value,
-                'rarity' => RewardRarityEnum::LEGENDARY->value,
+                'type'            => RewardTypeEnum::BADGE->value,
+                'rarity'          => RewardRarityEnum::LEGENDARY->value,
             ],
 
             // Frames
@@ -95,7 +95,7 @@ class RewardSeeder extends Seeder
         ];
 
         foreach ($rewards as $reward) {
-            Reward::firstOrCreate(['name' => $reward['name']], $reward);
+            Reward::updateOrCreate(['name' => $reward['name']], $reward);
         }
     }
 }

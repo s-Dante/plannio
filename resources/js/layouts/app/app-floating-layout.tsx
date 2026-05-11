@@ -22,7 +22,7 @@ export default function AppFloatingLayout({
         const channel = window.Echo.private(`user.${auth.user.id}`);
 
         channel.listen('.CallInitiated', (e: { callData: IncomingCallInfo }) => {
-            if (e.callData.caller.id === auth.user.id) return; // yo soy el caller
+            if (e.callData.caller.id === auth.user.id) return;
             setIncomingCallGlobal(e.callData);
         });
     }, [auth?.user?.id]);
@@ -53,7 +53,7 @@ export default function AppFloatingLayout({
     };
 
     return (
-        <div className="flex h-dvh w-full items-center justify-center bg-gray-200/60 dark:bg-stone-900 md:p-4">
+        <div className="flex h-dvh w-full overflow-hidden items-center justify-center bg-gray-200/60 dark:bg-stone-900 md:p-4">
             <div className="flex h-full w-full max-w-[1600px] overflow-hidden md:rounded-3xl bg-white shadow-2xl dark:bg-stone-950/80 ring-1 ring-gray-950/5 dark:ring-white/10
                             flex-col md:flex-row">
                 <FloatingSidebar />

@@ -29,7 +29,7 @@ const styles = {
     inputActionBtn: "p-2 text-gray-500 hover:text-[var(--color-accent)] transition-colors rounded-full cursor-pointer disabled:opacity-50",
     inputIcon: "h-5 w-5",
     inputIconSmile: "h-6 w-6",
-    textarea: "flex-1 max-h-32 bg-transparent border-none focus:ring-0 focus:outline-none text-sm md:text-base text-gray-800 dark:text-gray-200 placeholder-gray-400 resize-none py-3 px-2 overflow-y-auto",
+    textarea: "flex-1 max-h-32 bg-transparent border-none focus:ring-0 focus:outline-none text-base text-gray-800 dark:text-gray-200 placeholder-gray-400 resize-none py-3 px-2 overflow-y-auto",
     sendBtn: "bg-[var(--color-accent)] hover:bg-[#829965] text-white p-3.5 rounded-full shadow-md transition-transform active:scale-95 flex-shrink-0 flex items-center justify-center h-[50px] w-[50px] cursor-pointer disabled:opacity-50",
     sendIcon: "h-6 w-6",
 };
@@ -45,6 +45,14 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        const isDesktop = window.matchMedia('(pointer: fine)').matches;
+        if (isDesktop && textareaRef.current) {
+            textareaRef.current.focus();
+        }
+    }, [activeChat?.id]);
 
     // Comprimimos imagenes a WEBP para reducir el tamaño
     const compressImageToWebP = (file: File, maxDim = 1280, quality = 0.85): Promise<File> => {
@@ -129,6 +137,10 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
         const filesToSend = [...pendingFiles];
         setPendingFiles([]);
         scrollToBottom();
+        
+        if (window.matchMedia('(pointer: fine)').matches) {
+            setTimeout(() => textareaRef.current?.focus(), 50);
+        }
 
         try {
             if (originalContent.trim()) {
@@ -164,8 +176,28 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
         const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
 
+        // Límites de tamaño
+        const MAX_IMAGE_MB = 10;
+        const MAX_VIDEO_MB = 100;
+        const MAX_FILE_MB  = 100;
+
         const processed: File[] = [];
         for (const file of files) {
+            const mb = file.size / (1024 * 1024);
+
+            if (file.type.startsWith('image/') && mb > MAX_IMAGE_MB) {
+                toast.error(`La imagen pesa ${mb.toFixed(1)} MB. Máximo: ${MAX_IMAGE_MB} MB.`);
+                continue;
+            }
+            if (file.type.startsWith('video/') && mb > MAX_VIDEO_MB) {
+                toast.error(`El video pesa ${mb.toFixed(1)} MB. Máximo: ${MAX_VIDEO_MB} MB.`);
+                continue;
+            }
+            if (mb > MAX_FILE_MB) {
+                toast.error(`El archivo pesa ${mb.toFixed(1)} MB. Máximo: ${MAX_FILE_MB} MB.`);
+                continue;
+            }
+
             if (file.type.startsWith('image/')) {
                 const compressed = await compressImageToWebP(file);
                 processed.push(compressed);
@@ -433,13 +465,14 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
                         </button>
 
                         <textarea
+                            ref={textareaRef}
                             placeholder={isEncrypted ? "Escribe un mensaje seguro..." : "Escribe un mensaje..."}
                             className={styles.textarea}
                             rows={1}
                             value={content}
                             onChange={e => setContent(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            style={{ minHeight: '44px' }}
+                            style={{ minHeight: '44px', fontSize: '16px' }}
                             disabled={uploading}
                         />
                     </div>
