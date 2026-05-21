@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Schema;
 use App\Models\Group;
 use App\Models\User;
 
-use App\Enums\MessageTypeEnum;
-
 return new class extends Migration
 {
     /**
@@ -20,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Group::class, 'group_id');
             $table->foreignIdFor(User::class, 'user_id')->index('messages_user_id_index');
-            $table->string('type')->default(MessageTypeEnum::TEXT->value);
+            $table->string('type')->default(1); // 1=TEXT, 2=IMAGE, 3=VIDEO, 4=AUDIO, 5=FILE, 6=LOCATION
             $table->longText('content')->nullable();
             $table->string('media_url')->nullable();
             $table->string('mime_type')->nullable();

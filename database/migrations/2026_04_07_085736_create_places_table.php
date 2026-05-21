@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 use App\Models\User;
 
-use App\Enums\PlaceCategoryEnum;
-
 return new class extends Migration
 {
     /**
@@ -22,7 +20,7 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
-            $table->integer('category')->default(PlaceCategoryEnum::RESTAURANT->value)->index('places_category_index');
+            $table->integer('category')->default(1)->index('places_category_index'); // 1=RESTAURANT, 2=HOTEL, 3=ATTRACTION...
             $table->boolean('is_official_venue')->default(false);
             $table->decimal('average_rating', 3, 2)->default(0.00);
             $table->integer('ratings_count')->default(0);

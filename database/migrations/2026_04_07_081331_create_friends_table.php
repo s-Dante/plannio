@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 use App\Models\User;
 
-use App\Enums\FriendshipStatusEnum;
-
 return new class extends Migration
 {
     /**
@@ -19,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class, 'user_id');
             $table->foreignIdFor(User::class, 'friend_id');
-            $table->integer('status')->default(FriendshipStatusEnum::PENDING->value)->index('friends_status_index');
+            $table->integer('status')->default(0)->index('friends_status_index'); // 0=PENDING, 1=ACCEPTED, 2=REJECTED, 3=BLOCKED
             $table->unique(['user_id', 'friend_id'], 'friends_user_friend_unique');
             $table->timestamps();
         });

@@ -4,8 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-use App\Enums\RewardTypeEnum;
-
 return new class extends Migration
 {
     /**
@@ -18,9 +16,9 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->integer('points_required')->index('rewards_points_required_index');
-            $table->integer('type')->unsigned()->index('rewards_type_index');
+            $table->integer('type')->unsigned()->index('rewards_type_index'); // 1=BADGE, 2=FRAME
             $table->string('image_url')->nullable();
-            $table->integer('rarity')->unsigned();
+            $table->integer('rarity')->unsigned(); // 1=COMMON, 2=UNCOMMON, 3=RARE, 4=EPIC, 5=LEGENDARY
             $table->timestamps();
         });
     }

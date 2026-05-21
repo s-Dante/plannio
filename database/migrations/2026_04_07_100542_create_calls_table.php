@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Schema;
 use App\Models\Group;
 use App\Models\User;
 
-use App\Enums\CallStatusEnum;
-
 return new class extends Migration
 {
     /**
@@ -20,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Group::class, 'group_id')->index('calls_group_id_foreign');
             $table->foreignIdFor(User::class, 'caller_id')->index('calls_caller_id_foreign');
-            $table->integer('status')->default(CallStatusEnum::INITIATED->value);
+            $table->integer('status')->default(0); // 0=INITIATED, 1=ONGOING, 2=ENDED, 3=MISSED, 4=REJECTED
             $table->timestamp('started_at')->nullable();
             $table->timestamp('ended_at')->nullable();
             $table->integer('duration')->nullable();
