@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RewardSeeder::class,
+            DemoUserSeeder::class, // Usuarios demo — deben existir antes que PlaceSeeder
             PlaceSeeder::class,
         ]);
 

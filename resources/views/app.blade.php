@@ -37,9 +37,9 @@
 
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-    <link rel="icon" href="/Pin_White_new.ico" sizes="any" media="(prefers-color-scheme: dark)">
-    <link rel="icon" href="/Pin_Black_new.ico" sizes="any" media="(prefers-color-scheme: light)">
-    <link rel="icon" href="/Pin_Black_new.ico" sizes="any">
+    <link rel="icon" href="/Pin_White_New.ico" sizes="any" media="(prefers-color-scheme: dark)">
+    <link rel="icon" href="/Pin_Black_New.ico" sizes="any" media="(prefers-color-scheme: light)">
+    <link rel="icon" href="/Pin_Black_New.ico" sizes="any">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
     <link rel="preconnect" href="https://fonts.bunny.net">
