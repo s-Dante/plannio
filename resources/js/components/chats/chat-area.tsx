@@ -137,10 +137,6 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
         const filesToSend = [...pendingFiles];
         setPendingFiles([]);
         scrollToBottom();
-        
-        if (window.matchMedia('(pointer: fine)').matches) {
-            setTimeout(() => textareaRef.current?.focus(), 50);
-        }
 
         try {
             if (originalContent.trim()) {
@@ -169,6 +165,9 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
             setContent(originalContent);
         } finally {
             setUploading(false);
+            if (window.matchMedia('(pointer: fine)').matches) {
+                setTimeout(() => textareaRef.current?.focus(), 50);
+            }
         }
     };
 
@@ -176,24 +175,22 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
         const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
 
-        // Límites de tamaño
-        const MAX_IMAGE_MB = 10;
-        const MAX_VIDEO_MB = 100;
-        const MAX_FILE_MB  = 100;
+        // Límites de tamaño (videos no permitidos — ocupan demasiado espacio en el bucket)
+        const MAX_FILE_MB = 5;
 
         const processed: File[] = [];
         for (const file of files) {
             const mb = file.size / (1024 * 1024);
 
-            if (file.type.startsWith('image/') && mb > MAX_IMAGE_MB) {
-                toast.error(`La imagen pesa ${mb.toFixed(1)} MB. Máximo: ${MAX_IMAGE_MB} MB.`);
+            if (file.type.startsWith('video/')) {
+                toast.error('No se permite enviar videos.', {
+                    description: 'Comparte el enlace de YouTube, Drive u otra plataforma.',
+                });
                 continue;
             }
-            if (file.type.startsWith('video/') && mb > MAX_VIDEO_MB) {
-                toast.error(`El video pesa ${mb.toFixed(1)} MB. Máximo: ${MAX_VIDEO_MB} MB.`);
-                continue;
-            }
-            if (mb > MAX_FILE_MB) {
+
+            // Las imágenes se comprimen a WebP — no aplica límite de tamaño aquí
+            if (!file.type.startsWith('image/') && mb > MAX_FILE_MB) {
                 toast.error(`El archivo pesa ${mb.toFixed(1)} MB. Máximo: ${MAX_FILE_MB} MB.`);
                 continue;
             }
@@ -444,7 +441,7 @@ export function ChatArea({ activeChat, auth, onMessagesUpdate, onOpenMedia, onSt
                         <button className={styles.inputActionBtn} title="Adjuntar archivos" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
                             <Paperclip className="h-5 w-5" />
                         </button>
-                        <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileSelect} multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.zip" />
+                        <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileSelect} multiple accept="image/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.zip" />
 
                         <button className={styles.inputActionBtn} title="Compartir Ubicación" onClick={handleSendLocation} disabled={uploading}>
                             <MapPin className="h-5 w-5" />

@@ -35,11 +35,36 @@ function VideoTile({
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
-        if (!videoRef.current) return;
+        const video = videoRef.current;
+        if (!video) return;
+
         if (stream) {
-            videoRef.current.srcObject = stream;
+            // Asignar el stream y reproducir explícitamente.
+            // autoPlay como atributo HTML no garantiza play() cuando srcObject
+            // se asigna dinámicamente — hay que llamarlo tras loadedmetadata.
+            video.srcObject = stream;
+
+            const tryPlay = () => {
+                video.play().catch(e => console.warn('[VideoTile] play blocked:', e));
+            };
+
+            video.addEventListener('loadedmetadata', tryPlay, { once: true });
+            // También intentamos de inmediato por si los metadatos ya están listos.
+            tryPlay();
+
+            // Si llegan tracks nuevas (ej. renegociación WebRTC), reintentar play.
+            const onTrackAdded = () => {
+                video.srcObject = stream;
+                tryPlay();
+            };
+            stream.addEventListener('addtrack', onTrackAdded);
+
+            return () => {
+                video.removeEventListener('loadedmetadata', tryPlay);
+                stream.removeEventListener('addtrack', onTrackAdded);
+            };
         } else {
-            videoRef.current.srcObject = null;
+            video.srcObject = null;
         }
     }, [stream]);
 

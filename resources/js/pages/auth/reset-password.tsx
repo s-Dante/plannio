@@ -19,8 +19,8 @@ const styles = {
     subtitle: "text-sm text-[var(--color-sisth)]/60 mt-1",
     formContainer: "w-full max-w-[320px] mx-auto",
     inputStack: "flex flex-col gap-4",
-    inputReadonly: "h-12 w-full rounded-full border-0 bg-[#d9dfe5]/40 opacity-70 px-6 text-sm text-[var(--color-sisth)] cursor-not-allowed",
-    input: "h-12 w-full rounded-full border-0 bg-[#d9dfe5]/70 focus-visible:ring-1 focus-visible:ring-[var(--color-accent)] shadow-inner px-6 text-sm placeholder:text-[var(--color-sisth)]/60 text-[var(--color-sisth)]",
+    inputReadonly: "h-12 w-full rounded-full border-0 bg-[#d9dfe5]/40 opacity-70 px-6 text-base text-[var(--color-sisth)] cursor-not-allowed",
+    input: "h-12 w-full rounded-full border-0 bg-[#d9dfe5]/70 focus-visible:ring-1 focus-visible:ring-[var(--color-accent)] shadow-inner px-6 text-base placeholder:text-[var(--color-sisth)]/60 text-[var(--color-sisth)]",
     errorText: "mt-1 px-4 text-xs",
     submitButton: "mt-4 h-12 w-full rounded-full bg-[var(--color-accent)] hover:bg-[#829965] text-white font-bold text-base shadow-md transition-all"
 };

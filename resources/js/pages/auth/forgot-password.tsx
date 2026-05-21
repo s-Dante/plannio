@@ -16,7 +16,7 @@ const styles = {
     statusBox: "mb-4 text-center text-sm font-medium text-[var(--color-accent)] bg-[var(--color-accent)]/10 p-3 rounded-2xl",
     formContainer: "w-full max-w-[320px] mx-auto",
     inputStack: "flex flex-col gap-5",
-    input: "h-12 w-full rounded-full border-0 bg-[#d9dfe5]/70 focus-visible:ring-1 focus-visible:ring-[var(--color-accent)] shadow-inner px-6 text-sm placeholder:text-[var(--color-sisth)]/60 text-[var(--color-sisth)]",
+    input: "h-12 w-full rounded-full border-0 bg-[#d9dfe5]/70 focus-visible:ring-1 focus-visible:ring-[var(--color-accent)] shadow-inner px-6 text-base placeholder:text-[var(--color-sisth)]/60 text-[var(--color-sisth)]",
     errorText: "mt-1 px-4 text-xs",
     submitButton: "h-12 w-full rounded-full bg-[var(--color-accent)] hover:bg-[#829965] text-white font-bold text-base shadow-md transition-all mt-2",
     linkText: "text-xs font-bold text-[var(--color-sisth)]/80 hover:text-[var(--color-sisth)] underline underline-offset-2"

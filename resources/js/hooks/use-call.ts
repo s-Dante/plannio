@@ -377,10 +377,16 @@ export function useCall({
             callStateRef.current = 'in_call';
             setCallState('in_call');
 
-            const existingPeers: CallParticipantInfo[] = [
-                { user_id: caller.id, peer_id: callerPeerId, name: caller.name, avatar: caller.avatar },
-                ...(participants as CallParticipantInfo[]).filter(p => p.user_id !== authUserId),
-            ];
+            // Usamos la lista del servidor como fuente de verdad (ya excluye al usuario que acaba de unirse).
+            // Evitamos duplicar al caller añadiéndolo manualmente solo si el servidor no lo incluye.
+            const serverPeers = (participants as CallParticipantInfo[]).filter(p => p.user_id !== authUserId);
+            const callerInList = serverPeers.some(p => p.user_id === caller.id);
+            const existingPeers: CallParticipantInfo[] = callerInList
+                ? serverPeers
+                : [
+                    { user_id: caller.id, peer_id: callerPeerId, name: caller.name, avatar: caller.avatar },
+                    ...serverPeers,
+                  ];
 
             for (const p of existingPeers) {
                 if (p.peer_id) {

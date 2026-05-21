@@ -22,7 +22,7 @@ const styles = {
     socialIcon: "w-5 h-5 object-contain group-hover:scale-110 transition-transform",
     formContainer: "flex flex-col gap-5 w-full max-w-[320px] mx-auto",
     inputGrid: "grid gap-4",
-    input: "h-12 rounded-full border-0 bg-[#d9dfe5]/70 focus-visible:ring-1 focus-visible:ring-[var(--color-accent)] shadow-inner px-6 text-sm placeholder:text-[var(--color-sisth)]/60 text-[var(--color-sisth)]",
+    input: "h-12 rounded-full border-0 bg-[#d9dfe5]/70 focus-visible:ring-1 focus-visible:ring-[var(--color-accent)] shadow-inner px-6 text-base placeholder:text-[var(--color-sisth)]/60 text-[var(--color-sisth)]",
     linkText: "text-xs font-bold text-[var(--color-sisth)]/80 hover:text-[var(--color-sisth)] underline underline-offset-2",
     submitButton: "h-12 w-full rounded-full bg-[var(--color-accent)] hover:bg-[#829965] text-white font-bold text-base shadow-md transition-all mt-4",
     statusText: "mt-4 text-center text-sm font-medium text-green-600"
